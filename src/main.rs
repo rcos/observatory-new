@@ -8,6 +8,7 @@ use std::env;
 
 mod models;
 mod schema;
+mod embed;
 
 const FALLBACK_DB_URL: &str = "db.sqlite";
 
