@@ -1,15 +1,6 @@
 table! {
-    attendance (id) {
-        id -> Nullable<Integer>,
-        datetime -> Integer,
-        code -> Text,
-        group_id -> Integer,
-    }
-}
-
-table! {
     groups (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
         owner_id -> Integer,
         room -> Nullable<Text>,
@@ -17,17 +8,27 @@ table! {
 }
 
 table! {
+    meetings (id) {
+        id -> Integer,
+        datetime -> Integer,
+        code -> Text,
+        group_id -> Integer,
+    }
+}
+
+table! {
     projects (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         name -> Text,
         homepage -> Nullable<Text>,
         repo -> Text,
+        owner_id -> Integer,
     }
 }
 
 table! {
     users (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         real_name -> Text,
         handle -> Text,
         email -> Text,
@@ -39,8 +40,8 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
-    attendance,
     groups,
+    meetings,
     projects,
     users,
 );

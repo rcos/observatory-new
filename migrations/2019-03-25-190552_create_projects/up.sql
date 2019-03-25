@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE projects (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     -- The name of the project
     name TEXT NOT NULL,
     -- Optional homepage of the project

@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE groups (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     -- The name of the group
     name TEXT NOT NULL,
     -- The ID of the owner of the group

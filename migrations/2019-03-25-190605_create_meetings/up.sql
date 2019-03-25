@@ -1,6 +1,6 @@
 -- Your SQL goes here
-CREATE TABLE attendance (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+CREATE TABLE meetings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     -- The datetime in UNIX time
     datetime INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP,
     -- The attendance code of the meeting

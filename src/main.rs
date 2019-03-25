@@ -5,19 +5,21 @@ extern crate diesel;
 use diesel::prelude::*;
 use dotenv::dotenv;
 use std::env;
-use std::ffi::OsStr;
+
+mod models;
+mod schema;
 
 const FALLBACK_DB_URL: &str = "db.sqlite";
 
 fn main() {
-    dotenv.ok();
+    dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").unwrap_or_else(|| {
+    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
         eprintln!(
             "DATABASE_URL env variable not set, falling back to '{}'",
             FALLBACK_DB_URL
         );
-        OsStr::new(FALLBACK_DB_URL)
+        String::from(FALLBACK_DB_URL)
     });
 
     let db_conn = SqliteConnection::establish(&database_url)

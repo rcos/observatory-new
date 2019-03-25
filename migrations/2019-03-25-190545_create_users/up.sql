@@ -1,6 +1,6 @@
 -- Your SQL goes here
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     -- User's real name
     real_name TEXT NOT NULL,
     -- User's online chat handle
