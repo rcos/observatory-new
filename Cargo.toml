@@ -1,7 +1,12 @@
 [package]
 name = "observatory-new"
 version = "0.1.0"
-authors = ["Steven vanZyl <rushsteve12@gmail.com>"]
+authors = ["Steven vanZyl <rushsteve1@rushsteve1.us>"]
 edition = "2018"
+build = "build.rs"
 
 [dependencies]
+gotham = "^0.3.0"
+diesel = "^1.4.2"
+dotenv = { version = "^0.13.0", features = ["sqlite"] }
+rust-embed = "^4.3.0"

@@ -18,3 +18,9 @@ Cargo.lock
 
 /target
 #**/*.rs.bk
+
+# dotenv config which may have sensitive data
+.env
+
+# SQLite database which should not be committed
+db.sqlite
