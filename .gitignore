@@ -22,5 +22,7 @@ Cargo.lock
 # dotenv config which may have sensitive data
 .env
 
-# SQLite database which should not be committed
-db.sqlite
+# SQLite databases should not be committed
+*.sqlite
+*.sqlite3
+*.db
