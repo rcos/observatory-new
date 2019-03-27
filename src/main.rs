@@ -1,28 +1,39 @@
-// This is here for the macro_use
+// This is here for macro_use
 #[macro_use]
 extern crate diesel;
+#[macro_use]
+extern crate gotham_derive;
 
-use diesel::prelude::*;
-use dotenv::dotenv;
 use std::env;
 
+use dotenv::dotenv;
+use gotham::pipeline::new_pipeline;
+use gotham::pipeline::single::single_pipeline;
+use gotham::router::builder::*;
+use gotham::router::Router;
+
+mod handlers;
+mod middleware;
 mod models;
 mod schema;
-mod embed;
 
-const FALLBACK_DB_URL: &str = "db.sqlite";
+use handlers::*;
 
 fn main() {
     dotenv().ok();
 
-    let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| {
-        eprintln!(
-            "DATABASE_URL env variable not set, falling back to '{}'",
-            FALLBACK_DB_URL
-        );
-        String::from(FALLBACK_DB_URL)
-    });
+    let addr = env::var("SERVE_URL").unwrap_or(String::from("0.0.0.0:7878"));
+    println!("Starting observatory at http://{}", addr);
+    gotham::start(addr, router())
+}
 
-    let db_conn = SqliteConnection::establish(&database_url)
-        .expect(&format!("Error connecting to database at {}", database_url));
+pub fn router() -> Router {
+    let (chain, pipelines) =
+        single_pipeline(new_pipeline().add(middleware::DatabaseMiddleware).build());
+    build_router(chain, pipelines, |route| {
+        route.get_or_head("/").to(index);
+        // TODO use Rust-Embed to serve static data
+        route.get("/static").to_dir("static");
+        route.get("/user/0").to(user)
+    })
 }

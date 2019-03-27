@@ -1,16 +1,20 @@
-// These should mirror the tables in scheme.rs
+// These should mirror the tables in schema.rs
+
+use askama::Template;
 
 use super::schema::*;
 
-#[derive(Queryable)]
+#[derive(Queryable, Template)]
+#[template(path = "user.html")]
 pub struct User {
-    pub id: u32,
+    pub id: i32,
     pub real_name: String,
     pub handle: String,
     pub email: String,
+    pub password_hash: String,
     pub active: bool,
-    pub joined_on: u32,
-    pub tier: u32,
+    pub joined_on: i32,
+    pub tier: i32,
 }
 
 #[derive(Insertable)]
@@ -25,10 +29,11 @@ pub struct NewUser {
 
 #[derive(Queryable)]
 pub struct Meeting {
-    pub id: u32,
-    pub datetime: u32,
+    pub id: i32,
+    pub datetime: i32,
     pub code: String,
-    pub group_id: u32,
+    pub group_id: i32,
+    pub hosted_by: i32,
 }
 
 #[derive(Insertable)]
@@ -41,11 +46,11 @@ pub struct NewMeeting {
 
 #[derive(Queryable)]
 pub struct Project {
-    pub id: u32,
+    pub id: i32,
     pub name: String,
     pub homepage: Option<String>,
     pub repo: String,
-    pub owner_id: u32,
+    pub owner_id: i32,
 }
 
 #[derive(Insertable)]
@@ -59,9 +64,9 @@ pub struct NewProject {
 
 #[derive(Queryable)]
 pub struct Group {
-    pub id: u32,
+    pub id: i32,
     pub name: String,
-    pub owner_id: u32,
+    pub owner_id: i32,
     pub room: Option<String>,
 }
 

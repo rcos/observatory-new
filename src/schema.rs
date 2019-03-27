@@ -13,6 +13,7 @@ table! {
         datetime -> Integer,
         code -> Text,
         group_id -> Integer,
+        hosted_by -> Integer,
     }
 }
 
