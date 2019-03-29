@@ -34,6 +34,10 @@ pub fn router() -> Router {
         route.get_or_head("/").to(index);
         // TODO use Rust-Embed to serve static data
         route.get("/static").to_dir("static");
-        route.get("/user/0").to(user)
+        route.get("/user/:id").to(user);
+        route.associate("/signup", |assoc| {
+            assoc.get().to(signup_get);
+            assoc.post().to(signup_post);
+        });
     })
 }

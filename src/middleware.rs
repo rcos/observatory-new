@@ -8,7 +8,7 @@ use gotham::state::State;
 
 #[derive(StateData)]
 pub struct DatabaseMiddlewareData {
-    pub database: SqliteConnection,
+    pub connection: SqliteConnection,
 }
 
 #[derive(Clone, NewMiddleware)]
@@ -20,7 +20,7 @@ impl Middleware for DatabaseMiddleware {
         Chain: FnOnce(State) -> Box<HandlerFuture>,
     {
         state.put(DatabaseMiddlewareData {
-            database: init_database(),
+            connection: init_database(),
         });
 
         Box::new(chain(state).and_then(|x| future::ok(x)))

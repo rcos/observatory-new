@@ -17,7 +17,7 @@ pub struct User {
     pub tier: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Default, Insertable)]
 #[table_name = "users"]
 pub struct NewUser {
     pub real_name: String,
@@ -36,7 +36,7 @@ pub struct Meeting {
     pub hosted_by: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Default, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
     pub datetime: i32,
@@ -53,7 +53,7 @@ pub struct Project {
     pub owner_id: i32,
 }
 
-#[derive(Insertable)]
+#[derive(Default, Insertable)]
 #[table_name = "projects"]
 pub struct NewProject {
     name: String,
@@ -70,7 +70,7 @@ pub struct Group {
     pub room: Option<String>,
 }
 
-#[derive(Insertable)]
+#[derive(Default, Insertable)]
 #[table_name = "groups"]
 pub struct NewGroup {
     pub name: String,
