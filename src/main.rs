@@ -26,18 +26,3 @@ fn main() {
     println!("Starting observatory at http://{}", addr);
     gotham::start(addr, router())
 }
-
-pub fn router() -> Router {
-    let (chain, pipelines) =
-        single_pipeline(new_pipeline().add(middleware::DatabaseMiddleware).build());
-    build_router(chain, pipelines, |route| {
-        route.get_or_head("/").to(index);
-        // TODO use Rust-Embed to serve static data
-        route.get("/static").to_dir("static");
-        route.get("/user/:id").to(user);
-        route.associate("/signup", |assoc| {
-            assoc.get().to(signup_get);
-            assoc.post().to(signup_post);
-        });
-    })
-}

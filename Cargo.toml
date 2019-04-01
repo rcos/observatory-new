@@ -5,10 +5,9 @@ authors = ["Steven vanZyl <rushsteve1@rushsteve1.us>"]
 edition = "2018"
 
 [dependencies]
-gotham = "^0.3.0"
-gotham_derive = "^0.3.0"
+rocket = "0.4.0"
 diesel = { version = "^1.4.2", features = ["sqlite"] }
 dotenv = "^0.13.0"
-askama = { version = "^0.8.0", features = ["with-gotham"] }
+askama = { version = "^0.8.0", features = ["with-rocket"] }
 hyper = "^0.12.25"
 futures = "^0.1.25"
