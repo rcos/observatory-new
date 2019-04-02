@@ -1,14 +1,14 @@
 use diesel::insert_into;
 use diesel::prelude::*;
 use rocket::http::{Cookie, Cookies};
-use rocket::request::{Form, State};
+use rocket::request::Form;
 use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 
 use crate::helpers::*;
 use crate::models::*;
 use crate::templates::*;
-use crate::{ObservDbConn, SecretKey};
+use crate::ObservDbConn;
 
 #[get("/")]
 pub fn index() -> Index {
@@ -35,12 +35,13 @@ pub fn signup_post(
     conn: ObservDbConn,
     mut cookies: Cookies,
     user: Form<NewUser>,
-    key: State<SecretKey>,
 ) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let mut user = user.into_inner();
-    user.password_hash = hash_password(user.password_hash, key.inner().0);
+    let newsalt = gen_salt();
+    user.salt = newsalt.clone();
+    user.password_hash = hash_password(user.password_hash, &newsalt);
 
     insert_into(users)
         .values(&user)
@@ -68,7 +69,6 @@ pub fn login_post(
     conn: ObservDbConn,
     mut cookies: Cookies,
     creds: Form<LogInForm>,
-    key: State<SecretKey>,
 ) -> Redirect {
     use crate::schema::users::dsl::*;
 
@@ -79,12 +79,18 @@ pub fn login_post(
         .first(&conn.0)
         .expect("Failed to get user from database");
 
-    if verify_password(creds.password, user.password_hash, key.inner().0) {
+    if verify_password(creds.password, user.password_hash, &user.salt) {
         cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
         Redirect::to("/")
     } else {
         Redirect::to("/login")
     }
+}
+
+#[get("/logout")]
+pub fn logout(mut cookies: Cookies) -> Redirect {
+    cookies.remove_private(Cookie::named("user_id"));
+    Redirect::to("/")
 }
 
 #[get("/user/<h>")]

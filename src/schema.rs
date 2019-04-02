@@ -34,10 +34,16 @@ table! {
         handle -> Text,
         email -> Text,
         password_hash -> Text,
+        salt -> Text,
         active -> Bool,
         joined_on -> Date,
         tier -> Integer,
     }
 }
 
-allow_tables_to_appear_in_same_query!(groups, meetings, projects, users,);
+allow_tables_to_appear_in_same_query!(
+    groups,
+    meetings,
+    projects,
+    users,
+);
