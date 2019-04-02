@@ -1,18 +1,18 @@
 -- Your SQL goes here
 CREATE TABLE users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
+    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     -- User's real name
     real_name TEXT NOT NULL,
     -- User's online chat handle
-    handle TEXT NOT NULL,
+    handle TEXT NOT NULL UNIQUE,
     -- User's email address
-    email TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
     -- The hash of the user's password
     password_hash TEXT NOT NULL,
     -- Is the user active?
     active BOOLEAN NOT NULL DEFAULT 1,
     -- SQLite stores dates as UNIX time
-    joined_on INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    joined_on DATE NOT NULL DEFAULT (datetime('now','localtime')),
     -- Priveledge tier
     -- 0 normal member
     -- 1 mentor

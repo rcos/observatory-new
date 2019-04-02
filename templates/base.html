@@ -2,14 +2,16 @@
 <html lang="en">
 
 <head>
-    <title>{% block title %}{{ title }} - My Site{% endblock %}</title>
+    <title>{% block title %}{{ title }} - RCOS{% endblock %}</title>
     <link rel="stylesheet" href="/static/base.css">
     {% block head %}{% endblock %}
 </head>
 
 <body>
     <div>
-        <h1>RCOS</h1>
+        <h1><a href="/">RCOS</a></h1>
+        <a href="/signup">Sign Up</a>
+        <a href="/login">Log In</a>
     </div>
     <div id="content">
         {% block content %}{% endblock %}

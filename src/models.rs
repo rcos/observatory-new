@@ -2,16 +2,17 @@
 
 use super::schema::*;
 
-#[derive(Queryable, Template)]
+#[derive(Queryable, Serialize, Template)]
 #[template(path = "user.html")]
 pub struct User {
     pub id: i32,
     pub real_name: String,
     pub handle: String,
     pub email: String,
+    #[serde(skip)]
     pub password_hash: String,
     pub active: bool,
-    pub joined_on: i32,
+    pub joined_on: String,
     pub tier: i32,
 }
 
@@ -27,7 +28,7 @@ pub struct NewUser {
 #[derive(Queryable)]
 pub struct Meeting {
     pub id: i32,
-    pub datetime: i32,
+    pub happened_on: String,
     pub code: String,
     pub group_id: i32,
     pub hosted_by: i32,
@@ -36,7 +37,6 @@ pub struct Meeting {
 #[derive(Default, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
-    pub datetime: i32,
     pub code: String,
     pub group_id: i32,
 }

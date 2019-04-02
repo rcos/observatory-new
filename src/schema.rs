@@ -10,7 +10,7 @@ table! {
 table! {
     meetings (id) {
         id -> Integer,
-        datetime -> Integer,
+        happened_on -> Date,
         code -> Text,
         group_id -> Integer,
         hosted_by -> Integer,
@@ -35,7 +35,7 @@ table! {
         email -> Text,
         password_hash -> Text,
         active -> Bool,
-        joined_on -> Integer,
+        joined_on -> Date,
         tier -> Integer,
     }
 }

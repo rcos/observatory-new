@@ -7,11 +7,14 @@ edition = "2018"
 [dependencies]
 askama = { version = "^0.8.0", features = ["with-rocket"] }
 rocket = "^0.4.0"
-hyper = "^0.12.25"
-futures = "^0.1.25"
 diesel = { version = "^1.4.2", features = ["sqlite"] }
+
+# By using * we match the Rocket versions
+openssl = "*"
+serde = "*"
+serde_derive = "*"
 
 [dependencies.rocket_contrib]
 version = "^0.4.0"
 default-features = false
-features = ["diesel_sqlite_pool"]
+features = ["diesel_sqlite_pool", "json"]

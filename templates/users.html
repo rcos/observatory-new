@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Users</h1>
+<form method="GET" action="/users">
+    <input type="text" name="s" placeholder="Search">
+    <button type="submit">Search</button>
+</form>
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Handle</th>
+        <th>Email</th>
+    </thead>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.real_name }}</td>
+        <td>{{ user.handle }}</td>
+        <td>{{ user.email }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
