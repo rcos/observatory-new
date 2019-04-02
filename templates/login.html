@@ -9,4 +9,19 @@
 
 {% block content %}
 <h1>Log In</h1>
+<form method="POST" action="/login">
+    <div>
+        <label for="email">Email</label>
+        <input type="email" name="email">
+    </div>
+
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password">
+    </div>
+
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
 {% endblock %}

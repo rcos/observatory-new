@@ -25,6 +25,12 @@ pub struct NewUser {
     pub email: String,
 }
 
+#[derive(Default, FromForm)]
+pub struct LogInForm {
+    pub email: String,
+    pub password: String,
+}
+
 #[derive(Queryable)]
 pub struct Meeting {
     pub id: i32,
@@ -41,7 +47,8 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Template)]
+#[template(path = "project.html")]
 pub struct Project {
     pub id: i32,
     pub name: String,
@@ -59,7 +66,8 @@ pub struct NewProject {
     owner_id: i32,
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Serialize, Template)]
+#[template(path = "group.html")]
 pub struct Group {
     pub id: i32,
     pub name: String,

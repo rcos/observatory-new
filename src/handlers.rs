@@ -1,13 +1,14 @@
 use diesel::insert_into;
 use diesel::prelude::*;
-use rocket::http::{Cookie, Cookies, RawStr};
-use rocket::request::Form;
+use rocket::http::{Cookie, Cookies};
+use rocket::request::{Form, State};
 use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 
+use crate::helpers::*;
 use crate::models::*;
 use crate::templates::*;
-use crate::ObservDbConn;
+use crate::{ObservDbConn, SecretKey};
 
 #[get("/")]
 pub fn index() -> Index {
@@ -30,11 +31,16 @@ pub fn signup() -> SignUp {
 }
 
 #[post("/signup", data = "<user>")]
-pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, user: Form<NewUser>) -> Redirect {
+pub fn signup_post(
+    conn: ObservDbConn,
+    mut cookies: Cookies,
+    user: Form<NewUser>,
+    key: State<SecretKey>,
+) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let mut user = user.into_inner();
-    user.password_hash = String::from("Password Hashing Not Implemented");
+    user.password_hash = hash_password(user.password_hash, key.inner().0);
 
     insert_into(users)
         .values(&user)
@@ -52,30 +58,63 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, user: Form<NewUser>
     Redirect::to("/")
 }
 
+#[get("/login")]
+pub fn login() -> LogIn {
+    LogIn
+}
+
+#[post("/login", data = "<creds>")]
+pub fn login_post(
+    conn: ObservDbConn,
+    mut cookies: Cookies,
+    creds: Form<LogInForm>,
+    key: State<SecretKey>,
+) -> Redirect {
+    use crate::schema::users::dsl::*;
+
+    let creds = creds.into_inner();
+
+    let user: User = users
+        .filter(&email.eq(creds.email))
+        .first(&conn.0)
+        .expect("Failed to get user from database");
+
+    if verify_password(creds.password, user.password_hash, key.inner().0) {
+        cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
+        Redirect::to("/")
+    } else {
+        Redirect::to("/login")
+    }
+}
+
+#[get("/user/<h>")]
+pub fn user(conn: ObservDbConn, h: String) -> User {
+    use crate::schema::users::dsl::*;
+
+    users
+        .filter(handle.eq(h))
+        .first(&conn.0)
+        .expect("Failed to get user from database")
+}
+
 #[get("/users?<s>")]
-pub fn users(conn: ObservDbConn, s: Option<&RawStr>) -> Users {
+pub fn users(conn: ObservDbConn, s: Option<String>) -> Users {
     Users {
         users: filter_users(&conn.0, s),
     }
 }
 
 #[get("/users.json?<s>")]
-pub fn users_json(conn: ObservDbConn, s: Option<&RawStr>) -> Json<Vec<User>> {
+pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
     Json(filter_users(&conn.0, s))
 }
 
-fn filter_users(conn: &SqliteConnection, term: Option<&RawStr>) -> Vec<User> {
-    use crate::schema::users::dsl::*;
+#[get("/project/<n>")]
+pub fn project(conn: ObservDbConn, n: String) -> Project {
+    use crate::schema::projects::dsl::*;
 
-    if let Some(term) = term {
-        let sterm = format!("%{}%", term);
-        let filter = real_name
-            .like(&sterm)
-            .or(email.like(&sterm))
-            .or(handle.like(&sterm));
-        users.filter(filter).load(conn)
-    } else {
-        users.load(conn)
-    }
-    .expect("Failed to get users")
+    projects
+        .filter(name.eq(n))
+        .first(&conn.0)
+        .expect("Failed to get user from database")
 }

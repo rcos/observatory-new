@@ -15,3 +15,7 @@ pub struct SignUp;
 pub struct Users {
     pub users: Vec<models::User>,
 }
+
+#[derive(Template)]
+#[template(path = "login.html")]
+pub struct LogIn;
