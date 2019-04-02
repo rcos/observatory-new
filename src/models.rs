@@ -1,7 +1,6 @@
 // These should mirror the tables in schema.rs
 
-use askama::Template;
-
+use rocket_contrib::databases::diesel::{Queryable, Insertable};
 use super::schema::*;
 
 #[derive(Queryable, Template)]
