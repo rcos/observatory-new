@@ -48,15 +48,14 @@ pub fn signup_post(
         .execute(&conn.0)
         .expect("Failed to add user to database");
 
-    let uid: i32 = users
+    let user: User = users
         .filter(&email.eq(user.email))
         .first::<User>(&conn.0)
-        .expect("Failed to get user from database")
-        .id;
+        .expect("Failed to get user from database");
 
-    cookies.add_private(Cookie::new("user_id", format!("{}", uid)));
+    cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
-    Redirect::to("/")
+    Redirect::to(format!("/user/{}", user.handle))
 }
 
 #[get("/login")]
@@ -98,7 +97,7 @@ pub fn user(conn: ObservDbConn, h: String) -> User {
     use crate::schema::users::dsl::*;
 
     users
-        .filter(handle.eq(h))
+        .filter(handle.like(h))
         .first(&conn.0)
         .expect("Failed to get user from database")
 }
@@ -115,12 +114,19 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
     Json(filter_users(&conn.0, s))
 }
 
+#[get("/projects?<s>")]
+pub fn projects(conn: ObservDbConn, s: Option<String>) -> Projects {
+    Projects { 
+        projects: filter_projects(&conn.0, s)
+     }
+}
+
 #[get("/project/<n>")]
 pub fn project(conn: ObservDbConn, n: String) -> Project {
     use crate::schema::projects::dsl::*;
 
     projects
-        .filter(name.eq(n))
+        .filter(name.like(n))
         .first(&conn.0)
-        .expect("Failed to get user from database")
+        .expect("Failed to get project from database")
 }

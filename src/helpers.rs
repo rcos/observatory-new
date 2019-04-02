@@ -19,6 +19,19 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> 
     .expect("Failed to get users")
 }
 
+pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
+    use crate::schema::projects::dsl::*;
+
+    if let Some(term) = term {
+        let sterm = format!("%{}%", term);
+        let filter = name.like(&sterm);
+        projects.filter(filter).load(conn)
+    } else {
+        projects.load(conn)
+    }
+    .expect("Failed to get projects")
+}
+
 const N_ITER: u32 = 100000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
 

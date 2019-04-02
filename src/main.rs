@@ -42,7 +42,8 @@ fn main() {
                 user,
                 users,
                 users_json,
-                project
+                project,
+                projects
             ],
         )
         .launch();

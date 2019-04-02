@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Projects</h1>
+<form method="GET" action="/projects">
+    <input type="text" name="s" placeholder="Search">
+    <button type="submit">Search</button>
+</form>
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Homepage</th>
+        <th>Repo</th>
+    </thead>
+    {% for project in projects %}
+    <tr>
+        <td><a href="/project/{{ project.name }}">{{ project.name }}</a></td>
+        {% match project.homepage %}
+        {% when Some with (val) %}
+        <td><a href="{{ val }}">{{ val }}</a></td>
+        {% when None %}
+        <td>None</td>
+        {% endmatch %}
+        <td><a href="{{ project.repo }}">{{ project.repo }}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

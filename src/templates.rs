@@ -19,3 +19,9 @@ pub struct Users {
 #[derive(Template)]
 #[template(path = "login.html")]
 pub struct LogIn;
+
+#[derive(Template)]
+#[template(path = "projects.html")]
+pub struct Projects {
+    pub projects: Vec<models::Project>
+}
