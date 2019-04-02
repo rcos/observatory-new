@@ -10,10 +10,24 @@
 {% block content %}
 <h1>Sign Up</h1>
 <form method="POST" action="/signup/">
-    <label for="email">Password</label>
-    <input type="email" name="email">
-    <label for="password">Password</label>
-    <input type="password" name="password">
-    <button type="submit">Sign Up</button>
+    <div>
+        <label for="email">Email</label>
+        <input type="email" name="email">
+    </div>
+    <div>
+        <label for="password_hash">Password</label>
+        <input type="password" name="password_hash">
+    </div>
+    <div>
+        <label for="real_name">Real Name</label>
+        <input type="text" name="real_name">
+    </div>
+    <div>
+        <label for="handle">GitHub Handle</label>
+        <input type="text" name="handle">
+    </div>
+    <div>
+        <button type="submit">Sign Up</button>
+    </div>
 </form>
 {% endblock %}

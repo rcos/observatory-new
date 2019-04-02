@@ -1,6 +1,5 @@
 // These should mirror the tables in schema.rs
 
-use rocket_contrib::databases::diesel::{Queryable, Insertable};
 use super::schema::*;
 
 #[derive(Queryable, Template)]
@@ -16,14 +15,13 @@ pub struct User {
     pub tier: i32,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Default, FromForm, Insertable)]
 #[table_name = "users"]
 pub struct NewUser {
     pub real_name: String,
     pub handle: String,
     pub password_hash: String,
     pub email: String,
-    pub active: bool,
 }
 
 #[derive(Queryable)]
