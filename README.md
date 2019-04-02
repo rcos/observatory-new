@@ -11,16 +11,24 @@ as the database backend.
 
 ## Major Dependencies
 - [Diesel](https://diesel.rs): Database ORM
-- [Gotham](https://gotham.rs): Web framework based on [Hyper](https://hyper.rs/);
+- [Rocket](https://rocket.rs): Web framework
 - [Askama](https://github.com/djc/askama): Templating engine
 
 ## Building
-This is a pure Rust project so it's as simple as
+Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19))
+so you need to set Rustup to use it by running the following in the
+`observatory-new` folder.
+
+```
+$ rustup override set nightly
+```
+
+After that it's as simple as
 ```
 $ cargo build
 ```
 
-To run do
+And to run do
 ```
 $ cargo run
 ```
