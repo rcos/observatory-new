@@ -1,5 +1,5 @@
 [package]
-name = "observatory-new"
+name = "observatory"
 version = "0.1.0"
 authors = ["Steven vanZyl <rushsteve1@rushsteve1.us>"]
 edition = "2018"
