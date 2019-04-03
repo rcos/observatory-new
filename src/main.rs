@@ -12,6 +12,8 @@ extern crate diesel;
 extern crate askama;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate rust_embed;
 
 // Module files
 mod guards;

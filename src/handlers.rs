@@ -1,8 +1,11 @@
+use std::path::PathBuf;
+use std::io::Cursor;
+
 use diesel::insert_into;
 use diesel::prelude::*;
-use rocket::http::{Cookie, Cookies};
+use rocket::http::{Cookie, Cookies, ContentType};
 use rocket::request::Form;
-use rocket::response::Redirect;
+use rocket::response::{Redirect, Response};
 use rocket_contrib::json::Json;
 
 use crate::helpers::*;
@@ -18,12 +21,19 @@ pub fn index() -> Index {
     }
 }
 
-use rocket::response::NamedFile;
-use std::path::PathBuf;
+
+#[derive(RustEmbed)]
+#[folder = "static/"]
+struct Embed;
 
 #[get("/static/<file..>")]
-pub fn staticfile(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(PathBuf::from("static/").join(file)).ok()
+pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
+    let ctype = ContentType::from_extension(file.extension()?.to_str().unwrap())?;
+    let bytes = Cursor::new(Embed::get(file.to_str().unwrap())?);
+
+    Some(Response::build()
+        .header(ctype)
+        .sized_body(bytes).finalize())
 }
 
 #[get("/calendar")]
@@ -139,12 +149,12 @@ pub fn project(conn: ObservDbConn, n: String) -> Project {
 }
 
 #[get("/calendar/newevent")]
-pub fn newevent(admin: AdminGuard) -> NewEventForm {
+pub fn newevent(_admin: AdminGuard) -> NewEventForm {
     NewEventForm
 }
 
 #[post("/calendar/newevent", data = "<newevent>")]
-pub fn newevent_post(conn: ObservDbConn, admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
+pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
     use crate::schema::events::dsl::*;
 
     insert_into(events)
