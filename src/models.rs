@@ -34,7 +34,7 @@ pub struct LogInForm {
     pub password: String,
 }
 
-#[derive(Queryable)]
+#[derive(Quertable, Serialize)]
 pub struct Meeting {
     pub id: i32,
     pub happened_on: String,
@@ -75,7 +75,7 @@ pub struct Group {
     pub id: i32,
     pub name: String,
     pub owner_id: i32,
-    pub room: Option<String>,
+    pub location: Option<String>,
 }
 
 #[derive(Default, Insertable)]
@@ -83,5 +83,39 @@ pub struct Group {
 pub struct NewGroup {
     pub name: String,
     pub owner_id: i32,
-    pub room: Option<String>,
+    pub location: Option<String>,
+}
+
+#[derive(Quertable, Serialize)]
+pub struct Repo {
+    id: i32,
+    project_id: i32,
+    url: String
+}
+
+#[derive(Default, Insertable)]
+#[table_name = "repos"]
+pub struct NewRepo {
+    project_id: i32,
+    url: String
+}
+
+#[derive(Quertable, Serialize)]
+pub struct Event {
+    id: i32,
+    happening_at: String,
+    title: String,
+    description: Option<String>,
+    hosted_by i32,
+    location: Option<String>
+}
+
+#[derive(Default, Insertable)]
+#[table_name = "events"]
+pub struct NewEvent {
+    happening_at: String,
+    title: String,
+    description: Option<String>,
+    hosted_by i32,
+    location: Option<String>
 }

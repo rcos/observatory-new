@@ -5,8 +5,8 @@ CREATE TABLE groups (
     name TEXT NOT NULL,
     -- The ID of the owner of the group
     owner_id INTEGER NOT NULL,
-    -- Optional room the group meets in
-    room TEXT
+    -- Optional location the group meets in
+    location TEXT
 );
 
 INSERT INTO groups (id, name, owner_id) VALUES (0, "RCOS Large Group", 0);

@@ -1,4 +1,14 @@
 table! {
+    events (id) {
+        id -> Integer,
+        happening_at -> Date,
+        title -> Text,
+        description -> Integer,
+        location -> Nullable<Text>,
+    }
+}
+
+table! {
     groups (id) {
         id -> Integer,
         name -> Text,
@@ -66,7 +76,6 @@ table! {
         handle -> Text,
         email -> Text,
         password_hash -> Text,
-        salt -> Text,
         active -> Bool,
         joined_on -> Date,
         tier -> Integer,
@@ -74,6 +83,7 @@ table! {
 }
 
 allow_tables_to_appear_in_same_query!(
+    events,
     groups,
     meetings,
     projects,
