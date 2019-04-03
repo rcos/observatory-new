@@ -23,11 +23,11 @@ pub struct LogIn;
 #[derive(Template)]
 #[template(path = "projects.html")]
 pub struct Projects {
-    pub projects: Vec<models::Project>
+    pub projects: Vec<models::Project>,
 }
 
 #[derive(Template)]
 #[template(path = "calendar.html")]
 pub struct Calendar {
-    pub events: Vec<models::Event>
+    pub events: Vec<models::Event>,
 }

@@ -14,6 +14,7 @@ extern crate askama;
 extern crate serde_derive;
 
 // Module files
+mod guards;
 mod handlers;
 mod helpers;
 mod models;

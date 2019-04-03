@@ -58,6 +58,7 @@ pub struct Project {
     pub homepage: Option<String>,
     pub repo: String,
     pub owner_id: i32,
+    pub active: bool,
 }
 
 #[derive(Default, Insertable)]
@@ -90,14 +91,14 @@ pub struct NewGroup {
 pub struct Repo {
     pub id: i32,
     pub project_id: i32,
-    pub url: String
+    pub url: String,
 }
 
 #[derive(Default, Insertable)]
 #[table_name = "repos"]
 pub struct NewRepo {
     pub project_id: i32,
-    pub url: String
+    pub url: String,
 }
 
 #[derive(Queryable, Serialize)]
@@ -107,7 +108,7 @@ pub struct Event {
     pub title: String,
     pub description: Option<String>,
     pub hosted_by: i32,
-    pub location: Option<String>
+    pub location: Option<String>,
 }
 
 #[derive(Default, Insertable)]
@@ -117,5 +118,5 @@ pub struct NewEvent {
     pub title: String,
     pub description: Option<String>,
     pub hosted_by: i32,
-    pub location: Option<String>
+    pub location: Option<String>,
 }

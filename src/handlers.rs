@@ -30,7 +30,7 @@ pub fn calendar(conn: ObservDbConn) -> Calendar {
     use crate::schema::events::dsl::*;
 
     Calendar {
-        events: events.load(&conn.0).expect("Failed to get events")
+        events: events.load(&conn.0).expect("Failed to get events"),
     }
 }
 
@@ -40,11 +40,7 @@ pub fn signup() -> SignUp {
 }
 
 #[post("/signup", data = "<user>")]
-pub fn signup_post(
-    conn: ObservDbConn,
-    mut cookies: Cookies,
-    user: Form<NewUser>,
-) -> Redirect {
+pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, user: Form<NewUser>) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let mut user = user.into_inner();
@@ -73,11 +69,7 @@ pub fn login() -> LogIn {
 }
 
 #[post("/login", data = "<creds>")]
-pub fn login_post(
-    conn: ObservDbConn,
-    mut cookies: Cookies,
-    creds: Form<LogInForm>,
-) -> Redirect {
+pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<LogInForm>) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let creds = creds.into_inner();
@@ -125,9 +117,9 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
 
 #[get("/projects?<s>")]
 pub fn projects(conn: ObservDbConn, s: Option<String>) -> Projects {
-    Projects { 
-        projects: filter_projects(&conn.0, s)
-     }
+    Projects {
+        projects: filter_projects(&conn.0, s),
+    }
 }
 
 #[get("/project/<n>")]
@@ -135,7 +127,7 @@ pub fn project(conn: ObservDbConn, n: String) -> Project {
     use crate::schema::projects::dsl::*;
 
     projects
-        .filter(name.like(n))
+        .filter(name.eq(n))
         .first(&conn.0)
         .expect("Failed to get project from database")
 }

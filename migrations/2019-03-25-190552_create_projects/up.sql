@@ -8,5 +8,7 @@ CREATE TABLE projects (
     -- Repository of the project
     repo TEXT NOT NULL,
     -- Optional ID of the owner of the project
-    owner_id INTEGER NOT NULL
+    owner_id INTEGER NOT NULL,
+    -- Is the project active?
+    active BOOLEAN NOT NULL DEFAULT 1
 );

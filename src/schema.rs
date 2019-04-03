@@ -35,6 +35,7 @@ table! {
         homepage -> Nullable<Text>,
         repo -> Text,
         owner_id -> Integer,
+        active -> Bool,
     }
 }
 

@@ -1,7 +1,7 @@
 use crate::models::*;
 use diesel::prelude::*;
-use ring::{digest, pbkdf2, rand};
 use ring::rand::SecureRandom;
+use ring::{digest, pbkdf2, rand};
 
 pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> {
     use crate::schema::users::dsl::*;
@@ -39,9 +39,7 @@ pub fn gen_salt() -> String {
     let rng = rand::SystemRandom::new();
     let mut salt = [0u8; CRE_LEN];
     rng.fill(&mut salt).unwrap();
-    unsafe {
-        String::from_utf8_unchecked(salt.to_vec())
-    }
+    unsafe { String::from_utf8_unchecked(salt.to_vec()) }
 }
 
 pub fn hash_password(pass: String, salt: &String) -> String {
@@ -51,11 +49,9 @@ pub fn hash_password(pass: String, salt: &String) -> String {
         N_ITER,
         salt.as_bytes(),
         pass.as_bytes(),
-        &mut out
+        &mut out,
     );
-    unsafe {
-        String::from_utf8_unchecked(out.to_vec())
-    }
+    unsafe { String::from_utf8_unchecked(out.to_vec()) }
 }
 
 pub fn verify_password(pass: String, compare_to: String, salt: &String) -> bool {
@@ -65,5 +61,6 @@ pub fn verify_password(pass: String, compare_to: String, salt: &String) -> bool 
         salt.as_bytes(),
         pass.as_bytes(),
         compare_to.as_bytes(),
-    ).is_ok()
+    )
+    .is_ok()
 }
