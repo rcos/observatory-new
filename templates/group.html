@@ -9,7 +9,7 @@
 
 {% block content %}
 <h1>{{ name }} Group</h1>
-{% match room %}
+{% match location %}
 {% when Some with (val) %}
 Room: {{ val }}
 {% when None %}

@@ -25,6 +25,15 @@ pub fn staticfile(file: PathBuf) -> Option<NamedFile> {
     NamedFile::open(PathBuf::from("static/").join(file)).ok()
 }
 
+#[get("/calendar")]
+pub fn calendar(conn: ObservDbConn) -> Calendar {
+    use crate::schema::events::dsl::*;
+
+    Calendar {
+        events: events.load(&conn.0).expect("Failed to get events")
+    }
+}
+
 #[get("/signup")]
 pub fn signup() -> SignUp {
     SignUp

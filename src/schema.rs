@@ -3,7 +3,8 @@ table! {
         id -> Integer,
         happening_at -> Date,
         title -> Text,
-        description -> Integer,
+        description -> Nullable<Text>,
+        hosted_by -> Integer,
         location -> Nullable<Text>,
     }
 }
@@ -13,7 +14,7 @@ table! {
         id -> Integer,
         name -> Text,
         owner_id -> Integer,
-        room -> Nullable<Text>,
+        location -> Nullable<Text>,
     }
 }
 
@@ -76,6 +77,7 @@ table! {
         handle -> Text,
         email -> Text,
         password_hash -> Text,
+        salt -> Text,
         active -> Bool,
         joined_on -> Date,
         tier -> Integer,

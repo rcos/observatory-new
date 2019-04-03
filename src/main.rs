@@ -33,6 +33,7 @@ fn main() {
             "/",
             routes![
                 index,
+                calendar,
                 signup,
                 signup_post,
                 login,
