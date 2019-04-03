@@ -1,5 +1,7 @@
 // These should mirror the tables in schema.rs
 
+use chrono::naive::NaiveDateTime;
+
 use super::schema::*;
 
 #[derive(Queryable, Serialize, Template)]
@@ -14,7 +16,7 @@ pub struct User {
     #[serde(skip)]
     pub salt: String,
     pub active: bool,
-    pub joined_on: String,
+    pub joined_on: NaiveDateTime,
     pub tier: i32,
 }
 
@@ -37,7 +39,7 @@ pub struct LogInForm {
 #[derive(Queryable, Serialize)]
 pub struct Meeting {
     pub id: i32,
-    pub happened_on: String,
+    pub happened_at: NaiveDateTime,
     pub code: String,
     pub group_id: i32,
     pub hosted_by: i32,
@@ -104,14 +106,14 @@ pub struct NewRepo {
 #[derive(Queryable, Serialize)]
 pub struct Event {
     pub id: i32,
-    pub happening_at: String,
+    pub happening_at: NaiveDateTime,
     pub title: String,
     pub description: Option<String>,
     pub hosted_by: i32,
     pub location: Option<String>,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Default, FromForm, Insertable)]
 #[table_name = "events"]
 pub struct NewEvent {
     pub happening_at: String,

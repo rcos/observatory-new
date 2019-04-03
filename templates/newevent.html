@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}New Event{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>New Event</h1>
+<form method="POST" action="/calendar/newevent">
+    <div>
+        <label for="title">Title</label>
+        <input type="text" name="title">
+    </div>
+    <div>
+        <label for="description">Description</label>
+        <input type="text" name="description">
+    </div>
+    <div>
+        <label for="location">Location</label>
+        <input type="text" name="location">
+    </div>
+    <div>
+        <label for="happening_at">Happening At</label>
+        <input type="datetime-local" name="happening_at">
+    </div>
+    <div>
+        <!-- TODO make this a select -->
+        <label for="hosted_by">Hosted By</label>
+        <input type="number" name="hosted_by">
+    </div>
+    <div>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+{% endblock %}

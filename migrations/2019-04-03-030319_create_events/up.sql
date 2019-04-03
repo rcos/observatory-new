@@ -2,7 +2,7 @@
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     -- Date and time the event is happening at
-    happening_at DATE NOT NULL,
+    happening_at DATETIME NOT NULL,
     -- Title of the event
     title TEXT NOT NULL,
     -- Optional description of the event

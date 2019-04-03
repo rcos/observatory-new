@@ -30,11 +30,14 @@ pub struct ObservDbConn(diesel::SqliteConnection);
 fn main() {
     rocket::ignite()
         .attach(ObservDbConn::fairing())
+        .register(catchers![login_catch])
         .mount(
             "/",
             routes![
                 index,
                 calendar,
+                newevent,
+                newevent_post,
                 signup,
                 signup_post,
                 login,

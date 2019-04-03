@@ -31,3 +31,7 @@ pub struct Projects {
 pub struct Calendar {
     pub events: Vec<models::Event>,
 }
+
+#[derive(Template)]
+#[template(path = "newevent.html")]
+pub struct NewEventForm;

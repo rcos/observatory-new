@@ -14,7 +14,7 @@ CREATE TABLE users (
     -- Is the user active?
     active BOOLEAN NOT NULL DEFAULT 1,
     -- SQLite stores dates as UNIX time
-    joined_on DATE NOT NULL DEFAULT (datetime('now','localtime')),
+    joined_on DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
     -- Priveledge tier
     -- 0 normal member
     -- 1 mentor

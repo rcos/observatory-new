@@ -2,7 +2,7 @@
 CREATE TABLE meetings (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL ,
     -- The datetime in UNIX time
-    happened_on DATE NOT NULL DEFAULT (datetime('now','localtime')),
+    happened_at DATETIME NOT NULL DEFAULT (datetime('now','localtime')),
     -- The attendance code of the meeting
     code TEXT NOT NULL UNIQUE,
     -- The ID of the group the meeting was for

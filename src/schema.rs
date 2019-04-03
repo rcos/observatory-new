@@ -1,7 +1,7 @@
 table! {
     events (id) {
         id -> Integer,
-        happening_at -> Date,
+        happening_at -> Timestamp,
         title -> Text,
         description -> Nullable<Text>,
         hosted_by -> Integer,
@@ -21,7 +21,7 @@ table! {
 table! {
     meetings (id) {
         id -> Integer,
-        happened_on -> Date,
+        happened_at -> Timestamp,
         code -> Text,
         group_id -> Integer,
         hosted_by -> Integer,
@@ -80,7 +80,7 @@ table! {
         password_hash -> Text,
         salt -> Text,
         active -> Bool,
-        joined_on -> Date,
+        joined_on -> Timestamp,
         tier -> Integer,
     }
 }

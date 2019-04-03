@@ -8,6 +8,7 @@ use rocket_contrib::json::Json;
 use crate::helpers::*;
 use crate::models::*;
 use crate::templates::*;
+use crate::guards::*;
 use crate::ObservDbConn;
 
 #[get("/")]
@@ -87,6 +88,11 @@ pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<LogInFor
     }
 }
 
+#[catch(401)]
+pub fn login_catch() -> Redirect {
+    Redirect::to("/login")
+}
+
 #[get("/logout")]
 pub fn logout(mut cookies: Cookies) -> Redirect {
     cookies.remove_private(Cookie::named("user_id"));
@@ -130,4 +136,21 @@ pub fn project(conn: ObservDbConn, n: String) -> Project {
         .filter(name.eq(n))
         .first(&conn.0)
         .expect("Failed to get project from database")
+}
+
+#[get("/calendar/newevent")]
+pub fn newevent(admin: AdminGuard) -> NewEventForm {
+    NewEventForm
+}
+
+#[post("/calendar/newevent", data = "<newevent>")]
+pub fn newevent_post(conn: ObservDbConn, admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
+    use crate::schema::events::dsl::*;
+
+    insert_into(events)
+        .values(&newevent.0)
+        .execute(&conn.0)
+        .expect("Failed to add user to database");
+    
+    Redirect::to("/calendar")
 }
