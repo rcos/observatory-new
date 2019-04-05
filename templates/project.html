@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ name }}{% endblock %}
+{% block title %}{{ project.name }}{% endblock %}
 
 {% block head %}
 <style>
@@ -8,9 +8,9 @@
 {% endblock %}
 
 {% block content %}
-<h1>{{ name }}</h1>
-<pre>{{ repo }}</pre>
-{% match homepage %}
+<h1>{{ project.name }}</h1>
+<pre>{{ project.repo }}</pre>
+{% match project.homepage %}
 {% when Some with (val) %}
 <a href="{{ val }}">Homepage</a>
 {% when None %}

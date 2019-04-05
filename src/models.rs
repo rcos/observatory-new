@@ -4,8 +4,7 @@ use chrono::naive::NaiveDateTime;
 
 use super::schema::*;
 
-#[derive(Queryable, Serialize, Template)]
-#[template(path = "user.html")]
+#[derive(Queryable, Serialize)]
 pub struct User {
     pub id: i32,
     pub real_name: String,
@@ -52,8 +51,7 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
-#[derive(Queryable, Serialize, Template)]
-#[template(path = "project.html")]
+#[derive(Queryable, Serialize)]
 pub struct Project {
     pub id: i32,
     pub name: String,
@@ -72,8 +70,7 @@ pub struct NewProject {
     pub owner_id: i32,
 }
 
-#[derive(Queryable, Serialize, Template)]
-#[template(path = "group.html")]
+#[derive(Queryable, Serialize)]
 pub struct Group {
     pub id: i32,
     pub name: String,

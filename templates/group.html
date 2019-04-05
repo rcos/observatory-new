@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ name }}{% endblock %}
+{% block title %}{{ group.name }}{% endblock %}
 
 {% block head %}
 <style>
@@ -8,8 +8,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>{{ name }} Group</h1>
-{% match location %}
+<h1>{{ group.name }} Group</h1>
+{% match group.location %}
 {% when Some with (val) %}
 Room: {{ val }}
 {% when None %}

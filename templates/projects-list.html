@@ -21,7 +21,7 @@
     </thead>
     {% for project in projects %}
     <tr>
-        <td><a href="/project/{{ project.name }}">{{ project.name }}</a></td>
+        <td><a href="/p/{{ project.name }}">{{ project.name }}</a></td>
         {% match project.homepage %}
         {% when Some with (val) %}
         <td><a href="{{ val }}">{{ val }}</a></td>

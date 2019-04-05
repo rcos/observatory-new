@@ -1,26 +1,26 @@
-use std::path::PathBuf;
 use std::io::Cursor;
+use std::path::PathBuf;
 
 use diesel::insert_into;
 use diesel::prelude::*;
-use rocket::http::{Cookie, Cookies, ContentType};
+use rocket::http::{ContentType, Cookie, Cookies};
 use rocket::request::Form;
 use rocket::response::{Redirect, Response};
 use rocket_contrib::json::Json;
 
-use crate::helpers::*;
-use crate::models::*;
-use crate::templates::*;
 use crate::guards::*;
+use crate::helpers::*;
+use crate::models;
+use crate::templates::*;
 use crate::ObservDbConn;
 
 #[get("/")]
-pub fn index() -> Index {
-    Index {
+pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
+    IndexTemplate {
+        logged_in: l,
         version: env!("CARGO_PKG_VERSION"),
     }
 }
-
 
 #[derive(RustEmbed)]
 #[folder = "static/"]
@@ -31,63 +31,62 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
     let ctype = ContentType::from_extension(file.extension()?.to_str().unwrap())?;
     let bytes = Cursor::new(Embed::get(file.to_str().unwrap())?);
 
-    Some(Response::build()
-        .header(ctype)
-        .sized_body(bytes).finalize())
+    Some(Response::build().header(ctype).sized_body(bytes).finalize())
 }
 
 #[get("/calendar")]
-pub fn calendar(conn: ObservDbConn) -> Calendar {
+pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     use crate::schema::events::dsl::*;
 
-    Calendar {
+    CalendarTemplate {
+        logged_in: l,
         events: events.load(&conn.0).expect("Failed to get events"),
     }
 }
 
 #[get("/signup")]
-pub fn signup() -> SignUp {
-    SignUp
+pub fn signup() -> SignUpTemplate {
+    SignUpTemplate
 }
 
-#[post("/signup", data = "<user>")]
-pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, user: Form<NewUser>) -> Redirect {
+#[post("/signup", data = "<newuser>")]
+pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<models::NewUser>) -> Redirect {
     use crate::schema::users::dsl::*;
 
-    let mut user = user.into_inner();
+    let mut newuser = newuser.into_inner();
     let newsalt = gen_salt();
-    user.salt = newsalt.clone();
-    user.password_hash = hash_password(user.password_hash, &newsalt);
+    newuser.salt = newsalt.clone();
+    newuser.password_hash = hash_password(newuser.password_hash, &newsalt);
 
     insert_into(users)
-        .values(&user)
-        .execute(&conn.0)
+        .values(&newuser)
+        .execute(&*conn)
         .expect("Failed to add user to database");
 
-    let user: User = users
-        .filter(&email.eq(user.email))
-        .first::<User>(&conn.0)
+    let user: models::User = users
+        .filter(&email.eq(newuser.email))
+        .first(&*conn)
         .expect("Failed to get user from database");
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
-    Redirect::to(format!("/user/{}", user.handle))
+    Redirect::to(format!("/u/{}", user.handle))
 }
 
 #[get("/login")]
-pub fn login() -> LogIn {
-    LogIn
+pub fn login() -> LogInTemplate {
+    LogInTemplate
 }
 
 #[post("/login", data = "<creds>")]
-pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<LogInForm>) -> Redirect {
+pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<models::LogInForm>) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let creds = creds.into_inner();
 
-    let user: User = users
+    let user: models::User = users
         .filter(&email.eq(creds.email))
-        .first(&conn.0)
+        .first(&*conn)
         .expect("Failed to get user from database");
 
     if verify_password(creds.password, user.password_hash, &user.salt) {
@@ -98,69 +97,89 @@ pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<LogInFor
     }
 }
 
-#[catch(401)]
-pub fn login_catch() -> Redirect {
-    Redirect::to("/login")
-}
-
 #[get("/logout")]
 pub fn logout(mut cookies: Cookies) -> Redirect {
     cookies.remove_private(Cookie::named("user_id"));
     Redirect::to("/")
 }
 
-#[get("/user/<h>")]
-pub fn user(conn: ObservDbConn, h: String) -> User {
+#[get("/u/<h>")]
+pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
     use crate::schema::users::dsl::*;
 
-    users
-        .filter(handle.like(h))
-        .first(&conn.0)
-        .expect("Failed to get user from database")
+    UserTemplate {
+        logged_in: l,
+        user: users
+            .filter(handle.like(h))
+            .first(&*conn)
+            .expect("Failed to get user from database"),
+    }
 }
 
 #[get("/users?<s>")]
-pub fn users(conn: ObservDbConn, s: Option<String>) -> Users {
-    Users {
-        users: filter_users(&conn.0, s),
+pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> UsersListTemplate {
+    UsersListTemplate {
+        logged_in: l,
+        users: filter_users(&*conn, s),
     }
 }
 
 #[get("/users.json?<s>")]
-pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
-    Json(filter_users(&conn.0, s))
+pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::User>> {
+    Json(filter_users(&*conn, s))
 }
 
 #[get("/projects?<s>")]
-pub fn projects(conn: ObservDbConn, s: Option<String>) -> Projects {
-    Projects {
-        projects: filter_projects(&conn.0, s),
+pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+    ProjectsListTemplate {
+        logged_in: l,
+        projects: filter_projects(&*conn, s),
     }
 }
 
-#[get("/project/<n>")]
-pub fn project(conn: ObservDbConn, n: String) -> Project {
+#[get("/projects.json?<s>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::Project>> {
+    Json(filter_projects(&*conn, s))
+}
+
+#[get("/p/<n>")]
+pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> ProjectTemplate {
     use crate::schema::projects::dsl::*;
 
-    projects
-        .filter(name.eq(n))
-        .first(&conn.0)
-        .expect("Failed to get project from database")
+    ProjectTemplate {
+        logged_in: l,
+        project: projects
+            .filter(name.eq(n))
+            .first(&*conn)
+            .expect("Failed to get project from database"),
+    }
 }
 
 #[get("/calendar/newevent")]
-pub fn newevent(_admin: AdminGuard) -> NewEventForm {
-    NewEventForm
+pub fn newevent(admin: AdminGuard) -> NewEventTemplate {
+    NewEventTemplate {
+        logged_in: admin.0
+    }
 }
 
 #[post("/calendar/newevent", data = "<newevent>")]
-pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
+pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<models::NewEvent>) -> Redirect {
     use crate::schema::events::dsl::*;
 
     insert_into(events)
         .values(&newevent.0)
-        .execute(&conn.0)
+        .execute(&*conn)
         .expect("Failed to add user to database");
-    
+
     Redirect::to("/calendar")
 }
+
+//# Catchers
+
+#[catch(401)]
+pub fn catch_401() -> Redirect {
+    Redirect::to("/login")
+}
+
+// #[catch(403)]
+// pub fn catch_403();

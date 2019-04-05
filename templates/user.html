@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-<h1>{{ real_name }}</h1>
-<div>Github: <a href="https://github.com/{{ handle }}" target="_blank">{{ handle }}</a></div>
-<div>Member since: {{ joined_on }}</div>
+<h1>{{ user.real_name }}</h1>
+<div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>
+<div>Member since: {{ user.joined_on }}</div>
 {% endblock %}

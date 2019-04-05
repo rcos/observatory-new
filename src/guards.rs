@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use diesel::prelude::*;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
@@ -6,7 +8,9 @@ use rocket::Outcome;
 use crate::models::User;
 use crate::ObservDbConn;
 
-pub struct UserGuard(User);
+pub type MaybeLoggedIn = Option<UserGuard>;
+
+pub struct UserGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserGuard {
     type Error = GuardError;
@@ -17,19 +21,30 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserGuard {
             Some(uid) => {
                 use crate::schema::users::dsl::*;
                 let conn = request.guard::<ObservDbConn>().unwrap();
-                match users.find(uid.value().parse::<i32>().unwrap()).first(&conn.0) {
+                match users
+                    .find(uid.value().parse::<i32>().unwrap())
+                    .first(&*conn)
+                {
                     Ok(u) => Outcome::Success(Self(u)),
-                    Err(e) => {
-                        Outcome::Failure((Status::InternalServerError, GuardError::DatabaseError(e)))
-                    }
+                    Err(e) => Outcome::Failure((
+                        Status::InternalServerError,
+                        GuardError::DatabaseError(e),
+                    )),
                 }
             }
-            None => Outcome::Failure((Status::Unauthorized, GuardError::NotLoggedIn))
+            None => Outcome::Failure((Status::Unauthorized, GuardError::NotLoggedIn)),
         }
     }
 }
 
-pub struct MentorGuard(User);
+impl Deref for UserGuard {
+    type Target = User;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub struct MentorGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for MentorGuard {
     type Error = GuardError;
@@ -45,7 +60,14 @@ impl<'a, 'r> FromRequest<'a, 'r> for MentorGuard {
     }
 }
 
-pub struct AdminGuard(User);
+impl Deref for MentorGuard {
+    type Target = User;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+pub struct AdminGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for AdminGuard {
     type Error = GuardError;
@@ -56,8 +78,15 @@ impl<'a, 'r> FromRequest<'a, 'r> for AdminGuard {
         if u.0.tier > 1 {
             Outcome::Success(Self(u.0))
         } else {
-            Outcome::Failure((Status::Forbidden, GuardError::NotMentor))
+            Outcome::Failure((Status::Forbidden, GuardError::NotAdmin))
         }
+    }
+}
+
+impl Deref for AdminGuard {
+    type Target = User;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
 
