@@ -17,7 +17,7 @@ use crate::ObservDbConn;
 #[get("/")]
 pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
     IndexTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         version: env!("CARGO_PKG_VERSION"),
     }
 }
@@ -39,7 +39,7 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     use crate::schema::events::dsl::*;
 
     CalendarTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         events: events.load(&conn.0).expect("Failed to get events"),
     }
 }
@@ -108,7 +108,7 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
     use crate::schema::users::dsl::*;
 
     UserTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         user: users
             .filter(handle.like(h))
             .first(&*conn)
@@ -119,7 +119,7 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
 #[get("/users?<s>")]
 pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> UsersListTemplate {
     UsersListTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         users: filter_users(&*conn, s),
     }
 }
@@ -132,7 +132,7 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::Use
 #[get("/projects?<s>")]
 pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
     ProjectsListTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         projects: filter_projects(&*conn, s),
     }
 }
@@ -147,7 +147,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> ProjectTempla
     use crate::schema::projects::dsl::*;
 
     ProjectTemplate {
-        logged_in: l,
+        logged_in: l.user(),
         project: projects
             .filter(name.eq(n))
             .first(&*conn)
@@ -158,7 +158,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> ProjectTempla
 #[get("/calendar/newevent")]
 pub fn newevent(admin: AdminGuard) -> NewEventTemplate {
     NewEventTemplate {
-        logged_in: admin.0
+        logged_in: Some(admin.0)
     }
 }
 

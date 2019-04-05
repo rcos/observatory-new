@@ -8,18 +8,9 @@
 </head>
 
 <body>
-    <div>
-        <h1><a href="/">RCOS</a></h1>
-        <div>
-            <a href="/users">Users</a>
-            <a href="/projects">Projects</a>
-            <a href="/calendar">Calendar</a>
-        </div>
-        <div>
-            <a href="/signup">Sign Up</a>
-            <a href="/login">Log In</a>
-        </div>
-    </div>
+    <header>
+        {% block header %}{% endblock %}
+    </header>
     <div id="content">
         {% block content %}{% endblock %}
     </div>

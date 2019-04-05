@@ -7,6 +7,8 @@
 </style>
 {% endblock %}
 
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
 {% block content %}
 <h1>Projects</h1>
 <form method="GET" action="/projects">

@@ -6,6 +6,8 @@
 </style>
 {% endblock %}
 
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
 {% block content %}
 <h1>{{ user.real_name }}</h1>
 <div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>

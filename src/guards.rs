@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use diesel::prelude::*;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
@@ -37,10 +35,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserGuard {
     }
 }
 
-impl Deref for UserGuard {
-    type Target = User;
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl UserThroughOption for Option<UserGuard> {
+    fn user(self) -> Option<User> {
+        self.and_then(|u| Some(u.0))
     }
 }
 
@@ -60,10 +57,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for MentorGuard {
     }
 }
 
-impl Deref for MentorGuard {
-    type Target = User;
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl UserThroughOption for Option<MentorGuard> {
+    fn user(self) -> Option<User> {
+        self.and_then(|u| Some(u.0))
     }
 }
 
@@ -83,10 +79,9 @@ impl<'a, 'r> FromRequest<'a, 'r> for AdminGuard {
     }
 }
 
-impl Deref for AdminGuard {
-    type Target = User;
-    fn deref(&self) -> &Self::Target {
-        &self.0
+impl UserThroughOption for Option<AdminGuard> {
+    fn user(self) -> Option<User> {
+        self.and_then(|u| Some(u.0))
     }
 }
 
@@ -96,4 +91,8 @@ pub enum GuardError {
     NotMentor,
     NotAdmin,
     DatabaseError(diesel::result::Error),
+}
+
+pub trait UserThroughOption {
+    fn user(self) -> Option<User>;
 }

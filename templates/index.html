@@ -7,8 +7,10 @@
 </style>
 {% endblock %}
 
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
 {% block content %}
 <h1>Index</h1>
 <p>Hello, world!</p>
-<pre>{{ version }}</pre>
+<pre>Version: {{ version }}</pre>
 {% endblock %}
