@@ -4,9 +4,9 @@ use std::path::PathBuf;
 use diesel::insert_into;
 use diesel::prelude::*;
 use rocket::http::{ContentType, Cookie, Cookies};
-use rocket::Request;
 use rocket::request::Form;
 use rocket::response::{Redirect, Response};
+use rocket::Request;
 use rocket_contrib::json::Json;
 
 use crate::guards::*;
@@ -51,7 +51,11 @@ pub fn signup() -> SignUpTemplate {
 }
 
 #[post("/signup", data = "<newuser>")]
-pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<models::NewUser>) -> Redirect {
+pub fn signup_post(
+    conn: ObservDbConn,
+    mut cookies: Cookies,
+    newuser: Form<models::NewUser>,
+) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let mut newuser = newuser.into_inner();
@@ -80,7 +84,11 @@ pub fn login() -> LogInTemplate {
 }
 
 #[post("/login", data = "<creds>")]
-pub fn login_post(conn: ObservDbConn, mut cookies: Cookies, creds: Form<models::LogInForm>) -> Redirect {
+pub fn login_post(
+    conn: ObservDbConn,
+    mut cookies: Cookies,
+    creds: Form<models::LogInForm>,
+) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let creds = creds.into_inner();
@@ -144,27 +152,39 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::
 }
 
 #[get("/p/<n>")]
-pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> ProjectTemplate {
+pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
 
-    ProjectTemplate {
+    let p: models::Project = projects
+        .filter(name.like(n))
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get project from database")?;
+    
+    let r: Vec<models::Repo> = models::Repo::belonging_to(&p)
+        .load(&*conn)
+        .expect("Failed to get project's repos from database");
+
+    Some(ProjectTemplate {
         logged_in: l.user(),
-        project: projects
-            .filter(name.eq(n))
-            .first(&*conn)
-            .expect("Failed to get project from database"),
-    }
+        project: p,
+        repos: r,
+    })
 }
 
 #[get("/calendar/newevent")]
 pub fn newevent(admin: AdminGuard) -> NewEventTemplate {
     NewEventTemplate {
-        logged_in: Some(admin.0)
+        logged_in: Some(admin.0),
     }
 }
 
 #[post("/calendar/newevent", data = "<newevent>")]
-pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<models::NewEvent>) -> Redirect {
+pub fn newevent_post(
+    conn: ObservDbConn,
+    _admin: AdminGuard,
+    newevent: Form<models::NewEvent>,
+) -> Redirect {
     use crate::schema::events::dsl::*;
 
     insert_into(events)
@@ -186,7 +206,7 @@ pub fn catch_401() -> Redirect {
 pub fn catch_403(req: &Request) -> Error403Template {
     let l = req.guard::<MaybeLoggedIn>().unwrap();
     Error403Template {
-        logged_in: l.user()
+        logged_in: l.user(),
     }
 }
 
@@ -194,6 +214,6 @@ pub fn catch_403(req: &Request) -> Error403Template {
 pub fn catch_404(req: &Request) -> Error404Template {
     let l = req.guard::<MaybeLoggedIn>().unwrap();
     Error404Template {
-        logged_in: l.user()
+        logged_in: l.user(),
     }
 }

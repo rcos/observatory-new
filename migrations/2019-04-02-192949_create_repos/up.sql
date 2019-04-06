@@ -4,5 +4,6 @@ CREATE TABLE repos (
     -- ID of the project this repo belongs to
     project_id INTEGER NOT NULL,
     -- URL of the repo
-    url TEXT NOT NULL
+    url TEXT NOT NULL,
+    FOREIGN KEY (project_id) REFERENCES projects (id)
 );

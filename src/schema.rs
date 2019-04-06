@@ -42,7 +42,7 @@ table! {
     relation_group_user (id) {
         id -> Integer,
         group_id -> Integer,
-        member_id -> Integer,
+        user_id -> Integer,
     }
 }
 
@@ -57,7 +57,7 @@ table! {
 table! {
     relation_project_user (id) {
         id -> Integer,
-        project_ID -> Integer,
+        project_id -> Integer,
         user_id -> Integer,
     }
 }
@@ -83,6 +83,14 @@ table! {
         tier -> Integer,
     }
 }
+
+joinable!(relation_group_user -> groups (group_id));
+joinable!(relation_group_user -> users (user_id));
+joinable!(relation_meeting_user -> meetings (meeting_id));
+joinable!(relation_meeting_user -> users (user_id));
+joinable!(relation_project_user -> projects (project_id));
+joinable!(relation_project_user -> users (user_id));
+joinable!(repos -> projects (project_id));
 
 allow_tables_to_appear_in_same_query!(
     events,

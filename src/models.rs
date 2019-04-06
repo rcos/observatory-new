@@ -4,7 +4,7 @@ use chrono::naive::NaiveDateTime;
 
 use super::schema::*;
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct User {
     pub id: i32,
     pub real_name: String,
@@ -35,7 +35,7 @@ pub struct LogInForm {
     pub password: String,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Meeting {
     pub id: i32,
     pub happened_at: NaiveDateTime,
@@ -51,7 +51,7 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Project {
     pub id: i32,
     pub name: String,
@@ -68,7 +68,7 @@ pub struct NewProject {
     pub owner_id: i32,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Group {
     pub id: i32,
     pub name: String,
@@ -84,7 +84,8 @@ pub struct NewGroup {
     pub location: Option<String>,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
+#[belongs_to(Project)]
 pub struct Repo {
     pub id: i32,
     pub project_id: i32,
@@ -98,7 +99,7 @@ pub struct NewRepo {
     pub url: String,
 }
 
-#[derive(Queryable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Event {
     pub id: i32,
     pub happening_at: NaiveDateTime,

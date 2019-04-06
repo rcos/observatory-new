@@ -42,6 +42,7 @@ pub struct UsersListTemplate {
 pub struct ProjectTemplate {
     pub logged_in: OptUser,
     pub project: Project,
+    pub repos: Vec<Repo>,
 }
 
 #[derive(Template)]
@@ -72,7 +73,7 @@ pub struct CalendarTemplate {
 #[derive(Template)]
 #[template(path = "new-event.html")]
 pub struct NewEventTemplate {
-    pub logged_in: OptUser
+    pub logged_in: OptUser,
 }
 
 //# Catcher Templates
@@ -80,11 +81,11 @@ pub struct NewEventTemplate {
 #[derive(Template)]
 #[template(path = "catchers/403.html")]
 pub struct Error403Template {
-    pub logged_in: OptUser
+    pub logged_in: OptUser,
 }
 
 #[derive(Template)]
 #[template(path = "catchers/404.html")]
 pub struct Error404Template {
-    pub logged_in: OptUser
+    pub logged_in: OptUser,
 }
