@@ -4,6 +4,7 @@ use std::path::PathBuf;
 use diesel::insert_into;
 use diesel::prelude::*;
 use rocket::http::{ContentType, Cookie, Cookies};
+use rocket::Request;
 use rocket::request::Form;
 use rocket::response::{Redirect, Response};
 use rocket_contrib::json::Json;
@@ -181,5 +182,18 @@ pub fn catch_401() -> Redirect {
     Redirect::to("/login")
 }
 
-// #[catch(403)]
-// pub fn catch_403();
+#[catch(403)]
+pub fn catch_403(req: &Request) -> Error403Template {
+    let l = req.guard::<MaybeLoggedIn>().unwrap();
+    Error403Template {
+        logged_in: l.user()
+    }
+}
+
+#[catch(404)]
+pub fn catch_404(req: &Request) -> Error404Template {
+    let l = req.guard::<MaybeLoggedIn>().unwrap();
+    Error404Template {
+        logged_in: l.user()
+    }
+}

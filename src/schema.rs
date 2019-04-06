@@ -33,7 +33,6 @@ table! {
         id -> Integer,
         name -> Text,
         homepage -> Nullable<Text>,
-        repo -> Text,
         owner_id -> Integer,
         active -> Bool,
     }

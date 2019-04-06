@@ -56,7 +56,6 @@ pub struct Project {
     pub id: i32,
     pub name: String,
     pub homepage: Option<String>,
-    pub repo: String,
     pub owner_id: i32,
     pub active: bool,
 }
@@ -66,7 +65,6 @@ pub struct Project {
 pub struct NewProject {
     pub name: String,
     pub homepage: Option<String>,
-    pub repo: String,
     pub owner_id: i32,
 }
 

@@ -9,9 +9,17 @@ pub struct IndexTemplate {
     pub version: &'static str,
 }
 
+//# Sign Up and Log In templates
+
 #[derive(Template)]
 #[template(path = "signup.html")]
 pub struct SignUpTemplate;
+
+#[derive(Template)]
+#[template(path = "login.html")]
+pub struct LogInTemplate;
+
+//# User Templates
 
 #[derive(Template)]
 #[template(path = "user.html")]
@@ -27,9 +35,7 @@ pub struct UsersListTemplate {
     pub users: Vec<User>,
 }
 
-#[derive(Template)]
-#[template(path = "login.html")]
-pub struct LogInTemplate;
+//# Project Templates
 
 #[derive(Template)]
 #[template(path = "project.html")]
@@ -45,12 +51,16 @@ pub struct ProjectsListTemplate {
     pub projects: Vec<Project>,
 }
 
+//# Group Templates
+
 #[derive(Template)]
 #[template(path = "group.html")]
 pub struct GroupTemplate {
     pub logged_in: OptUser,
     pub group: Group,
 }
+
+//# Calendar Templates
 
 #[derive(Template)]
 #[template(path = "calendar.html")]
@@ -62,5 +72,19 @@ pub struct CalendarTemplate {
 #[derive(Template)]
 #[template(path = "new-event.html")]
 pub struct NewEventTemplate {
+    pub logged_in: OptUser
+}
+
+//# Catcher Templates
+
+#[derive(Template)]
+#[template(path = "catchers/403.html")]
+pub struct Error403Template {
+    pub logged_in: OptUser
+}
+
+#[derive(Template)]
+#[template(path = "catchers/404.html")]
+pub struct Error404Template {
     pub logged_in: OptUser
 }
