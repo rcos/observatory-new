@@ -15,6 +15,8 @@ extern crate serde_derive;
 #[macro_use]
 extern crate rust_embed;
 
+extern crate rand;
+
 // Module files
 mod guards;
 mod handlers;
@@ -45,12 +47,15 @@ fn main() {
                 login,
                 login_post,
                 logout,
+                attend,
+                attend_post,
                 staticfile,
                 user,
                 users,
                 users_json,
                 project,
-                projects
+                projects,
+                projects_json
             ],
         )
         .launch();

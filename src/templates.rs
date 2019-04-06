@@ -74,6 +74,15 @@ pub struct CalendarTemplate {
 #[template(path = "new-event.html")]
 pub struct NewEventTemplate {
     pub logged_in: OptUser,
+    pub all_users: Vec<User>,
+}
+
+//# Attendance Template
+
+#[derive(Template)]
+#[template(path = "attend.html")]
+pub struct AttendTemplate {
+    pub logged_in: OptUser,
 }
 
 //# Catcher Templates

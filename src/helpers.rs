@@ -1,7 +1,56 @@
 use crate::models::*;
 use diesel::prelude::*;
-use ring::rand::SecureRandom;
-use ring::{digest, pbkdf2, rand};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
+use ring::rand::{SecureRandom, SystemRandom};
+use ring::{digest, pbkdf2};
+
+//# Attendance Code Helpers
+
+pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn Attendable>> {
+    if let Some(e) = {
+        use crate::schema::events::dsl::*;
+        events
+            .filter(code.eq(vcode))
+            .first::<Event>(conn)
+            .optional()
+            .expect("Failed to get events from database")
+    } {
+        Some(Box::new(e))
+    } else {
+        if let Some(m) = {
+            use crate::schema::meetings::dsl::*;
+            meetings
+                .filter(code.eq(vcode))
+                .first::<Meeting>(conn)
+                .optional()
+                .expect("Failed to get meetings from database")
+        } {
+            Some(Box::new(m))
+        } else {
+            None
+        }
+    }
+}
+
+pub fn attendance_code(conn: &SqliteConnection) -> String {
+    let code = gen_code();
+    if verify_code(conn, &code).is_some() {
+        attendance_code(conn)
+    } else {
+        code
+    }
+}
+
+fn gen_code() -> String {
+    thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(6)
+        .collect::<String>()
+        .to_lowercase()
+}
+
+//# Filter Helpers
 
 pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> {
     use crate::schema::users::dsl::*;
@@ -32,11 +81,13 @@ pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Pro
     .expect("Failed to get projects")
 }
 
+//# Password Helpers
+
 const N_ITER: u32 = 100000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
 
 pub fn gen_salt() -> String {
-    let rng = rand::SystemRandom::new();
+    let rng = SystemRandom::new();
     let mut salt = [0u8; CRE_LEN];
     rng.fill(&mut salt).unwrap();
     unsafe { String::from_utf8_unchecked(salt.to_vec()) }

@@ -44,6 +44,27 @@ pub struct Meeting {
     pub hosted_by: i32,
 }
 
+impl Attendable for Meeting {
+    fn id(&self) -> i32 {
+        self.id
+    }
+    fn name(&self) -> String {
+        format!("Meeting at: {}", self.hosted_by)
+    }
+    fn time(&self) -> NaiveDateTime {
+        self.happened_at
+    }
+    fn code(&self) -> String {
+        self.code.clone()
+    }
+    fn owner_id(&self) -> i32 {
+        self.hosted_by
+    }
+    fn is_event(&self) -> bool {
+        false
+    }
+}
+
 #[derive(Default, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
@@ -107,6 +128,28 @@ pub struct Event {
     pub description: Option<String>,
     pub hosted_by: i32,
     pub location: Option<String>,
+    pub code: String,
+}
+
+impl Attendable for Event {
+    fn id(&self) -> i32 {
+        self.id
+    }
+    fn name(&self) -> String {
+        self.title.clone()
+    }
+    fn time(&self) -> NaiveDateTime {
+        self.happening_at
+    }
+    fn code(&self) -> String {
+        self.code.clone()
+    }
+    fn owner_id(&self) -> i32 {
+        self.hosted_by
+    }
+    fn is_event(&self) -> bool {
+        true
+    }
 }
 
 #[derive(Default, FromForm, Insertable)]
@@ -117,4 +160,32 @@ pub struct NewEvent {
     pub description: Option<String>,
     pub hosted_by: i32,
     pub location: Option<String>,
+    pub code: String,
+}
+
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+pub struct Attendance {
+    pub id: i32,
+    pub user_id: i32,
+    pub is_event: bool,
+    pub meeting_id: Option<i32>,
+    pub event_id: Option<i32>,
+}
+
+#[derive(Default, FromForm, Insertable)]
+#[table_name = "attendances"]
+pub struct NewAttendance {
+    pub user_id: i32,
+    pub is_event: bool,
+    pub meeting_id: Option<i32>,
+    pub event_id: Option<i32>,
+}
+
+pub trait Attendable {
+    fn id(&self) -> i32;
+    fn name(&self) -> String;
+    fn time(&self) -> NaiveDateTime;
+    fn code(&self) -> String;
+    fn owner_id(&self) -> i32;
+    fn is_event(&self) -> bool;
 }

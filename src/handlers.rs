@@ -35,20 +35,12 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
     Some(Response::build().header(ctype).sized_body(bytes).finalize())
 }
 
-#[get("/calendar")]
-pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
-    use crate::schema::events::dsl::*;
-
-    CalendarTemplate {
-        logged_in: l.user(),
-        events: events.load(&conn.0).expect("Failed to get events"),
-    }
-}
-
 #[get("/signup")]
 pub fn signup() -> SignUpTemplate {
     SignUpTemplate
 }
+
+//# Sign Up and Log In Handlers
 
 #[post("/signup", data = "<newuser>")]
 pub fn signup_post(
@@ -112,6 +104,8 @@ pub fn logout(mut cookies: Cookies) -> Redirect {
     Redirect::to("/")
 }
 
+//# User Handlers
+
 #[get("/u/<h>")]
 pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
     use crate::schema::users::dsl::*;
@@ -138,6 +132,8 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::Use
     Json(filter_users(&*conn, s))
 }
 
+//# Project Handlers
+
 #[get("/projects?<s>")]
 pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
     ProjectsListTemplate {
@@ -160,7 +156,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
         .first(&*conn)
         .optional()
         .expect("Failed to get project from database")?;
-    
+
     let r: Vec<models::Repo> = models::Repo::belonging_to(&p)
         .load(&*conn)
         .expect("Failed to get project's repos from database");
@@ -172,10 +168,26 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
     })
 }
 
+//# Calendar Handlers
+
+#[get("/calendar")]
+pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
+    use crate::schema::events::dsl::*;
+
+    CalendarTemplate {
+        logged_in: l.user(),
+        events: events.load(&conn.0).expect("Failed to get events"),
+    }
+}
+
 #[get("/calendar/newevent")]
-pub fn newevent(admin: AdminGuard) -> NewEventTemplate {
+pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
+    use crate::schema::users::dsl::*;
     NewEventTemplate {
         logged_in: Some(admin.0),
+        all_users: users
+            .load(&*conn)
+            .expect("Failed to get users from the database"),
     }
 }
 
@@ -187,12 +199,55 @@ pub fn newevent_post(
 ) -> Redirect {
     use crate::schema::events::dsl::*;
 
+    let mut newevent = newevent.into_inner();
+    newevent.code = attendance_code(&*conn);
+
     insert_into(events)
-        .values(&newevent.0)
+        .values(&newevent)
         .execute(&*conn)
         .expect("Failed to add user to database");
 
     Redirect::to("/calendar")
+}
+
+//# Attendance
+
+#[get("/attend")]
+pub fn attend(l: UserGuard) -> AttendTemplate {
+    AttendTemplate {
+        logged_in: Some(l.0),
+    }
+}
+
+#[derive(FromForm)]
+pub struct AttendCode {
+    code: String,
+}
+
+#[post("/attend", data = "<code>")]
+pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> Redirect {
+    use crate::schema::attendances::dsl::*;
+
+    if let Some(m) = verify_code(&*conn, &code.code) {
+        let (mid, eid) = if m.is_event() {
+            (None, Some(m.id()))
+        } else {
+            (Some(m.id()), None)
+        };
+        let newattend = models::NewAttendance {
+            user_id: l.0.id,
+            is_event: m.is_event(),
+            meeting_id: mid,
+            event_id: eid,
+        };
+        insert_into(attendances)
+            .values(&newattend)
+            .execute(&*conn)
+            .expect("Failed to insert attendance into database");
+        Redirect::to("/")
+    } else {
+        Redirect::to("/attend")
+    }
 }
 
 //# Catchers

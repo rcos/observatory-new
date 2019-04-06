@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Attend{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
+{% block content %}
+<h1>Attend</h1>
+<form method="POST" action="/attend">
+    <input type="text" name="code">
+    <button type="submit">Submit</button>
+</form>
+{% endblock %}

@@ -1,4 +1,14 @@
 table! {
+    attendances (id) {
+        id -> Integer,
+        is_event -> Bool,
+        user_id -> Integer,
+        meeting_id -> Nullable<Integer>,
+        event_id -> Nullable<Integer>,
+    }
+}
+
+table! {
     events (id) {
         id -> Integer,
         happening_at -> Timestamp,
@@ -6,6 +16,7 @@ table! {
         description -> Nullable<Text>,
         hosted_by -> Integer,
         location -> Nullable<Text>,
+        code -> Text,
     }
 }
 
@@ -84,6 +95,9 @@ table! {
     }
 }
 
+joinable!(attendances -> events (event_id));
+joinable!(attendances -> meetings (meeting_id));
+joinable!(attendances -> users (user_id));
 joinable!(relation_group_user -> groups (group_id));
 joinable!(relation_group_user -> users (user_id));
 joinable!(relation_meeting_user -> meetings (meeting_id));
@@ -93,6 +107,7 @@ joinable!(relation_project_user -> users (user_id));
 joinable!(repos -> projects (project_id));
 
 allow_tables_to_appear_in_same_query!(
+    attendances,
     events,
     groups,
     meetings,

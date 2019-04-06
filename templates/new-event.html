@@ -29,10 +29,14 @@
         <input type="datetime-local" name="happening_at">
     </div>
     <div>
-        <!-- TODO make this a select -->
         <label for="hosted_by">Hosted By</label>
-        <input type="number" name="hosted_by">
+        <select name="hosted_by">
+            {% for user in all_users %}
+            <option value="{{ user.id }}">{{ user.real_name }}</option>
+            {% endfor %}
+        </select>
     </div>
+    <input type="hidden" name="code" value="">
     <div>
         <button type="submit">Submit</button>
     </div>

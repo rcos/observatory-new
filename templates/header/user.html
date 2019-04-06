@@ -8,7 +8,8 @@
 {% match logged_in %}
 {% when Some with (u) %}
 <div>
-    {{ u.handle }}
+    <a href="/attend">Attend</a>
+    <a href="/dashboard">{{ u.handle }}</a>
     <a href="/logout">Log Out</a>
 </div>
 {% when None %}

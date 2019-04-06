@@ -10,5 +10,7 @@ CREATE TABLE events (
     -- ID of the user who is hosting the event
     hosted_by INTEGER NOT NULL,
     -- Optional location of the event
-    location TEXT
+    location TEXT,
+    -- The attendance code of the meeting
+    code TEXT NOT NULL UNIQUE
 );
