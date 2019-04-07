@@ -29,13 +29,8 @@ pub struct NewUser {
     pub email: String,
 }
 
-#[derive(Default, FromForm)]
-pub struct LogInForm {
-    pub email: String,
-    pub password: String,
-}
-
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
+#[belongs_to(Group)]
 pub struct Meeting {
     pub id: i32,
     pub happened_at: NaiveDateTime,
@@ -49,7 +44,7 @@ impl Attendable for Meeting {
         self.id
     }
     fn name(&self) -> String {
-        format!("Meeting at: {}", self.hosted_by)
+        format!("Meeting at: {}", self.happened_at)
     }
     fn time(&self) -> NaiveDateTime {
         self.happened_at
@@ -63,9 +58,12 @@ impl Attendable for Meeting {
     fn is_event(&self) -> bool {
         false
     }
+    fn url(&self) -> String {
+        format!("/h/{}", self.group_id)
+    }
 }
 
-#[derive(Default, Insertable)]
+#[derive(Default, FromForm, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
     pub code: String,
@@ -81,7 +79,7 @@ pub struct Project {
     pub active: bool,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Default, FromForm, Insertable)]
 #[table_name = "projects"]
 pub struct NewProject {
     pub name: String,
@@ -97,7 +95,7 @@ pub struct Group {
     pub location: Option<String>,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Default, FromForm, Insertable)]
 #[table_name = "groups"]
 pub struct NewGroup {
     pub name: String,
@@ -150,6 +148,9 @@ impl Attendable for Event {
     fn is_event(&self) -> bool {
         true
     }
+    fn url(&self) -> String {
+        format!("/e/{}", self.id)
+    }
 }
 
 #[derive(Default, FromForm, Insertable)]
@@ -163,7 +164,8 @@ pub struct NewEvent {
     pub code: String,
 }
 
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
+#[belongs_to(User)]
 pub struct Attendance {
     pub id: i32,
     pub user_id: i32,
@@ -188,4 +190,37 @@ pub trait Attendable {
     fn code(&self) -> String;
     fn owner_id(&self) -> i32;
     fn is_event(&self) -> bool;
+    fn url(&self) -> String;
+}
+
+//# Relation Models
+
+#[derive(Debug, PartialEq, Queryable, Identifiable)]
+#[table_name = "relation_group_user"]
+pub struct RelationGroupUser {
+    pub id: i32,
+    pub group_id: i32,
+    pub user_id: i32,
+}
+
+#[derive(Default, Insertable)]
+#[table_name = "relation_group_user"]
+pub struct NewRelationGroupUser {
+    pub group_id: i32,
+    pub user_id: i32,
+}
+
+#[derive(Debug, PartialEq, Queryable, Identifiable)]
+#[table_name = "relation_project_user"]
+pub struct RelationProjectUser {
+    pub id: i32,
+    pub project_id: i32,
+    pub user_id: i32,
+}
+
+#[derive(Default, Insertable)]
+#[table_name = "relation_project_user"]
+pub struct NewRelationProjectUser {
+    pub project_id: i32,
+    pub user_id: i32,
 }

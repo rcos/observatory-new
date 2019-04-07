@@ -11,7 +11,7 @@ use rocket_contrib::json::Json;
 
 use crate::guards::*;
 use crate::helpers::*;
-use crate::models;
+use crate::models::*;
 use crate::templates::*;
 use crate::ObservDbConn;
 
@@ -43,11 +43,7 @@ pub fn signup() -> SignUpTemplate {
 //# Sign Up and Log In Handlers
 
 #[post("/signup", data = "<newuser>")]
-pub fn signup_post(
-    conn: ObservDbConn,
-    mut cookies: Cookies,
-    newuser: Form<models::NewUser>,
-) -> Redirect {
+pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUser>) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let mut newuser = newuser.into_inner();
@@ -60,10 +56,21 @@ pub fn signup_post(
         .execute(&*conn)
         .expect("Failed to add user to database");
 
-    let user: models::User = users
+    let user: User = users
         .filter(&email.eq(newuser.email))
         .first(&*conn)
         .expect("Failed to get user from database");
+    
+    {
+        use crate::schema::relation_group_user::dsl::*;
+        insert_into(relation_group_user)
+            .values(&NewRelationGroupUser {
+                group_id: 0,
+                user_id: user.id
+            })
+            .execute(&*conn)
+            .expect("Failed to insert new relation into database");
+    }
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
@@ -75,26 +82,34 @@ pub fn login() -> LogInTemplate {
     LogInTemplate
 }
 
-#[post("/login", data = "<creds>")]
+#[derive(Default, FromForm)]
+pub struct LogInForm {
+    pub email: String,
+    pub password: String,
+}
+
+#[post("/login?<to>", data = "<creds>")]
 pub fn login_post(
     conn: ObservDbConn,
     mut cookies: Cookies,
-    creds: Form<models::LogInForm>,
+    creds: Form<LogInForm>,
+    to: Option<String>,
 ) -> Redirect {
     use crate::schema::users::dsl::*;
 
     let creds = creds.into_inner();
+    let to = to.unwrap_or(String::from("/"));
 
-    let user: models::User = users
+    let user: User = users
         .filter(&email.eq(creds.email))
         .first(&*conn)
         .expect("Failed to get user from database");
 
     if verify_password(creds.password, user.password_hash, &user.salt) {
         cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
-        Redirect::to("/")
+        Redirect::to(to)
     } else {
-        Redirect::to("/login")
+        Redirect::to(format!("/login?to={}", to))
     }
 }
 
@@ -128,7 +143,7 @@ pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> UsersLi
 }
 
 #[get("/users.json?<s>")]
-pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::User>> {
+pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
     Json(filter_users(&*conn, s))
 }
 
@@ -143,7 +158,7 @@ pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> Proj
 }
 
 #[get("/projects.json?<s>")]
-pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::Project>> {
+pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
     Json(filter_projects(&*conn, s))
 }
 
@@ -151,13 +166,13 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<models::
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
 
-    let p: models::Project = projects
+    let p: Project = projects
         .filter(name.like(n))
         .first(&*conn)
         .optional()
         .expect("Failed to get project from database")?;
 
-    let r: Vec<models::Repo> = models::Repo::belonging_to(&p)
+    let r: Vec<Repo> = Repo::belonging_to(&p)
         .load(&*conn)
         .expect("Failed to get project's repos from database");
 
@@ -180,7 +195,7 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     }
 }
 
-#[get("/calendar/newevent")]
+#[get("/calendar/new")]
 pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
     NewEventTemplate {
@@ -191,12 +206,8 @@ pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     }
 }
 
-#[post("/calendar/newevent", data = "<newevent>")]
-pub fn newevent_post(
-    conn: ObservDbConn,
-    _admin: AdminGuard,
-    newevent: Form<models::NewEvent>,
-) -> Redirect {
+#[post("/calendar/new", data = "<newevent>")]
+pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
     use crate::schema::events::dsl::*;
 
     let mut newevent = newevent.into_inner();
@@ -208,6 +219,72 @@ pub fn newevent_post(
         .expect("Failed to add user to database");
 
     Redirect::to("/calendar")
+}
+
+//# Groups and Meetings
+
+#[get("/g/<gid>")]
+pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> GroupTemplate {
+    use crate::schema::groups::dsl::*;
+
+    let g: Group = groups
+        .find(gid)
+        .first(&*conn)
+        .expect("Failed to get groups from the database");
+
+    let m: Vec<Meeting> = Meeting::belonging_to(&g)
+        .load(&*conn)
+        .expect("Failed to get project's repos from database");
+
+    GroupTemplate {
+        logged_in: Some(l.0),
+        group: g,
+        meetings: m,
+    }
+}
+
+#[get("/groups")]
+pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
+    use crate::schema::groups::dsl::*;
+    GroupsListTemplate {
+        logged_in: Some(l.0),
+        groups: groups
+            .load(&*conn)
+            .expect("Failed to get groups from the database"),
+    }
+}
+
+#[get("/groups/new")]
+pub fn newgroup(l: AdminGuard) -> NewGroupTemplate {
+    NewGroupTemplate {
+        logged_in: Some(l.0),
+    }
+}
+
+#[post("/groups/new", data = "<newgroup>")]
+pub fn newgroup_post(conn: ObservDbConn, l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
+    unimplemented!()
+}
+
+#[post("/g/<gid>", data = "<newmeeting>")]
+pub fn newmeeting_post(
+    conn: ObservDbConn,
+    l: MentorGuard,
+    gid: i32,
+    newmeeting: Form<NewMeeting>,
+) -> Redirect {
+    use crate::schema::meetings::dsl::*;
+
+    let mut newmeeting = newmeeting.into_inner();
+    newmeeting.group_id = gid;
+    newmeeting.code = attendance_code(&*conn);
+
+    insert_into(meetings)
+        .values(&newmeeting)
+        .execute(&*conn)
+        .expect("Failed to insert meeting into database");
+
+    Redirect::to(format!("/g/{}", newmeeting.group_id))
 }
 
 //# Attendance
@@ -234,7 +311,7 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
         } else {
             (Some(m.id()), None)
         };
-        let newattend = models::NewAttendance {
+        let newattend = NewAttendance {
             user_id: l.0.id,
             is_event: m.is_event(),
             meeting_id: mid,
@@ -253,8 +330,8 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
 //# Catchers
 
 #[catch(401)]
-pub fn catch_401() -> Redirect {
-    Redirect::to("/login")
+pub fn catch_401(req: &Request) -> Redirect {
+    Redirect::to(dbg!(format!("/login?to={}", req.uri().path())))
 }
 
 #[catch(403)]

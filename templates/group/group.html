@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
+{% block content %}
+
+<h1>{{ group.name }} Group</h1>
+
+{% match group.location %}
+{% when Some with (val) %}
+Room: {{ val }}
+{% when None %}
+{% endmatch %}
+
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 1 || u.id == group.owner_id %}
+<form method="POST">
+    <input type="hidden" name="group_id" value="{{ group.id }}">
+    <input type="hidden" name="code" value="code">
+    <button type="submit">New Meeting</button>
+</form>
+{% endif %}
+{% when None %}
+{% endmatch %}
+
+<ul>
+    {% for meeting in meetings %}
+    <li>Meeting at {{ meeting.happened_at }} code: <code>{{ meeting.code }}</code></li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

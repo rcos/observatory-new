@@ -8,6 +8,9 @@
 {% match logged_in %}
 {% when Some with (u) %}
 <div>
+    {% if u.tier > 0 %}
+    <a href="/groups">Groups</a>
+    {% endif %}
     <a href="/attend">Attend</a>
     <a href="/dashboard">{{ u.handle }}</a>
     <a href="/logout">Log Out</a>

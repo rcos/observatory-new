@@ -12,24 +12,24 @@ pub struct IndexTemplate {
 //# Sign Up and Log In templates
 
 #[derive(Template)]
-#[template(path = "signup.html")]
+#[template(path = "auth/signup.html")]
 pub struct SignUpTemplate;
 
 #[derive(Template)]
-#[template(path = "login.html")]
+#[template(path = "auth/login.html")]
 pub struct LogInTemplate;
 
 //# User Templates
 
 #[derive(Template)]
-#[template(path = "user.html")]
+#[template(path = "user/user.html")]
 pub struct UserTemplate {
     pub logged_in: OptUser,
     pub user: User,
 }
 
 #[derive(Template)]
-#[template(path = "users-list.html")]
+#[template(path = "user/users-list.html")]
 pub struct UsersListTemplate {
     pub logged_in: OptUser,
     pub users: Vec<User>,
@@ -38,7 +38,7 @@ pub struct UsersListTemplate {
 //# Project Templates
 
 #[derive(Template)]
-#[template(path = "project.html")]
+#[template(path = "project/project.html")]
 pub struct ProjectTemplate {
     pub logged_in: OptUser,
     pub project: Project,
@@ -46,7 +46,7 @@ pub struct ProjectTemplate {
 }
 
 #[derive(Template)]
-#[template(path = "projects-list.html")]
+#[template(path = "project/projects-list.html")]
 pub struct ProjectsListTemplate {
     pub logged_in: OptUser,
     pub projects: Vec<Project>,
@@ -55,23 +55,37 @@ pub struct ProjectsListTemplate {
 //# Group Templates
 
 #[derive(Template)]
-#[template(path = "group.html")]
+#[template(path = "group/group.html")]
 pub struct GroupTemplate {
     pub logged_in: OptUser,
     pub group: Group,
+    pub meetings: Vec<Meeting>,
+}
+
+#[derive(Template)]
+#[template(path = "group/groups-list.html")]
+pub struct GroupsListTemplate {
+    pub logged_in: OptUser,
+    pub groups: Vec<Group>,
+}
+
+#[derive(Template)]
+#[template(path = "group/new-group.html")]
+pub struct NewGroupTemplate {
+    pub logged_in: OptUser,
 }
 
 //# Calendar Templates
 
 #[derive(Template)]
-#[template(path = "calendar.html")]
+#[template(path = "calendar/calendar.html")]
 pub struct CalendarTemplate {
     pub logged_in: OptUser,
     pub events: Vec<Event>,
 }
 
 #[derive(Template)]
-#[template(path = "new-event.html")]
+#[template(path = "calendar/new-event.html")]
 pub struct NewEventTemplate {
     pub logged_in: OptUser,
     pub all_users: Vec<User>,

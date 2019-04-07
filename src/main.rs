@@ -39,6 +39,7 @@ fn main() {
             "/",
             routes![
                 index,
+                staticfile,
                 calendar,
                 newevent,
                 newevent_post,
@@ -49,13 +50,16 @@ fn main() {
                 logout,
                 attend,
                 attend_post,
-                staticfile,
                 user,
                 users,
                 users_json,
                 project,
                 projects,
-                projects_json
+                projects_json,
+                group,
+                groups,
+                newgroup_post,
+                newmeeting_post
             ],
         )
         .launch();

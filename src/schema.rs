@@ -58,14 +58,6 @@ table! {
 }
 
 table! {
-    relation_meeting_user (id) {
-        id -> Integer,
-        meeting_id -> Integer,
-        user_id -> Integer,
-    }
-}
-
-table! {
     relation_project_user (id) {
         id -> Integer,
         project_id -> Integer,
@@ -100,8 +92,6 @@ joinable!(attendances -> meetings (meeting_id));
 joinable!(attendances -> users (user_id));
 joinable!(relation_group_user -> groups (group_id));
 joinable!(relation_group_user -> users (user_id));
-joinable!(relation_meeting_user -> meetings (meeting_id));
-joinable!(relation_meeting_user -> users (user_id));
 joinable!(relation_project_user -> projects (project_id));
 joinable!(relation_project_user -> users (user_id));
 joinable!(repos -> projects (project_id));
@@ -113,7 +103,6 @@ allow_tables_to_appear_in_same_query!(
     meetings,
     projects,
     relation_group_user,
-    relation_meeting_user,
     relation_project_user,
     repos,
     users,
