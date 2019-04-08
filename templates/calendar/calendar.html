@@ -11,24 +11,32 @@
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
 
-{% block content %}
-<h1>Calendar</h1>
-
+{% block adminbuttons %}
 {% match logged_in %}
 {% when Some with (u) %}
 {% if u.tier > 1 %}
-<a href="/calendar/new">Create New Event</a>
+<a class="btn btn-secondary" href="/calendar/new">New Event</a>
 {% endif %}
 {% when None %}
 {% endmatch %}
+{% endblock %}
 
-{% for event in events %}
-<div>
-    <a href="/calendar/{{ event.id }}">{{ event.title }}</a>
-    {{ event.happening_at }}
-</div>
-{% endfor %}
+{% block content %}
+
+<table class="table table-hover">
+    <thead>
+        <th>Event Title</th>
+        <th>Happening At</th>
+    </thead>
+    <tbody>
+        {% for event in events %}
+        <tr class="position-relative">
+            <td><a class="stretched-link" href="/calendar/{{ event.id }}">{{ event.title }}</a></td>
+            <td>{{ event.start }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

@@ -7,11 +7,20 @@
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
+
+{% block adminbuttons %}
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 1 %}
+<a class="btn btn-secondary" href="/calendar/{{ event.id }}/edit">Edit</a>
+<button class="btn btn-danger">Delete</button>
+{% endif %}
+{% when None %}
+{% endmatch %}
+{% endblock %}
 
 {% block content %}
-<h1>{{ event.title }}</h1>
-<h2>At {{ event.happening_at }}</h2>
+<h2>At {{ event.start }} until {{ event.end }}</h2>
 
 {% match event.location %}
 {% when Some with (val) %}

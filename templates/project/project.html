@@ -7,10 +7,9 @@
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
+
 
 {% block content %}
-<h1>{{ project.name }}</h1>
 {% match project.homepage %}
 {% when Some with (val) %}
 <a href="{{ val }}">Homepage</a>

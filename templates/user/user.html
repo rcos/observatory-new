@@ -1,15 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}User{% endblock %}
+{% block title %}{{ user.real_name }}{% endblock %}
 {% block head %}
 <style>
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
+
 
 {% block content %}
-<h1>{{ user.real_name }}</h1>
 <div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>
 <div>Member since: {{ user.joined_on }}</div>
 {% endblock %}

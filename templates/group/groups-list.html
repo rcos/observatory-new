@@ -7,14 +7,30 @@
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
+{% block adminbuttons %}
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 1 %}
+<a class="btn btn-secondary" href="/groups/">New Group</a>
+{% endif %}
+{% when None %}
+{% endmatch %}
+{% endblock %}
 
 {% block content %}
-<h1>Groups</h1>
-{% for group in groups %}
-<div>
-    <a href="/groups/{{ group.id }}">{{ group.name }}</a>
-</div>
-{% endfor %}
+<table class="table table-hover">
+    <thead>
+        <th>Group Name</th>
+    </thead>
+    <tbody>
+        {% for group in groups %}
+        <tr class="position-relative">
+            <td>
+                <a class="stretched-link" href="/groups/{{ group.id }}">{{ group.name }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

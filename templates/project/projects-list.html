@@ -1,35 +1,41 @@
 {% extends "base.html" %}
 
-{% block title %}Index{% endblock %}
+{% block title %}Projects{% endblock %}
 
 {% block head %}
 <style>
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/user.html" %} {% endblock %}
+{% block tools %}
+<form method="GET">
+    <div class="input-group mb-3">
+        <input type="text" name="s" placeholder="Search">
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
 
 {% block content %}
-<h1>Projects</h1>
-<form method="GET">
-    <input type="text" name="s" placeholder="Search">
-    <button type="submit">Search</button>
-</form>
-<table>
+<table class="table table-hover">
     <thead>
         <th>Name</th>
         <th>Homepage</th>
     </thead>
-    {% for project in projects %}
-    <tr>
-        <td><a href="/projects/{{ project.name }}">{{ project.name }}</a></td>
-        {% match project.homepage %}
-        {% when Some with (val) %}
-        <td><a href="{{ val }}">{{ val }}</a></td>
-        {% when None %}
-        <td>None</td>
-        {% endmatch %}
-    </tr>
-    {% endfor %}
+    <tbody>
+        {% for project in projects %}
+        <tr class="position-relative">
+            <td><a href="/projects/{{ project.name }}">{{ project.name }}</a></td>
+            {% match project.homepage %}
+            {% when Some with (val) %}
+            <td><a class="stretched-link" href="{{ val }}">{{ val }}</a></td>
+            {% when None %}
+            <td>None</td>
+            {% endmatch %}
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}

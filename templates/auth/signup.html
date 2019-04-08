@@ -7,30 +7,27 @@
 </style>
 {% endblock %}
 
-{% block header %} {% include "header/simple.html" %} {% endblock %}
+
 
 {% block content %}
-<h1>Sign Up</h1>
 <form method="POST">
-    <div>
+    <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" name="email">
+        <input type="email" name="email" class="form-control" required autofocus>
     </div>
-    <div>
+    <div class="form-group">
         <label for="password_hash">Password</label>
-        <input type="password" name="password_hash">
+        <input type="password" name="password_hash" class="form-control" required>
     </div>
-    <div>
+    <div class="form-group">
         <label for="real_name">Real Name</label>
-        <input type="text" name="real_name">
+        <input type="text" name="real_name" class="form-control" required>
     </div>
-    <div>
+    <div class="form-group">
         <label for="handle">GitHub Handle</label>
-        <input type="text" name="handle">
+        <input type="text" name="handle" class="form-control" required>
     </div>
     <input type="hidden" name="salt" value="">
-    <div>
-        <button type="submit">Sign Up</button>
-    </div>
+    <button type="submit" class="btn btn-primary">Sign Up</button>
 </form>
 {% endblock %}
