@@ -42,6 +42,7 @@ fn main() {
                 staticfile,
                 // Calendar
                 calendar,
+                calendar_json,
                 event,
                 newevent,
                 newevent_post,

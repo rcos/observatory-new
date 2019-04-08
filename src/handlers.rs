@@ -36,8 +36,10 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
 }
 
 #[get("/signup")]
-pub fn signup() -> SignUpTemplate {
-    SignUpTemplate
+pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
+    SignUpTemplate {
+        logged_in: l.user()
+    }
 }
 
 //# Sign Up and Log In Handlers
@@ -78,8 +80,10 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
 }
 
 #[get("/login")]
-pub fn login() -> LogInTemplate {
-    LogInTemplate
+pub fn login(l: MaybeLoggedIn) -> LogInTemplate {
+    LogInTemplate {
+        logged_in: l.user()
+    }
 }
 
 #[derive(Default, FromForm)]
@@ -223,6 +227,13 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
         logged_in: l.user(),
         events: events.load(&conn.0).expect("Failed to get events"),
     }
+}
+
+#[get("/calendar.json")]
+pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
+    use crate::schema::events::dsl::*;
+
+    Json(events.load(&conn.0).expect("Failed to get events"))
 }
 
 #[get("/calendar/<eid>")]
