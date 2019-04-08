@@ -134,6 +134,16 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
     }
 }
 
+#[put("/users/<h>", data="<edituser>")]
+pub fn user_put(conn: ObservDbConn, l: UserGuard, h: String, edituser: Form<NewUser>) {
+    unimplemented!()
+}
+
+#[delete("/users/<h>")]
+pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: String) {
+    unimplemented!()
+}
+
 #[get("/users?<s>")]
 pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> UsersListTemplate {
     UsersListTemplate {
@@ -148,19 +158,6 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
 }
 
 //# Project Handlers
-
-#[get("/projects?<s>")]
-pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
-    ProjectsListTemplate {
-        logged_in: l.user(),
-        projects: filter_projects(&*conn, s),
-    }
-}
-
-#[get("/projects.json?<s>")]
-pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
-    Json(filter_projects(&*conn, s))
-}
 
 #[get("/projects/<n>")]
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<ProjectTemplate> {
@@ -181,6 +178,39 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
         project: p,
         repos: r,
     })
+}
+
+#[get("/projects/new")]
+pub fn newproject(l: UserGuard) {
+    unimplemented!()
+}
+
+#[post("/projects/new", data="<newproject>")]
+pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) {
+    unimplemented!()
+}
+
+#[put("/projects/<h>", data="<editproject>")]
+pub fn project_put(conn: ObservDbConn, l: UserGuard, h: String, editproject: Form<NewProject>) {
+    unimplemented!()
+}
+
+#[delete("/projects/<h>")]
+pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: String) {
+    unimplemented!()
+}
+
+#[get("/projects?<s>")]
+pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+    ProjectsListTemplate {
+        logged_in: l.user(),
+        projects: filter_projects(&*conn, s),
+    }
+}
+
+#[get("/projects.json?<s>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
+    Json(filter_projects(&*conn, s))
 }
 
 //# Calendar Handlers
