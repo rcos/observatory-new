@@ -1,8 +1,10 @@
 -- Your SQL goes here
 CREATE TABLE events (
     id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-    -- Date and time the event is happening at
-    happening_at DATETIME NOT NULL,
+    -- Date and time the event starts at
+    start DATETIME NOT NULL,
+    -- Date and time the event ends at
+    end DATETIME NOT NULL,
     -- Title of the event
     title TEXT NOT NULL,
     -- Optional description of the event

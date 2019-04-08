@@ -1,4 +1,6 @@
-// These should mirror the tables in schema.rs
+//# Database models
+/// These should mirror the tables in schema.rs
+/// **INCLUDING THE ORDER OF THE FIELDS**
 
 use chrono::naive::NaiveDateTime;
 
@@ -121,7 +123,8 @@ pub struct NewRepo {
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Event {
     pub id: i32,
-    pub happening_at: NaiveDateTime,
+    pub start: NaiveDateTime,
+    pub end: NaiveDateTime,
     pub title: String,
     pub description: Option<String>,
     pub hosted_by: i32,
@@ -137,7 +140,7 @@ impl Attendable for Event {
         self.title.clone()
     }
     fn time(&self) -> NaiveDateTime {
-        self.happening_at
+        self.start
     }
     fn code(&self) -> String {
         self.code.clone()
@@ -156,8 +159,9 @@ impl Attendable for Event {
 #[derive(Default, FromForm, Insertable)]
 #[table_name = "events"]
 pub struct NewEvent {
-    pub happening_at: String,
     pub title: String,
+    pub start: String,
+    pub end: String,
     pub description: Option<String>,
     pub hosted_by: i32,
     pub location: Option<String>,

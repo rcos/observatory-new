@@ -11,7 +11,8 @@ table! {
 table! {
     events (id) {
         id -> Integer,
-        happening_at -> Timestamp,
+        start -> Timestamp,
+        end -> Timestamp,
         title -> Text,
         description -> Nullable<Text>,
         hosted_by -> Integer,
