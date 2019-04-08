@@ -18,6 +18,7 @@ table! {
         hosted_by -> Integer,
         location -> Nullable<Text>,
         code -> Text,
+        color -> Nullable<Text>,
     }
 }
 

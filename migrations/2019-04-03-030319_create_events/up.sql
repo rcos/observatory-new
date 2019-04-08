@@ -14,5 +14,7 @@ CREATE TABLE events (
     -- Optional location of the event
     location TEXT,
     -- The attendance code of the meeting
-    code TEXT NOT NULL UNIQUE
+    code TEXT NOT NULL UNIQUE,
+    -- The color displayed on the calendar
+    color TEXT
 );

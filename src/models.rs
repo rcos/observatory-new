@@ -130,6 +130,7 @@ pub struct Event {
     pub hosted_by: i32,
     pub location: Option<String>,
     pub code: String,
+    pub color: Option<String>
 }
 
 impl Attendable for Event {
@@ -166,6 +167,7 @@ pub struct NewEvent {
     pub hosted_by: i32,
     pub location: Option<String>,
     pub code: String,
+    pub color: Option<String>
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
