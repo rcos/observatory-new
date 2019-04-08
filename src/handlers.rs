@@ -317,7 +317,7 @@ pub fn newgroup_post(conn: ObservDbConn, l: AdminGuard, newgroup: Form<NewGroup>
     unimplemented!()
 }
 
-#[post("/g/<gid>", data = "<newmeeting>")]
+#[post("/groups/<gid>", data = "<newmeeting>")]
 pub fn newmeeting_post(
     conn: ObservDbConn,
     l: MentorGuard,

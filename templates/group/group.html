@@ -18,6 +18,20 @@
 {% endmatch %}
 {% endblock %}
 
+{% block tools %}
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 1 || u.id == group.owner_id %}
+<form method="POST">
+    <input type="hidden" name="group_id" value="{{ group.id }}">
+    <input type="hidden" name="code" value="code">
+    <button type="submit" class="btn btn-secondary">New Meeting</button>
+</form>
+{% endif %}
+{% when None %}
+{% endmatch %}
+{% endblock %}
+
 {% block content %}
 
 {% match group.location %}
@@ -26,17 +40,6 @@ Room: {{ val }}
 {% when None %}
 {% endmatch %}
 
-{% match logged_in %}
-{% when Some with (u) %}
-{% if u.tier > 1 || u.id == group.owner_id %}
-<form method="POST">
-    <input type="hidden" name="group_id" value="{{ group.id }}">
-    <input type="hidden" name="code" value="code">
-    <button type="submit">New Meeting</button>
-</form>
-{% endif %}
-{% when None %}
-{% endmatch %}
 
 <ul>
     {% for meeting in meetings %}

@@ -10,9 +10,6 @@
         <li class="nav-item">
             <a class="nav-link" href="/projects">Projects</a>
         </li>
-    </ul>
-
-    <ul class="navbar-nav">
         {% match logged_in %}
         {% when Some with (u) %}
         {% if u.tier > 0 %}
@@ -23,8 +20,15 @@
         <li class="nav-item">
             <a class="nav-link" href="/attend">Attend</a>
         </li>
+        {% when None %}
+        {% endmatch %}
+    </ul>
+
+    <ul class="navbar-nav">
+        {% match logged_in %}
+        {% when Some with (u) %}
         <li class="nav-item">
-            <a class="nav-link" href="/dashboard">{{ u.handle }}</a>
+            <a class="nav-link" href="/dashboard">My Dashboard ({{ u.handle }})</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="/logout">Log Out</a>
