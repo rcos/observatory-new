@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block header %} {% include "header/user.html" %} {% endblock %}
+
+{% block content %}
+<h1>{{ event.title }}</h1>
+<h2>At {{ event.happening_at }}</h2>
+
+{% match event.location %}
+{% when Some with (val) %}
+<h2>In {{ val }}</h2>
+{% when None %}
+{% endmatch %}
+
+{% match event.description %}
+{% when Some with (val) %}
+<p>{{ val }}</p>
+{% when None %}
+{% endmatch %}
+
+{% endblock %}

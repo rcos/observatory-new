@@ -40,22 +40,29 @@ fn main() {
             routes![
                 index,
                 staticfile,
+                // Calendar
                 calendar,
+                event,
                 newevent,
                 newevent_post,
+                // Sign Up and Log In
                 signup,
                 signup_post,
                 login,
                 login_post,
                 logout,
+                // Attendance
                 attend,
                 attend_post,
+                // Users
                 user,
                 users,
                 users_json,
+                // Projects
                 project,
                 projects,
                 projects_json,
+                // Groups
                 group,
                 groups,
                 newgroup_post,

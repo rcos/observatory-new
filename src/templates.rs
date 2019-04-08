@@ -85,6 +85,13 @@ pub struct CalendarTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "calendar/event.html")]
+pub struct EventTemplate {
+    pub logged_in: OptUser,
+    pub event: Event,
+}
+
+#[derive(Template)]
 #[template(path = "calendar/new-event.html")]
 pub struct NewEventTemplate {
     pub logged_in: OptUser,

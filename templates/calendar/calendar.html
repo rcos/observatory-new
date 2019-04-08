@@ -22,7 +22,7 @@
 
 {% for event in events %}
 <div>
-    {{ event.title }}
+    <a href="/calendar/{{ event.id }}">{{ event.title }}</a>
     {{ event.happening_at }}
 </div>
 {% endfor %}

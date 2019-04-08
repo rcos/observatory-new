@@ -74,7 +74,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
-    Redirect::to(format!("/u/{}", user.handle))
+    Redirect::to(format!("/users/{}", user.handle))
 }
 
 #[get("/login")]
@@ -121,7 +121,7 @@ pub fn logout(mut cookies: Cookies) -> Redirect {
 
 //# User Handlers
 
-#[get("/u/<h>")]
+#[get("/users/<h>")]
 pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
     use crate::schema::users::dsl::*;
 
@@ -162,7 +162,7 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>
     Json(filter_projects(&*conn, s))
 }
 
-#[get("/p/<n>")]
+#[get("/projects/<n>")]
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
 
@@ -195,6 +195,16 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     }
 }
 
+#[get("/calendar/<eid>")]
+pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> EventTemplate {
+    use crate::schema::events::dsl::*;
+
+    EventTemplate {
+        logged_in: l.user(),
+        event: events.find(eid).first(&conn.0).expect("Failed to get event"),
+    }
+}
+
 #[get("/calendar/new")]
 pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
@@ -223,7 +233,7 @@ pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewE
 
 //# Groups and Meetings
 
-#[get("/g/<gid>")]
+#[get("/groups/<gid>")]
 pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> GroupTemplate {
     use crate::schema::groups::dsl::*;
 
@@ -284,7 +294,7 @@ pub fn newmeeting_post(
         .execute(&*conn)
         .expect("Failed to insert meeting into database");
 
-    Redirect::to(format!("/g/{}", newmeeting.group_id))
+    Redirect::to(format!("/groups/{}", newmeeting.group_id))
 }
 
 //# Attendance
