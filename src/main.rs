@@ -40,6 +40,7 @@ fn main() {
             routes![
                 index,
                 staticfile,
+                dashboard,
                 // Calendar
                 calendar,
                 calendar_json,

@@ -24,6 +24,13 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
     }
 }
 
+#[get("/dashboard")]
+pub fn dashboard(l: UserGuard) -> DashboardTemplate {
+    DashboardTemplate {
+        logged_in: Some(l.0)
+    }
+}
+
 #[derive(RustEmbed)]
 #[folder = "static/"]
 struct Embed;

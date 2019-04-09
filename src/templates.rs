@@ -9,6 +9,12 @@ pub struct IndexTemplate {
     pub version: &'static str,
 }
 
+#[derive(Template)]
+#[template(path = "dashboard.html")]
+pub struct DashboardTemplate {
+    pub logged_in: OptUser,
+}
+
 //# Sign Up and Log In templates
 
 #[derive(Template)]
