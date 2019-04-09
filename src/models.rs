@@ -20,7 +20,7 @@ pub struct User {
     pub tier: i32,
 }
 
-#[derive(Default, FromForm, Insertable, AsChangeset)]
+#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "users"]
 pub struct NewUser {
     pub real_name: String,
@@ -28,7 +28,7 @@ pub struct NewUser {
     pub password_hash: String,
     pub salt: String,
     pub email: String,
-    pub tier: i32
+    pub tier: i32,
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
@@ -65,7 +65,7 @@ impl Attendable for Meeting {
     }
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
     pub code: String,
@@ -79,14 +79,16 @@ pub struct Project {
     pub homepage: Option<String>,
     pub owner_id: i32,
     pub active: bool,
+    pub repos: String,
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "projects"]
 pub struct NewProject {
     pub name: String,
     pub homepage: Option<String>,
     pub owner_id: i32,
+    pub repos: String,
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
@@ -97,27 +99,12 @@ pub struct Group {
     pub location: Option<String>,
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "groups"]
 pub struct NewGroup {
     pub name: String,
     pub owner_id: i32,
     pub location: Option<String>,
-}
-
-#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
-#[belongs_to(Project)]
-pub struct Repo {
-    pub id: i32,
-    pub project_id: i32,
-    pub url: String,
-}
-
-#[derive(Default, Insertable)]
-#[table_name = "repos"]
-pub struct NewRepo {
-    pub project_id: i32,
-    pub url: String,
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
@@ -157,7 +144,7 @@ impl Attendable for Event {
     }
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "events"]
 pub struct NewEvent {
     pub title: String,
@@ -180,7 +167,7 @@ pub struct Attendance {
     pub event_id: Option<i32>,
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "attendances"]
 pub struct NewAttendance {
     pub user_id: i32,
@@ -209,7 +196,7 @@ pub struct RelationGroupUser {
     pub user_id: i32,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Debug, Default, Insertable)]
 #[table_name = "relation_group_user"]
 pub struct NewRelationGroupUser {
     pub group_id: i32,
@@ -224,7 +211,7 @@ pub struct RelationProjectUser {
     pub user_id: i32,
 }
 
-#[derive(Default, Insertable)]
+#[derive(Debug, Default, Insertable)]
 #[table_name = "relation_project_user"]
 pub struct NewRelationProjectUser {
     pub project_id: i32,

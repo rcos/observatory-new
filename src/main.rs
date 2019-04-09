@@ -65,6 +65,8 @@ fn main() {
                 project_by_id,
                 projects,
                 projects_json,
+                newproject,
+                newproject_post,
                 // Groups
                 group,
                 groups,

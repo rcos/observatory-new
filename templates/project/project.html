@@ -7,8 +7,6 @@
 </style>
 {% endblock %}
 
-
-
 {% block content %}
 {% match project.homepage %}
 {% when Some with (val) %}
@@ -17,8 +15,10 @@
 {% endmatch %}
 <div id="repos">
     <h3>Repos</h3>
-    {% for repo in repos %}
-    <a href="{{ repo.url }}">{{ repo.url }}</a>
-    {% endfor %}
+    <ul>
+        {% for url in repos %}
+        <li><a href="{{ url }}">{{ url }}</a></li>
+        {% endfor %}
+    </ul>
 </div>
 {% endblock %}

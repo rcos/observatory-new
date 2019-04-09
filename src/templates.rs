@@ -53,7 +53,7 @@ pub struct UsersListTemplate {
 pub struct ProjectTemplate {
     pub logged_in: OptUser,
     pub project: Project,
-    pub repos: Vec<Repo>,
+    pub repos: Vec<String>,
 }
 
 #[derive(Template)]

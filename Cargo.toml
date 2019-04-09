@@ -15,6 +15,7 @@ rust-embed = "^4.3.0"
 # By using * we match the Rocket versions
 ring = "*"
 serde = "*"
+serde_json = "*"
 serde_derive = "*"
 
 [dependencies.rocket_contrib]

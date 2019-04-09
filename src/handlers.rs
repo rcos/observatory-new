@@ -8,6 +8,7 @@ use rocket::request::Form;
 use rocket::response::{Redirect, Response};
 use rocket::Request;
 use rocket_contrib::json::Json;
+use serde_json;
 
 use crate::guards::*;
 use crate::helpers::*;
@@ -182,7 +183,10 @@ pub fn edituser_put(
     }
 
     use crate::schema::users::dsl::*;
-    update(users).set(&edituser).execute(&*conn).expect("Failed to update user in database");
+    update(users)
+        .set(&edituser)
+        .execute(&*conn)
+        .expect("Failed to update user in database");
 
     Redirect::to(format!("/users/{}", edituser.handle))
 }
@@ -190,7 +194,9 @@ pub fn edituser_put(
 #[delete("/users/<h>")]
 pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
     use crate::schema::users::dsl::*;
-    delete(users.filter(handle.eq(h))).execute(&*conn).expect("Failed to delete user from database");
+    delete(users.filter(handle.eq(h)))
+        .execute(&*conn)
+        .expect("Failed to delete user from database");
     Redirect::to("/users")
 }
 
@@ -219,14 +225,10 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
         .optional()
         .expect("Failed to get project from database")?;
 
-    let r: Vec<Repo> = Repo::belonging_to(&p)
-        .load(&*conn)
-        .expect("Failed to get project's repos from database");
-
     Some(ProjectTemplate {
         logged_in: l.user(),
+        repos: serde_json::from_str(&p.repos).unwrap(),
         project: p,
-        repos: r,
     })
 }
 
@@ -245,7 +247,7 @@ pub fn project_by_id(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<Red
 #[get("/projects/new")]
 pub fn newproject(l: UserGuard) -> NewProjectTemplate {
     NewProjectTemplate {
-        logged_in: Some(l.0)
+        logged_in: Some(l.0),
     }
 }
 
@@ -253,7 +255,19 @@ pub fn newproject(l: UserGuard) -> NewProjectTemplate {
 pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) -> Redirect {
     let mut newproject = newproject.into_inner();
     newproject.owner_id = l.0.id;
-    unimplemented!()
+
+    use crate::schema::projects::dsl::*;
+    insert_into(projects)
+        .values(&newproject)
+        .execute(&*conn)
+        .expect("Failed to insert project into database");
+
+    let p: Project = projects
+        .filter(name.eq(newproject.name))
+        .first(&*conn)
+        .expect("Failed to get project from database");
+
+    Redirect::to(format!("/projects/{}", p.name))
 }
 
 #[get("/projects/<h>")]

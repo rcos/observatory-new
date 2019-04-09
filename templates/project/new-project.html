@@ -8,7 +8,47 @@
 {% endblock %}
 
 {% block content %}
-<form method="POST">
-    <div class="form-group"></div>
+<script>
+    function add_repo() {
+        let d = document.getElementById("more-repos");
+        let i = document.createElement("input");
+        i.setAttribute("type", "url");
+        i.setAttribute("name", "repos");
+        i.classList.add("form-control");
+        d.appendChild(i);
+    }
+
+    // This is a workaround because Rocket does not handle
+    // Array form values. So we load it all into the last one
+    // As a JSON string.
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById("newproject").onsubmit = e => {
+            e.preventDefault();
+            let val = [];
+            e.target.repos.forEach(e => val.push(e.value));
+            e.target.repos[e.target.repos.length - 1].value = JSON.stringify(val);
+            e.target.submit();
+        };
+    })
+</script>
+
+<form id="newproject" method="POST">
+    <div class="form-group">
+        <label for="name">Project Name</label>
+        <input type="text" name="name" class="form-control" required autofocus>
+    </div>
+    <div class="form-group">
+        <label for="homepage">Project Website</label>
+        <input type="url" name="homepage" class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label for="repos">Repository URLs <noscript>(comma seperated)</noscript></label>
+        <input type="url" name="repos" class="form-control" required>
+        <div id="more-repos"></div>
+        <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">+</button>
+    </div>
+    <input type="hidden" name="owner_id" value="0">
+    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

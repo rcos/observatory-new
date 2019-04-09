@@ -48,6 +48,7 @@ table! {
         homepage -> Nullable<Text>,
         owner_id -> Integer,
         active -> Bool,
+        repos -> Text,
     }
 }
 
@@ -64,14 +65,6 @@ table! {
         id -> Integer,
         project_id -> Integer,
         user_id -> Integer,
-    }
-}
-
-table! {
-    repos (id) {
-        id -> Integer,
-        project_id -> Integer,
-        url -> Text,
     }
 }
 
@@ -96,7 +89,6 @@ joinable!(relation_group_user -> groups (group_id));
 joinable!(relation_group_user -> users (user_id));
 joinable!(relation_project_user -> projects (project_id));
 joinable!(relation_project_user -> users (user_id));
-joinable!(repos -> projects (project_id));
 
 allow_tables_to_appear_in_same_query!(
     attendances,
@@ -106,6 +98,5 @@ allow_tables_to_appear_in_same_query!(
     projects,
     relation_group_user,
     relation_project_user,
-    repos,
     users,
 );
