@@ -14,13 +14,13 @@ pub struct IndexTemplate {
 #[derive(Template)]
 #[template(path = "auth/signup.html")]
 pub struct SignUpTemplate {
-    pub logged_in: OptUser
+    pub logged_in: OptUser,
 }
 
 #[derive(Template)]
 #[template(path = "auth/login.html")]
 pub struct LogInTemplate {
-    pub logged_in: OptUser
+    pub logged_in: OptUser,
 }
 
 //# User Templates
@@ -28,6 +28,13 @@ pub struct LogInTemplate {
 #[derive(Template)]
 #[template(path = "user/user.html")]
 pub struct UserTemplate {
+    pub logged_in: OptUser,
+    pub user: User,
+}
+
+#[derive(Template)]
+#[template(path = "user/edit-user.html")]
+pub struct EditUserTemplate {
     pub logged_in: OptUser,
     pub user: User,
 }
@@ -50,6 +57,18 @@ pub struct ProjectTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "project/new-project.html")]
+pub struct NewProjectTemplate {
+    pub logged_in: OptUser,
+}
+
+#[derive(Template)]
+#[template(path = "project/edit-project.html")]
+pub struct EditProjectTemplate {
+    pub logged_in: OptUser,
+}
+
+#[derive(Template)]
 #[template(path = "project/projects-list.html")]
 pub struct ProjectsListTemplate {
     pub logged_in: OptUser,
@@ -67,16 +86,23 @@ pub struct GroupTemplate {
 }
 
 #[derive(Template)]
+#[template(path = "group/new-group.html")]
+pub struct NewGroupTemplate {
+    pub logged_in: OptUser,
+}
+
+#[derive(Template)]
+#[template(path = "group/edit-group.html")]
+pub struct EditGroupTemplate {
+    pub logged_in: OptUser,
+    pub group: Group,
+}
+
+#[derive(Template)]
 #[template(path = "group/groups-list.html")]
 pub struct GroupsListTemplate {
     pub logged_in: OptUser,
     pub groups: Vec<Group>,
-}
-
-#[derive(Template)]
-#[template(path = "group/new-group.html")]
-pub struct NewGroupTemplate {
-    pub logged_in: OptUser,
 }
 
 //# Calendar Templates
@@ -99,6 +125,14 @@ pub struct EventTemplate {
 #[template(path = "calendar/new-event.html")]
 pub struct NewEventTemplate {
     pub logged_in: OptUser,
+    pub all_users: Vec<User>,
+}
+
+#[derive(Template)]
+#[template(path = "calendar/edit-event.html")]
+pub struct EditEventTemplate {
+    pub logged_in: OptUser,
+    pub event: Event,
     pub all_users: Vec<User>,
 }
 

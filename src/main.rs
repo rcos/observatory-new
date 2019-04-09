@@ -57,10 +57,12 @@ fn main() {
                 attend_post,
                 // Users
                 user,
+                user_by_id,
                 users,
                 users_json,
                 // Projects
                 project,
+                project_by_id,
                 projects,
                 projects_json,
                 // Groups

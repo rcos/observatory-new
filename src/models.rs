@@ -1,7 +1,6 @@
 //# Database models
 /// These should mirror the tables in schema.rs
 /// **INCLUDING THE ORDER OF THE FIELDS**
-
 use chrono::naive::NaiveDateTime;
 
 use super::schema::*;
@@ -21,7 +20,7 @@ pub struct User {
     pub tier: i32,
 }
 
-#[derive(Default, FromForm, Insertable)]
+#[derive(Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "users"]
 pub struct NewUser {
     pub real_name: String,
@@ -29,6 +28,7 @@ pub struct NewUser {
     pub password_hash: String,
     pub salt: String,
     pub email: String,
+    pub tier: i32
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
@@ -130,7 +130,7 @@ pub struct Event {
     pub hosted_by: i32,
     pub location: Option<String>,
     pub code: String,
-    pub color: Option<String>
+    pub color: Option<String>,
 }
 
 impl Attendable for Event {
@@ -167,7 +167,7 @@ pub struct NewEvent {
     pub hosted_by: i32,
     pub location: Option<String>,
     pub code: String,
-    pub color: Option<String>
+    pub color: Option<String>,
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]

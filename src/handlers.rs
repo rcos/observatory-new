@@ -1,8 +1,8 @@
 use std::io::Cursor;
 use std::path::PathBuf;
 
-use diesel::insert_into;
 use diesel::prelude::*;
+use diesel::{delete, insert_into, update};
 use rocket::http::{ContentType, Cookie, Cookies};
 use rocket::request::Form;
 use rocket::response::{Redirect, Response};
@@ -38,7 +38,7 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
 #[get("/signup")]
 pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
     SignUpTemplate {
-        logged_in: l.user()
+        logged_in: l.user(),
     }
 }
 
@@ -52,6 +52,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
     let newsalt = gen_salt();
     newuser.salt = newsalt.clone();
     newuser.password_hash = hash_password(newuser.password_hash, &newsalt);
+    newuser.tier = 0;
 
     insert_into(users)
         .values(&newuser)
@@ -62,13 +63,13 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
         .filter(&email.eq(newuser.email))
         .first(&*conn)
         .expect("Failed to get user from database");
-    
+
     {
         use crate::schema::relation_group_user::dsl::*;
         insert_into(relation_group_user)
             .values(&NewRelationGroupUser {
                 group_id: 0,
-                user_id: user.id
+                user_id: user.id,
             })
             .execute(&*conn)
             .expect("Failed to insert new relation into database");
@@ -82,7 +83,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
 #[get("/login")]
 pub fn login(l: MaybeLoggedIn) -> LogInTemplate {
     LogInTemplate {
-        logged_in: l.user()
+        logged_in: l.user(),
     }
 }
 
@@ -126,26 +127,71 @@ pub fn logout(mut cookies: Cookies) -> Redirect {
 //# User Handlers
 
 #[get("/users/<h>")]
-pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> UserTemplate {
+pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> Option<UserTemplate> {
     use crate::schema::users::dsl::*;
 
-    UserTemplate {
+    Some(UserTemplate {
         logged_in: l.user(),
         user: users
             .filter(handle.like(h))
             .first(&*conn)
-            .expect("Failed to get user from database"),
-    }
+            .optional()
+            .expect("Failed to get user from database")?,
+    })
 }
 
-#[put("/users/<h>", data="<edituser>")]
-pub fn user_put(conn: ObservDbConn, l: UserGuard, h: String, edituser: Form<NewUser>) {
-    unimplemented!()
+#[get("/users/<h>", rank = 2)]
+pub fn user_by_id(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<Redirect> {
+    use crate::schema::users::dsl::*;
+
+    let u: User = users
+        .find(h)
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get user from database")?;
+
+    Some(Redirect::to(format!("/users/{}", u.handle)))
+}
+
+#[get("/users/<h>")]
+pub fn edituser(conn: ObservDbConn, l: UserGuard, h: String) -> Option<EditUserTemplate> {
+    use crate::schema::users::dsl::*;
+
+    Some(EditUserTemplate {
+        logged_in: Some(l.0),
+        user: users
+            .filter(handle.like(h))
+            .first(&*conn)
+            .optional()
+            .expect("Failed to get user from database")?,
+    })
+}
+
+#[put("/users/<h>", data = "<edituser>")]
+pub fn edituser_put(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: String,
+    edituser: Form<NewUser>,
+) -> Redirect {
+    let l = l.0;
+    let mut edituser = edituser.into_inner();
+
+    if !l.tier > 1 {
+        edituser.tier = 0;
+    }
+
+    use crate::schema::users::dsl::*;
+    update(users).set(&edituser).execute(&*conn).expect("Failed to update user in database");
+
+    Redirect::to(format!("/users/{}", edituser.handle))
 }
 
 #[delete("/users/<h>")]
-pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: String) {
-    unimplemented!()
+pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
+    use crate::schema::users::dsl::*;
+    delete(users.filter(handle.eq(h))).execute(&*conn).expect("Failed to delete user from database");
+    Redirect::to("/users")
 }
 
 #[get("/users?<s>")]
@@ -184,23 +230,44 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
     })
 }
 
+#[get("/projects/<n>", rank = 2)]
+pub fn project_by_id(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<Redirect> {
+    use crate::schema::projects::dsl::*;
+    let p: Project = projects
+        .find(n)
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get project from database")?;
+
+    Some(Redirect::to(format!("/projects/{}", p.name)))
+}
+
 #[get("/projects/new")]
-pub fn newproject(l: UserGuard) {
+pub fn newproject(l: UserGuard) -> NewProjectTemplate {
+    NewProjectTemplate {
+        logged_in: Some(l.0)
+    }
+}
+
+#[post("/projects/new", data = "<newproject>")]
+pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) -> Redirect {
+    let mut newproject = newproject.into_inner();
+    newproject.owner_id = l.0.id;
     unimplemented!()
 }
 
-#[post("/projects/new", data="<newproject>")]
-pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) {
+#[get("/projects/<h>")]
+pub fn editproject(l: UserGuard, h: String) -> Option<EditProjectTemplate> {
     unimplemented!()
 }
 
-#[put("/projects/<h>", data="<editproject>")]
-pub fn project_put(conn: ObservDbConn, l: UserGuard, h: String, editproject: Form<NewProject>) {
+#[put("/projects/<h>", data = "<editproject>")]
+pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: String, editproject: Form<NewProject>) {
     unimplemented!()
 }
 
 #[delete("/projects/<h>")]
-pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: String) {
+pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
     unimplemented!()
 }
 
@@ -237,13 +304,17 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
 }
 
 #[get("/calendar/<eid>")]
-pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> EventTemplate {
+pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemplate> {
     use crate::schema::events::dsl::*;
 
-    EventTemplate {
+    Some(EventTemplate {
         logged_in: l.user(),
-        event: events.find(eid).first(&conn.0).expect("Failed to get event"),
-    }
+        event: events
+            .find(eid)
+            .first(&conn.0)
+            .optional()
+            .expect("Failed to get event")?,
+    })
 }
 
 #[get("/calendar/new")]
@@ -275,23 +346,24 @@ pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewE
 //# Groups and Meetings
 
 #[get("/groups/<gid>")]
-pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> GroupTemplate {
+pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> Option<GroupTemplate> {
     use crate::schema::groups::dsl::*;
 
     let g: Group = groups
         .find(gid)
         .first(&*conn)
-        .expect("Failed to get groups from the database");
+        .optional()
+        .expect("Failed to get groups from the database")?;
 
     let m: Vec<Meeting> = Meeting::belonging_to(&g)
         .load(&*conn)
         .expect("Failed to get project's repos from database");
 
-    GroupTemplate {
+    Some(GroupTemplate {
         logged_in: Some(l.0),
         group: g,
         meetings: m,
-    }
+    })
 }
 
 #[get("/groups")]
