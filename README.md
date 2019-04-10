@@ -15,6 +15,14 @@ as the database backend.
 - [Askama](https://github.com/djc/askama): Templating engine
 
 ## Building
+First you need to install the `openssl` and `sqlite` development headers.
+How to do this varies by system but on Linux the packages are usually named
+something like `libssl-devel` and `sqlite-devel` or similar.
+
+You will also need the Diesel CLI. It can be easily installed with:
+
+`$ cargo install diesel_cli --no-default-features --features sqlite`
+
 Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19))
 so you need to set Rustup to use it by running the following in the
 `observatory-new` folder.
