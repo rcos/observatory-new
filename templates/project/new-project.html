@@ -26,7 +26,7 @@
             e.preventDefault();
             let val = [];
             e.target.repos.forEach(e => val.push(e.value));
-            e.target.repos[e.target.repos.length - 1].value = JSON.stringify(val);
+            document.getElementById("main-repo").value = JSON.stringify(val);
             e.target.submit();
         };
     })
@@ -44,9 +44,13 @@
 
     <div class="form-group">
         <label for="repos">Repository URLs <noscript>(comma seperated)</noscript></label>
-        <input type="url" name="repos" class="form-control" required>
         <div id="more-repos"></div>
-        <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">+</button>
+        <div class="input-group">
+            <input id="main-repo" type="url" name="repos" class="form-control" required>
+            <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">+</button>
+            </div>
+        </div>
     </div>
     <input type="hidden" name="owner_id" value="0">
     <button type="submit" class="btn btn-primary">Submit</button>

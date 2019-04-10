@@ -7,6 +7,14 @@
 </style>
 {% endblock %}
 
+{% block tools %}
+{% match logged_in %}
+{% when Some with (u) %}
+<a class="btn btn-secondary" href="/projects/{{ project.name }}/join">Join</a>
+{% when None %}
+{% endmatch %}
+{% endblock %}
+
 {% block content %}
 {% match project.homepage %}
 {% when Some with (val) %}

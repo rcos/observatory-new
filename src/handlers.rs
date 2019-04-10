@@ -273,6 +273,12 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
         .filter(name.eq(newproject.name))
         .first(&*conn)
         .expect("Failed to get project from database");
+    
+    use crate::schema::relation_project_user::dsl::*;
+    insert_into(relation_project_user)
+        .values(&NewRelationProjectUser{ project_id: p.id, user_id: l.0.id })
+        .execute(&*conn)
+        .expect("Failed to add user to project");
 
     Redirect::to(format!("/projects/{}", p.name))
 }

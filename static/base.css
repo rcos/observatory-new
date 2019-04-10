@@ -7,3 +7,26 @@ body {
     align-self: center;
     max-height: 2.5em;
 }
+
+/* Bootstrap's collapser uses JS so I made a simpler version */
+.navbar-collapse {
+    display: inline-block;
+}
+
+@media only screen and (max-width: 992px) {
+    .navbar-collapse {
+        display: none;
+    }
+}
+
+#collapser {
+    display: none;
+}
+
+.navbar-toggler {
+    cursor: pointer;
+}
+
+:checked + .navbar-collapse {
+    display: block;
+}

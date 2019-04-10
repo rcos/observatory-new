@@ -1,45 +1,52 @@
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark bg-dark">
     <a class="navbar-brand" href="/">RCOS</a>
-    <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="/calendar">Calendar</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/users">Users</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/projects">Projects</a>
-        </li>
-        {% match logged_in %}
-        {% when Some with (u) %}
-        {% if u.tier > 0 %}
-        <li class="nav-item">
-            <a class="nav-link" href="/groups">Groups</a>
-        </li>
-        {% endif %}
-        <li class="nav-item">
-            <a class="nav-link" href="/attend">Attend</a>
-        </li>
-        {% when None %}
-        {% endmatch %}
-    </ul>
 
-    <ul class="navbar-nav">
-        {% match logged_in %}
-        {% when Some with (u) %}
-        <li class="nav-item">
-            <a class="nav-link" href="/dashboard">My Dashboard ({{ u.handle }})</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/logout">Log Out</a>
-        </li>
-        {% when None %}
-        <li class="nav-item">
-            <a class="nav-link" href="/signup">Sign Up</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="/login">Log In</a>
-        </li>
-        {% endmatch %}
-    </ul>
+    <label for="collapser" class="navbar-toggler">
+        <span class="navbar-toggler-icon"></span>
+    </label>
+    <input type="checkbox" name="collapser" id="collapser">
+    <div id="collapse" class="navbar-collapse">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/calendar">Calendar</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/users">Users</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/projects">Projects</a>
+            </li>
+            {% match logged_in %}
+            {% when Some with (u) %}
+            {% if u.tier > 0 %}
+            <li class="nav-item">
+                <a class="nav-link" href="/groups">Groups</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" href="/attend">Attend</a>
+            </li>
+            {% when None %}
+            {% endmatch %}
+        </ul>
+
+        <ul class="navbar-nav">
+            {% match logged_in %}
+            {% when Some with (u) %}
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">My Dashboard ({{ u.handle }})</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/logout">Log Out</a>
+            </li>
+            {% when None %}
+            <li class="nav-item">
+                <a class="nav-link" href="/signup">Sign Up</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/login">Log In</a>
+            </li>
+            {% endmatch %}
+        </ul>
+    </div>
 </nav>
