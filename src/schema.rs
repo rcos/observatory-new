@@ -42,6 +42,16 @@ table! {
 }
 
 table! {
+    news (id) {
+        id -> Integer,
+        happened_at -> Timestamp,
+        title -> Text,
+        description -> Text,
+        color -> Nullable<Text>,
+    }
+}
+
+table! {
     projects (id) {
         id -> Integer,
         name -> Text,
@@ -95,6 +105,7 @@ allow_tables_to_appear_in_same_query!(
     events,
     groups,
     meetings,
+    news,
     projects,
     relation_group_user,
     relation_project_user,

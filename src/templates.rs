@@ -150,6 +150,34 @@ pub struct AttendTemplate {
     pub logged_in: OptUser,
 }
 
+//# News Templates
+#[derive(Template)]
+#[template(path = "news/news.html")]
+pub struct NewsTemplate {
+    pub logged_in: OptUser,
+    pub news: Vec<NewsEvent>
+}
+
+#[derive(Template)]
+#[template(path = "news/newsevent.html")]
+pub struct NewsEventTemplate {
+    pub logged_in: OptUser,
+    pub newsevent: NewsEvent
+}
+
+#[derive(Template)]
+#[template(path = "news/new-newsevent.html")]
+pub struct NewNewsEventTemplate {
+    pub logged_in: OptUser,
+}
+
+#[derive(Template)]
+#[template(path = "news/edit-newsevent.html")]
+pub struct EditNewsEventTemplate {
+    pub logged_in: OptUser,
+    pub news_event: NewsEvent
+}
+
 //# Catcher Templates
 
 #[derive(Template)]

@@ -176,6 +176,25 @@ pub struct NewAttendance {
     pub event_id: Option<i32>,
 }
 
+#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[table_name = "news"]
+pub struct NewsEvent {
+    pub id: i32,
+    pub happened_at: NaiveDateTime,
+    pub title: String,
+    pub description: String,
+    pub color: String,
+}
+
+#[derive(Debug, Default, FromForm, Insertable)]
+#[table_name = "news"]
+pub struct NewNewsEvent {
+    pub happened_at: String,
+    pub title: String,
+    pub description: String,
+    pub color: String,
+}
+
 pub trait Attendable {
     fn id(&self) -> i32;
     fn name(&self) -> String;

@@ -477,6 +477,43 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
     }
 }
 
+//# News
+
+#[get("/news")]
+pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
+    unimplemented!()
+}
+
+#[get("/news.json")]
+pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsEvent>> {
+    unimplemented!()
+}
+
+#[get("/news/<nid>")]
+pub fn newsevent(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsEventTemplate {
+    unimplemented!()
+}
+
+#[get("/news/new")]
+pub fn newnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTemplate {
+    unimplemented!()
+}
+
+#[post("/news/new", data = "<newnewsevent>")]
+pub fn newnewsevent_post(conn: ObservDbConn, l: MaybeLoggedIn, newnewsevent: Form<NewNewsEvent>) -> NewNewsEventTemplate {
+    unimplemented!()
+}
+
+#[get("/news/new")]
+pub fn editnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTemplate {
+    unimplemented!()
+}
+
+#[put("/news/new", data = "<newnewsevent>")]
+pub fn editnewsevent_post(conn: ObservDbConn, l: MaybeLoggedIn, newnewsevent: Form<NewNewsEvent>) -> NewNewsEventTemplate {
+    unimplemented!()
+}
+
 //# Catchers
 
 #[catch(401)]
