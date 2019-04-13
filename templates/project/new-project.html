@@ -21,7 +21,7 @@
     // This is a workaround because Rocket does not handle
     // Array form values. So we load it all into the last one
     // As a JSON string.
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("newproject").onsubmit = e => {
             e.preventDefault();
             let val = [];

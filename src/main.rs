@@ -45,6 +45,9 @@ fn main() {
                 calendar,
                 calendar_json,
                 event,
+                editevent,
+                editevent_put,
+                event_delete,
                 newevent,
                 newevent_post,
                 // Sign Up and Log In

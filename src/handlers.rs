@@ -111,6 +111,7 @@ pub fn login_post(
     use crate::schema::users::dsl::*;
 
     let creds = creds.into_inner();
+
     let to = to.unwrap_or(String::from("/"));
 
     let user: User = users
@@ -347,6 +348,51 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
     })
 }
 
+#[get("/calendar/<eid>/edit")]
+pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEventTemplate> {
+    use crate::schema::events::dsl::*;
+    use crate::schema::users::dsl::*;
+    Some(EditEventTemplate {
+        logged_in: Some(l.0),
+        event: events
+            .find(eid)
+            .first(&*conn)
+            .optional()
+            .expect("Failed to get event from database")?,
+        all_users: users
+            .load(&*conn)
+            .expect("Failed to get users from the database"),
+    })
+}
+
+#[put("/calendar/<eid>", data = "<editevent>")]
+pub fn editevent_put(
+    conn: ObservDbConn,
+    l: AdminGuard,
+    eid: i32,
+    editevent: Form<NewEvent>,
+) -> Redirect {
+    use crate::schema::events::dsl::*;
+
+    let mut editevent = editevent.into_inner();
+    editevent.code = events.find(eid).select(code).first(&*conn).expect("Failed to get event code");
+
+    update(events.find(eid))
+        .set(&editevent)
+        .execute(&*conn)
+        .expect("Failed to update event in database");
+    Redirect::to("/calendar")
+}
+
+#[delete("/calendar/<eid>")]
+pub fn event_delete(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Redirect {
+    use crate::schema::events::dsl::*;
+    delete(events.find(eid))
+        .execute(&*conn)
+        .expect("Failed to delete event from database");
+    Redirect::to("/calendar")
+}
+
 #[get("/calendar/new")]
 pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
@@ -502,7 +548,10 @@ pub fn newsevent(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsEventTem
     use crate::schema::news::dsl::*;
     NewsEventTemplate {
         logged_in: l.user(),
-        newsevent: news.find(nid).first(&*conn).expect("Failed to get news event from database")
+        newsevent: news
+            .find(nid)
+            .first(&*conn)
+            .expect("Failed to get news event from database"),
     }
 }
 
@@ -538,7 +587,7 @@ pub fn editnewsevent_post(
 
 #[catch(401)]
 pub fn catch_401(req: &Request) -> Redirect {
-    Redirect::to(dbg!(format!("/login?to={}", req.uri().path())))
+    Redirect::to(format!("/login?to={}", req.uri().path()))
 }
 
 #[catch(403)]

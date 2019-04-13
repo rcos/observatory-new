@@ -144,7 +144,7 @@ impl Attendable for Event {
     }
 }
 
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "events"]
 pub struct NewEvent {
     pub title: String,
