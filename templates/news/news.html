@@ -7,5 +7,27 @@
 </style>
 {% endblock %}
 
+{% block adminbuttons %}
+{% match logged_in %}
+{% when Some with (u)%}
+{% if u.tier > 1%}
+<a class="btn btn-secondary" href="/news/new">New News Event</a>
+{% endif %}
+{% when None%}
+{% endmatch %}
+{% endblock %}
+
 {% block content %}
+<table class="table">
+    <thead>
+        <th>Title</th>
+        <th>Date</th>
+    </thead>
+    {% for event in news %}
+    <tr>
+        <td><a href="/news/{{ event.id }}" class="stretched-link">{{ event.title }}</a></td>
+        <td>{{ event.happened_at }}</td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}

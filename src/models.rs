@@ -183,7 +183,7 @@ pub struct NewsEvent {
     pub happened_at: NaiveDateTime,
     pub title: String,
     pub description: String,
-    pub color: String,
+    pub color: Option<String>,
 }
 
 #[derive(Debug, Default, FromForm, Insertable)]
@@ -192,7 +192,7 @@ pub struct NewNewsEvent {
     pub happened_at: String,
     pub title: String,
     pub description: String,
-    pub color: String,
+    pub color: Option<String>,
 }
 
 pub trait Attendable {

@@ -8,9 +8,13 @@
 {% endblock %}
 
 {% block tools %}
+{% match logged_in%}
+{% when Some with (u) %}
 <div class="btn-group">
     <a class="btn btn-secondary" href="/projects/new">New Project</a>
 </div>
+{% when None %}
+{% endmatch %}
 <form method="GET" class="form-inline">
     <div class="input-group mb-3">
         <input type="text" name="s" placeholder="Search">

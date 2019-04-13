@@ -27,7 +27,7 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
 #[get("/dashboard")]
 pub fn dashboard(l: UserGuard) -> DashboardTemplate {
     DashboardTemplate {
-        logged_in: Some(l.0)
+        logged_in: Some(l.0),
     }
 }
 
@@ -273,10 +273,13 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
         .filter(name.eq(newproject.name))
         .first(&*conn)
         .expect("Failed to get project from database");
-    
+
     use crate::schema::relation_project_user::dsl::*;
     insert_into(relation_project_user)
-        .values(&NewRelationProjectUser{ project_id: p.id, user_id: l.0.id })
+        .values(&NewRelationProjectUser {
+            project_id: p.id,
+            user_id: l.0.id,
+        })
         .execute(&*conn)
         .expect("Failed to add user to project");
 
@@ -327,7 +330,7 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
 pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
     use crate::schema::events::dsl::*;
 
-    Json(events.load(&conn.0).expect("Failed to get events"))
+    Json(events.load(&*conn).expect("Failed to get events"))
 }
 
 #[get("/calendar/<eid>")]
@@ -338,7 +341,7 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
         logged_in: l.user(),
         event: events
             .find(eid)
-            .first(&conn.0)
+            .first(&*conn)
             .optional()
             .expect("Failed to get event")?,
     })
@@ -481,17 +484,26 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
 
 #[get("/news")]
 pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
-    unimplemented!()
+    use crate::schema::news::dsl::*;
+    NewsTemplate {
+        logged_in: l.user(),
+        news: news.load(&*conn).expect("Failed to get news from database"),
+    }
 }
 
 #[get("/news.json")]
 pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsEvent>> {
-    unimplemented!()
+    use crate::schema::news::dsl::*;
+    Json(news.load(&*conn).expect("Failed to get news from database"))
 }
 
 #[get("/news/<nid>")]
 pub fn newsevent(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsEventTemplate {
-    unimplemented!()
+    use crate::schema::news::dsl::*;
+    NewsEventTemplate {
+        logged_in: l.user(),
+        newsevent: news.find(nid).first(&*conn).expect("Failed to get news event from database")
+    }
 }
 
 #[get("/news/new")]
@@ -500,7 +512,11 @@ pub fn newnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTemplat
 }
 
 #[post("/news/new", data = "<newnewsevent>")]
-pub fn newnewsevent_post(conn: ObservDbConn, l: MaybeLoggedIn, newnewsevent: Form<NewNewsEvent>) -> NewNewsEventTemplate {
+pub fn newnewsevent_post(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    newnewsevent: Form<NewNewsEvent>,
+) -> NewNewsEventTemplate {
     unimplemented!()
 }
 
@@ -510,7 +526,11 @@ pub fn editnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTempla
 }
 
 #[put("/news/new", data = "<newnewsevent>")]
-pub fn editnewsevent_post(conn: ObservDbConn, l: MaybeLoggedIn, newnewsevent: Form<NewNewsEvent>) -> NewNewsEventTemplate {
+pub fn editnewsevent_post(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    newnewsevent: Form<NewNewsEvent>,
+) -> NewNewsEventTemplate {
     unimplemented!()
 }
 

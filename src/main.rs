@@ -72,7 +72,11 @@ fn main() {
                 group,
                 groups,
                 newgroup_post,
-                newmeeting_post
+                newmeeting_post,
+                // News
+                news,
+                news_json,
+                newsevent
             ],
         )
         .launch();

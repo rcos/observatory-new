@@ -16,6 +16,12 @@
             <li class="nav-item">
                 <a class="nav-link" href="/projects">Projects</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/news">News</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="https://handbook.rcos.io">Handbook</a>
+            </li>
             {% match logged_in %}
             {% when Some with (u) %}
             {% if u.tier > 0 %}
