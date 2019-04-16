@@ -3,7 +3,7 @@ use std::path::PathBuf;
 
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update};
-use rocket::http::{ContentType, Cookie, Cookies};
+use rocket::http::{ContentType, Cookie, Cookies, Status};
 use rocket::request::Form;
 use rocket::response::{Redirect, Response};
 use rocket::Request;
@@ -370,24 +370,31 @@ pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEven
 #[put("/calendar/<eid>", data = "<editevent>")]
 pub fn editevent_put(
     conn: ObservDbConn,
-    l: AdminGuard,
+    l: UserGuard,
     eid: i32,
     editevent: Form<NewEvent>,
-) -> Redirect {
-    use crate::schema::events::dsl::*;
+) -> Result<Redirect, Status> {
+    let l = l.0;
 
+    use crate::schema::events::dsl::*;
     let mut editevent = editevent.into_inner();
-    editevent.code = events
+    let (atcode, host_id): (String, i32) = events
         .find(eid)
-        .select(code)
+        .select((code, hosted_by))
         .first(&*conn)
         .expect("Failed to get event code");
+    editevent.code = atcode;
 
-    update(events.find(eid))
-        .set(&editevent)
-        .execute(&*conn)
-        .expect("Failed to update event in database");
-    Redirect::to("/calendar")
+    if l.tier > 1 || l.id == host_id {
+        update(events.find(eid))
+            .set(&editevent)
+            .execute(&*conn)
+            .expect("Failed to update event in database");
+
+        Ok(Redirect::to("/calendar"))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[delete("/calendar/<eid>")]
