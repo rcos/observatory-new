@@ -23,6 +23,11 @@ You will also need the Diesel CLI. It can be easily installed with:
 
 `$ cargo install diesel_cli --no-default-features --features sqlite`
 
+To set up the SQL database run the following command:
+```
+$ diesel migration run --database-url=observ.sqlite
+```
+
 Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19))
 so you need to set Rustup to use it by running the following in the
 `observatory-new` folder.
