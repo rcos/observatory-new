@@ -10,6 +10,6 @@
 
 {% block content %}
 <img src="https://github.com/{{ user.handle }}.png" class="rounded float-left" />
-<div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>
+<div>Github: <a href="https://github.com/{{ user.id }}" target="_blank">{{ user.handle }}</a></div>
 <div>Member since: {{ user.joined_on }}</div>
 {% endblock %}

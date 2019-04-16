@@ -7,6 +7,18 @@
 </style>
 {% endblock %}
 
+{% block tools %}
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 1 %}
+<div class="btn-group mr-2">
+    <button id="delete_button" class="btn btn-danger">Delete</button>
+</div>
+{% endif %}
+{% when None %}
+{% endmatch %}
+{% endblock %}
+
 {% block content %}
 <h3>{{ story.happened_at }}</h3>
 <p>{{ story.description }}</p>

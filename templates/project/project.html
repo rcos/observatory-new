@@ -10,7 +10,19 @@
 {% block tools %}
 {% match logged_in %}
 {% when Some with (u) %}
-<a class="btn btn-secondary" href="/projects/{{ project.name }}/join">Join</a>
+{% if u.tier > 1 %}
+<div class="btn-group mr-2">
+    <button id="delete_button" class="btn btn-danger">Delete</button>
+</div>
+{% endif %}
+{% if u.tier > 1 || u.id == project.owner_id %}
+<div class="btn-group mr-2">
+    <a class="btn btn-secondary" href="/projects/{{ project.id }}/edit">Edit Project</a>
+</div>
+{% endif %}
+<div class="btn-group mr-2">
+    <a class="btn btn-secondary" href="/projects/{{ project.id }}/join">Join</a>
+</div>
 {% when None %}
 {% endmatch %}
 {% endblock %}

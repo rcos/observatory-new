@@ -85,7 +85,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
-    Redirect::to(format!("/users/{}", user.handle))
+    Redirect::to(format!("/users/{}", user.id))
 }
 
 #[get("/login")]
@@ -136,13 +136,13 @@ pub fn logout(mut cookies: Cookies) -> Redirect {
 //# User Handlers
 
 #[get("/users/<h>")]
-pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> Option<UserTemplate> {
+pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate> {
     use crate::schema::users::dsl::*;
 
     Some(UserTemplate {
         logged_in: l.user(),
         user: users
-            .filter(handle.like(h))
+            .find(h)
             .first(&*conn)
             .optional()
             .expect("Failed to get user from database")?,
@@ -150,16 +150,16 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> Option<UserTempl
 }
 
 #[get("/users/<h>", rank = 2)]
-pub fn user_by_id(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<Redirect> {
+pub fn user_by_handle(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> Option<Redirect> {
     use crate::schema::users::dsl::*;
 
     let u: User = users
-        .find(h)
+        .filter(handle.like(h))
         .first(&*conn)
         .optional()
         .expect("Failed to get user from database")?;
 
-    Some(Redirect::to(format!("/users/{}", u.handle)))
+    Some(Redirect::to(format!("/users/{}", u.id)))
 }
 
 #[get("/users/<h>")]
@@ -200,9 +200,9 @@ pub fn edituser_put(
 }
 
 #[delete("/users/<h>")]
-pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
+pub fn user_delete(conn: ObservDbConn, l: AdminGuard, h: i32) -> Redirect {
     use crate::schema::users::dsl::*;
-    delete(users.filter(handle.eq(h)))
+    delete(users.find(h))
         .execute(&*conn)
         .expect("Failed to delete user from database");
     Redirect::to("/users")
@@ -224,11 +224,11 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<User>> {
 //# Project Handlers
 
 #[get("/projects/<n>")]
-pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<ProjectTemplate> {
+pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
 
     let p: Project = projects
-        .filter(name.like(n))
+        .find(n)
         .first(&*conn)
         .optional()
         .expect("Failed to get project from database")?;
@@ -241,15 +241,15 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Projec
 }
 
 #[get("/projects/<n>", rank = 2)]
-pub fn project_by_id(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<Redirect> {
+pub fn project_by_handle(conn: ObservDbConn, l: MaybeLoggedIn, n: String) -> Option<Redirect> {
     use crate::schema::projects::dsl::*;
     let p: Project = projects
-        .find(n)
+        .filter(name.like(n))
         .first(&*conn)
         .optional()
         .expect("Failed to get project from database")?;
 
-    Some(Redirect::to(format!("/projects/{}", p.name)))
+    Some(Redirect::to(format!("/projects/{}", p.id)))
 }
 
 #[get("/projects/new")]
@@ -284,7 +284,7 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
         .execute(&*conn)
         .expect("Failed to add user to project");
 
-    Redirect::to(format!("/projects/{}", p.name))
+    Redirect::to(format!("/projects/{}", p.id))
 }
 
 #[get("/projects/<h>")]
@@ -298,9 +298,9 @@ pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: String, editproject:
 }
 
 #[delete("/projects/<h>")]
-pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
+pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: i32) -> Redirect {
     use crate::schema::projects::dsl::*;
-    delete(projects.filter(name.eq(h))).execute(&*conn);
+    delete(projects.find(h)).execute(&*conn);
     Redirect::to("/projects")
 }
 

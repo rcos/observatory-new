@@ -34,7 +34,7 @@
     <tbody>
         {% for project in projects %}
         <tr class="position-relative">
-            <td><a class="stretched-link" href="/projects/{{ project.name }}">{{ project.name }}</a></td>
+            <td><a class="stretched-link" href="/projects/{{ project.id }}">{{ project.name }}</a></td>
             {% match project.homepage %}
             {% when Some with (val) %}
             <td><a href="{{ val }}">{{ val }}</a></td>

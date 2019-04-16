@@ -25,7 +25,11 @@
         document.getElementById("newproject").onsubmit = e => {
             e.preventDefault();
             let val = [];
-            e.target.repos.forEach(e => val.push(e.value));
+            if (e.target.repos.length > 1) {
+                e.target.repos.forEach(e => val.push(e.value));
+            } else {
+                val.push(e.target.repos.value);
+            }
             document.getElementById("main-repo").value = JSON.stringify(val);
             e.target.submit();
         };

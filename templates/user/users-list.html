@@ -29,7 +29,7 @@
         {% for user in users %}
         <tr class="position-relative">
             <td>{{ user.real_name }}</td>
-            <td><a class="stretched-link" href="/users/{{ user.handle }}">{{ user.handle }}</a></td>
+            <td><a class="stretched-link" href="/users/{{ user.id }}">{{ user.handle }}</a></td>
             <td>{{ user.email }}</td>
         </tr>
         {% endfor %}
