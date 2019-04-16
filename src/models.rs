@@ -178,7 +178,7 @@ pub struct NewAttendance {
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 #[table_name = "news"]
-pub struct NewsEvent {
+pub struct NewsStory {
     pub id: i32,
     pub happened_at: NaiveDateTime,
     pub title: String,
@@ -188,7 +188,7 @@ pub struct NewsEvent {
 
 #[derive(Debug, Default, FromForm, Insertable)]
 #[table_name = "news"]
-pub struct NewNewsEvent {
+pub struct NewNewsStory {
     pub happened_at: String,
     pub title: String,
     pub description: String,

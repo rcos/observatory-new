@@ -533,22 +533,22 @@ pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
     use crate::schema::news::dsl::*;
     NewsTemplate {
         logged_in: l.user(),
-        news: news.load(&*conn).expect("Failed to get news from database"),
+        stories: news.load(&*conn).expect("Failed to get news from database"),
     }
 }
 
 #[get("/news.json")]
-pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsEvent>> {
+pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsStory>> {
     use crate::schema::news::dsl::*;
     Json(news.load(&*conn).expect("Failed to get news from database"))
 }
 
 #[get("/news/<nid>")]
-pub fn newsevent(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsEventTemplate {
+pub fn newsstory(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTemplate {
     use crate::schema::news::dsl::*;
-    NewsEventTemplate {
+    NewsStoryTemplate {
         logged_in: l.user(),
-        newsevent: news
+        story: news
             .find(nid)
             .first(&*conn)
             .expect("Failed to get news event from database"),
@@ -556,30 +556,30 @@ pub fn newsevent(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsEventTem
 }
 
 #[get("/news/new")]
-pub fn newnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTemplate {
+pub fn newnewsstory(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsStoryTemplate {
     unimplemented!()
 }
 
-#[post("/news/new", data = "<newnewsevent>")]
-pub fn newnewsevent_post(
+#[post("/news/new", data = "<newnewsstory>")]
+pub fn newnewsstory_post(
     conn: ObservDbConn,
     l: MaybeLoggedIn,
-    newnewsevent: Form<NewNewsEvent>,
-) -> NewNewsEventTemplate {
+    newnewsstory: Form<NewNewsStory>,
+) -> NewNewsStoryTemplate {
     unimplemented!()
 }
 
 #[get("/news/new")]
-pub fn editnewsevent(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsEventTemplate {
+pub fn editnewsstory(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsStoryTemplate {
     unimplemented!()
 }
 
-#[put("/news/new", data = "<newnewsevent>")]
-pub fn editnewsevent_post(
+#[put("/news/new", data = "<newnewsstory>")]
+pub fn editnewsstory_post(
     conn: ObservDbConn,
     l: MaybeLoggedIn,
-    newnewsevent: Form<NewNewsEvent>,
-) -> NewNewsEventTemplate {
+    newnewsstory: Form<NewNewsStory>,
+) -> NewNewsStoryTemplate {
     unimplemented!()
 }
 

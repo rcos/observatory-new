@@ -23,10 +23,10 @@
         <th>Title</th>
         <th>Date</th>
     </thead>
-    {% for event in news %}
+    {% for story in stories %}
     <tr>
-        <td><a href="/news/{{ event.id }}" class="stretched-link">{{ event.title }}</a></td>
-        <td>{{ event.happened_at }}</td>
+        <td><a href="/news/{{ story.id }}" class="stretched-link">{{ story.title }}</a></td>
+        <td>{{ story.happened_at }}</td>
     </tr>
     {% endfor %}
 </table>

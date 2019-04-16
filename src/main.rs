@@ -79,7 +79,7 @@ fn main() {
                 // News
                 news,
                 news_json,
-                newsevent
+                newsstory
             ],
         )
         .launch();

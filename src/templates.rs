@@ -155,27 +155,27 @@ pub struct AttendTemplate {
 #[template(path = "news/news.html")]
 pub struct NewsTemplate {
     pub logged_in: OptUser,
-    pub news: Vec<NewsEvent>,
+    pub stories: Vec<NewsStory>,
 }
 
 #[derive(Template)]
-#[template(path = "news/newsevent.html")]
-pub struct NewsEventTemplate {
+#[template(path = "news/newsstory.html")]
+pub struct NewsStoryTemplate {
     pub logged_in: OptUser,
-    pub newsevent: NewsEvent,
+    pub story: NewsStory,
 }
 
 #[derive(Template)]
-#[template(path = "news/new-newsevent.html")]
-pub struct NewNewsEventTemplate {
+#[template(path = "news/new-newsstory.html")]
+pub struct NewNewsStoryTemplate {
     pub logged_in: OptUser,
 }
 
 #[derive(Template)]
-#[template(path = "news/edit-newsevent.html")]
-pub struct EditNewsEventTemplate {
+#[template(path = "news/edit-newsstory.html")]
+pub struct EditNewsStoryTemplate {
     pub logged_in: OptUser,
-    pub news_event: NewsEvent,
+    pub story: NewsStory,
 }
 
 //# Catcher Templates
