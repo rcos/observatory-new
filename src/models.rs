@@ -76,6 +76,7 @@ pub struct NewMeeting {
 pub struct Project {
     pub id: i32,
     pub name: String,
+    pub description: String,
     pub homepage: Option<String>,
     pub owner_id: i32,
     pub active: bool,
@@ -86,6 +87,7 @@ pub struct Project {
 #[table_name = "projects"]
 pub struct NewProject {
     pub name: String,
+    pub description: String,
     pub homepage: Option<String>,
     pub owner_id: i32,
     pub repos: String,

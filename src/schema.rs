@@ -55,6 +55,7 @@ table! {
     projects (id) {
         id -> Integer,
         name -> Text,
+        description -> Text,
         homepage -> Nullable<Text>,
         owner_id -> Integer,
         active -> Bool,
