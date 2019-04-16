@@ -299,7 +299,9 @@ pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: String, editproject:
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: String) -> Redirect {
-    unimplemented!()
+    use crate::schema::projects::dsl::*;
+    delete(projects.filter(name.eq(h))).execute(&*conn);
+    Redirect::to("/projects")
 }
 
 #[get("/projects?<s>")]
@@ -375,7 +377,11 @@ pub fn editevent_put(
     use crate::schema::events::dsl::*;
 
     let mut editevent = editevent.into_inner();
-    editevent.code = events.find(eid).select(code).first(&*conn).expect("Failed to get event code");
+    editevent.code = events
+        .find(eid)
+        .select(code)
+        .first(&*conn)
+        .expect("Failed to get event code");
 
     update(events.find(eid))
         .set(&editevent)
@@ -486,6 +492,13 @@ pub fn newmeeting_post(
     Redirect::to(format!("/groups/{}", newmeeting.group_id))
 }
 
+#[delete("/groups/<gid>")]
+pub fn group_delete(conn: ObservDbConn, l: AdminGuard, gid: i32) -> Redirect {
+    use crate::schema::groups::dsl::*;
+    delete(groups.find(gid)).execute(&*conn);
+    Redirect::to("/groups")
+}
+
 //# Attendance
 
 #[get("/attend")]
@@ -543,6 +556,11 @@ pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsStory>> {
     Json(news.load(&*conn).expect("Failed to get news from database"))
 }
 
+#[get("/news.xml")]
+pub fn news_rss(conn: ObservDbConn) {
+    unimplemented!()
+}
+
 #[get("/news/<nid>")]
 pub fn newsstory(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTemplate {
     use crate::schema::news::dsl::*;
@@ -581,6 +599,13 @@ pub fn editnewsstory_post(
     newnewsstory: Form<NewNewsStory>,
 ) -> NewNewsStoryTemplate {
     unimplemented!()
+}
+
+#[delete("/news/<nid>")]
+pub fn news_delete(conn: ObservDbConn, l: AdminGuard, nid: i32) -> Redirect {
+    use crate::schema::news::dsl::*;
+    delete(news.find(nid)).execute(&*conn);
+    Redirect::to("/news")
 }
 
 //# Catchers

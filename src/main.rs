@@ -71,6 +71,7 @@ fn main() {
                 projects_json,
                 newproject,
                 newproject_post,
+                project_delete,
                 // Groups
                 group,
                 groups,
@@ -79,7 +80,8 @@ fn main() {
                 // News
                 news,
                 news_json,
-                newsstory
+                newsstory,
+                news_delete
             ],
         )
         .launch();
