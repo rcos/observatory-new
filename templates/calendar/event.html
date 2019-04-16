@@ -7,15 +7,17 @@
 </style>
 {% endblock %}
 
-{% block adminbuttons %}
-{% match logged_in %}
-{% when Some with (u) %}
-{% if u.tier > 1 %}
-<a class="btn btn-secondary" href="/calendar/{{ event.id }}/edit">Edit</a>
-<button id="delete_button" type="submit" class="btn btn-danger">Delete</button>
-{% endif %}
-{% when None %}
-{% endmatch %}
+{% block tools %}
+<div class="btn-group mr-2">
+    {% match logged_in %}
+    {% when Some with (u) %}
+    {% if u.tier > 1 %}
+    <a class="btn btn-secondary" href="/calendar/{{ event.id }}/edit">Edit</a>
+    <button id="delete_button" type="submit" class="btn btn-danger">Delete</button>
+    {% endif %}
+    {% when None %}
+    {% endmatch %}
+</div>
 {% endblock %}
 
 {% block content %}

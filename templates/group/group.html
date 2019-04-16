@@ -7,20 +7,15 @@
 </style>
 {% endblock %}
 
-{% block adminbuttons %}
-{% match logged_in %}
-{% when Some with (u) %}
-{% if u.tier > 1 %}
-<a class="btn btn-secondary" href="/groups/{{ group.id }}/edit">Edit</a>
-<button class="btn btn-danger">Delete</button>
-{% endif %}
-{% when None %}
-{% endmatch %}
-{% endblock %}
-
 {% block tools %}
 {% match logged_in %}
 {% when Some with (u) %}
+{% if u.tier > 1 %}
+<div class="btn-group mr-2">
+    <a class="btn btn-secondary" href="/groups/{{ group.id }}/edit">Edit</a>
+    <button class="btn btn-danger">Delete</button>
+</div>
+{% endif %}
 {% if u.tier > 1 || u.id == group.owner_id %}
 <form method="POST">
     <input type="hidden" name="group_id" value="{{ group.id }}">

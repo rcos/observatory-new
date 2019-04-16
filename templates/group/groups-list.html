@@ -7,14 +7,16 @@
 </style>
 {% endblock %}
 
-{% block adminbuttons %}
-{% match logged_in %}
-{% when Some with (u) %}
-{% if u.tier > 1 %}
-<a class="btn btn-secondary" href="/groups/">New Group</a>
-{% endif %}
-{% when None %}
-{% endmatch %}
+{% block tools %}
+<div class="btn-group mr-2">
+    {% match logged_in %}
+    {% when Some with (u) %}
+    {% if u.tier > 1 %}
+    <a class="btn btn-secondary" href="/groups/">New Group</a>
+    {% endif %}
+    {% when None %}
+    {% endmatch %}
+</div>
 {% endblock %}
 
 {% block content %}
