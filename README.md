@@ -9,6 +9,8 @@ order to be easier to maintain in the long run.
 It renders pages as plain HTML with minimal JavaScript and uses SQLite
 as the database backend.
 
+If you would like to help out please read [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Major Dependencies
 - [Diesel](https://diesel.rs): Database ORM
 - [Rocket](https://rocket.rs): Web framework
@@ -21,7 +23,9 @@ something like `libssl-devel` and `sqlite-devel` or similar.
 
 You will also need the Diesel CLI. It can be easily installed with:
 
-`$ cargo install diesel_cli --no-default-features --features sqlite`
+```
+$ cargo install diesel_cli --no-default-features --features sqlite
+```
 
 To set up the SQL database run the following command:
 ```
@@ -29,7 +33,7 @@ $ diesel migration run --database-url=observ.sqlite
 ```
 
 Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19))
-so you need to set Rustup to use it by running the following in the
+so you need to set [Rustup](https://rustup.rs) to use it by running the following in the
 `observatory-new` folder.
 
 ```
@@ -46,8 +50,8 @@ And to run do
 $ cargo run
 ```
 
-## Docs
-The code is documented using in-code doc comments.
+## Documentation
+The code is primarily documented using in-code doc comments.
 This can be viewed either by browsing the source or in a web browser with.
 ```
 $ cargo doc --open
