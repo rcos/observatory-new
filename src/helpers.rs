@@ -42,7 +42,7 @@ pub fn attendance_code(conn: &SqliteConnection) -> String {
     }
 }
 
-fn gen_code() -> String {
+pub fn gen_code() -> String {
     thread_rng()
         .sample_iter(&Alphanumeric)
         .take(6)

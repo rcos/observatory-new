@@ -6,7 +6,17 @@
 </style>
 {% endblock %}
 
-
+{% block tools %}
+{% match logged_in%}
+{% when Some with (u) %}
+{% if u.tier > 1 || u.id == user.id %}
+<div class="btn-group mr-2">
+    <a class="btn btn-secondary" href="/users/{{ user.id }}/edit">Edit</a>
+</div>
+{% endif %}
+{% when None%}
+{% endmatch %}
+{% endblock %}
 
 {% block content %}
 <img src="https://github.com/{{ user.handle }}.png" class="rounded float-left" />

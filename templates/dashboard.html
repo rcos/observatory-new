@@ -7,6 +7,16 @@
 </style>
 {% endblock %}
 
+{% block tools %}
+{% match logged_in%}
+{% when Some with (u) %}
+<div class="btn-group mr-2">
+    <a class="btn btn-secondary" href="/users/{{ u.id }}/edit">Edit Profile</a>
+</div>
+{% when None%}
+{% endmatch %}
+{% endblock %}
+
 {% block content %}
 <div>
     <h2>Groups</h2>

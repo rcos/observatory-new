@@ -61,6 +61,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
     newuser.salt = newsalt.clone();
     newuser.password_hash = hash_password(newuser.password_hash, &newsalt);
     newuser.tier = 0;
+    newuser.active = true;
 
     insert_into(users)
         .values(&newuser)
@@ -162,14 +163,14 @@ pub fn user_by_handle(conn: ObservDbConn, l: MaybeLoggedIn, h: String) -> Option
     Some(Redirect::to(format!("/users/{}", u.id)))
 }
 
-#[get("/users/<h>")]
-pub fn edituser(conn: ObservDbConn, l: UserGuard, h: String) -> Option<EditUserTemplate> {
+#[get("/users/<h>/edit")]
+pub fn edituser(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemplate> {
     use crate::schema::users::dsl::*;
 
     Some(EditUserTemplate {
         logged_in: Some(l.0),
         user: users
-            .filter(handle.like(h))
+            .find(h)
             .first(&*conn)
             .optional()
             .expect("Failed to get user from database")?,
@@ -180,23 +181,45 @@ pub fn edituser(conn: ObservDbConn, l: UserGuard, h: String) -> Option<EditUserT
 pub fn edituser_put(
     conn: ObservDbConn,
     l: UserGuard,
-    h: String,
+    h: i32,
     edituser: Form<NewUser>,
-) -> Redirect {
+) -> Result<Redirect, Status> {
     let l = l.0;
     let mut edituser = edituser.into_inner();
 
-    if !l.tier > 1 {
-        edituser.tier = 0;
-    }
-
     use crate::schema::users::dsl::*;
-    update(users)
-        .set(&edituser)
-        .execute(&*conn)
-        .expect("Failed to update user in database");
+    // Get some more info about the edited user
+    let (esalt, phash, etier) = users
+        .find(h)
+        .select((salt, password_hash, tier))
+        .first(&*conn)
+        .expect("Failed to get user from database");
 
-    Redirect::to(format!("/users/{}", edituser.handle))
+    if l.tier > 1 || l.id == h {
+        if edituser.password_hash.is_empty() {
+            edituser.salt = esalt;
+            edituser.password_hash = phash;
+        } else {
+            edituser.salt = gen_salt();
+            edituser.password_hash = hash_password(edituser.password_hash, &edituser.salt);
+        }
+
+        // if the logged in user can't change tiers
+        // of if it's the admin user
+        // don't change tiers
+        if !(l.tier > 1) || h == 0 {
+            edituser.tier = etier;
+        }
+
+        update(users.find(h))
+            .set(&edituser)
+            .execute(&*conn)
+            .expect("Failed to update user in database");
+
+        Ok(Redirect::to(format!("/users/{}", edituser.handle)))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[delete("/users/<h>")]
@@ -288,19 +311,21 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
 }
 
 #[get("/projects/<h>")]
-pub fn editproject(l: UserGuard, h: String) -> Option<EditProjectTemplate> {
+pub fn editproject(l: UserGuard, h: i32) -> Option<EditProjectTemplate> {
     unimplemented!()
 }
 
 #[put("/projects/<h>", data = "<editproject>")]
-pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: String, editproject: Form<NewProject>) {
+pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: i32, editproject: Form<NewProject>) {
     unimplemented!()
 }
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, l: AdminGuard, h: i32) -> Redirect {
     use crate::schema::projects::dsl::*;
-    delete(projects.find(h)).execute(&*conn);
+    delete(projects.find(h))
+        .execute(&*conn)
+        .expect("Failed to delete project from database");
     Redirect::to("/projects")
 }
 
@@ -502,7 +527,9 @@ pub fn newmeeting_post(
 #[delete("/groups/<gid>")]
 pub fn group_delete(conn: ObservDbConn, l: AdminGuard, gid: i32) -> Redirect {
     use crate::schema::groups::dsl::*;
-    delete(groups.find(gid)).execute(&*conn);
+    delete(groups.find(gid))
+        .execute(&*conn)
+        .expect("Failed to delete group from database");
     Redirect::to("/groups")
 }
 
@@ -609,9 +636,11 @@ pub fn editnewsstory_post(
 }
 
 #[delete("/news/<nid>")]
-pub fn news_delete(conn: ObservDbConn, l: AdminGuard, nid: i32) -> Redirect {
+pub fn newsstory_delete(conn: ObservDbConn, l: AdminGuard, nid: i32) -> Redirect {
     use crate::schema::news::dsl::*;
-    delete(news.find(nid)).execute(&*conn);
+    delete(news.find(nid))
+        .execute(&*conn)
+        .expect("Failed to delete news story from database");
     Redirect::to("/news")
 }
 

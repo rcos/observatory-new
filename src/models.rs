@@ -29,6 +29,7 @@ pub struct NewUser {
     pub salt: String,
     pub email: String,
     pub tier: i32,
+    pub active: bool,
 }
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]

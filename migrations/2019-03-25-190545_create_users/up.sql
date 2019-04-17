@@ -18,10 +18,11 @@ CREATE TABLE users (
     -- Priveledge tier
     -- 0 normal member
     -- 1 mentor
-    -- 2 admin/coordinator
+    -- 2 coordinator
+    -- 3 the special Admin user
     tier INTEGER NOT NULL DEFAULT 0
 );
 
 -- Create a special admin user that cannot be logged into
-INSERT INTO users (id, real_name, handle, email, password_hash, salt, active, joined_on)
-VALUES (0, "Admin", "admin", "admin", "", "", 0, 0);
+INSERT INTO users (id, real_name, handle, email, password_hash, salt, active, joined_on, tier)
+VALUES (0, "Admin", "admin", "admin@rcos.io", "", "", 1, 0, 3);

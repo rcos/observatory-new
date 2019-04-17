@@ -8,8 +8,45 @@
 {% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-2">RCOS</h1>
-    <p class="lead">Rensselaer Center for Open Source</p>
-</div>
+<form method="PUT" action="/users/{{ user.id }}">
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" class="form-control" value="{{ user.email }}" required autofocus>
+    </div>
+    <div class="form-group">
+        <label for="password_hash">Password</label>
+        <input type="password" name="password_hash" class="form-control">
+    </div>
+    <div class="form-group">
+        <label for="real_name">Real Name</label>
+        <input type="text" name="real_name" class="form-control" value="{{ user.real_name }}" required>
+    </div>
+    <div class="form-group">
+        <label for="handle">GitHub Handle</label>
+        <input type="text" name="handle" class="form-control" value="{{ user.handle }}" required>
+    </div>
+    <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="active" name="active" {% if user.active %} checked
+            {% endif %}>
+        <label class="custom-control-label" for="active">Active User</label>
+    </div>
+    {% match logged_in %}
+    {% when Some with (u) %}
+    {% if u.tier > 1 && user.id != 0 %}
+    <div class="form-group">
+        <label for="tier">Privledge Tier</label>
+        <select name="tier" required>
+            <option value="0">Member</option>
+            <option value="1">Mentor</option>
+            <option value="2">Coordinator</option>
+        </select>
+    </div>
+    {% else %}
+    <input type="hidden" name="tier" value="0">
+    {% endif %}
+    {% when None %}
+    {% endmatch %}
+    <input type="hidden" name="salt" value="">
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
 {% endblock %}
