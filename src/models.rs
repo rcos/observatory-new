@@ -189,7 +189,7 @@ pub struct NewsStory {
     pub color: Option<String>,
 }
 
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "news"]
 pub struct NewNewsStory {
     pub happened_at: String,

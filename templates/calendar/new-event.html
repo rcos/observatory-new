@@ -33,7 +33,7 @@
         <label for="hosted_by">Hosted By</label>
         <select name="hosted_by" class="custom-select" required>
             {% for user in all_users %}
-            <option value="{{ user.id }}">{{ user.real_name }}</option>
+            <option value="{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</option>
             {% endfor %}
         </select>
     </div>

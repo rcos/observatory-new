@@ -355,7 +355,10 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
 
     CalendarTemplate {
         logged_in: l.user(),
-        events: events.load(&conn.0).expect("Failed to get events"),
+        events: events
+            .order(start.asc())
+            .load(&conn.0)
+            .expect("Failed to get events"),
     }
 }
 
@@ -363,7 +366,12 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
 pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
     use crate::schema::events::dsl::*;
 
-    Json(events.load(&*conn).expect("Failed to get events"))
+    Json(
+        events
+            .order(start.asc())
+            .load(&*conn)
+            .expect("Failed to get events"),
+    )
 }
 
 #[get("/calendar/<eid>")]
@@ -497,15 +505,22 @@ pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
 }
 
 #[get("/groups/new")]
-pub fn newgroup(l: AdminGuard) -> NewGroupTemplate {
+pub fn newgroup(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
+    use crate::schema::users::dsl::*;
     NewGroupTemplate {
         logged_in: Some(l.0),
+        all_users: users
+            .load(&*conn)
+            .expect("Failed to get users from the database"),
     }
 }
 
 #[post("/groups/new", data = "<newgroup>")]
 pub fn newgroup_post(conn: ObservDbConn, l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
-    unimplemented!()
+    use crate::schema::groups::dsl::*;
+
+    insert_into(groups).values(&newgroup.into_inner()).execute(&*conn).expect("Failed to insert group into the database");
+    Redirect::to("/groups")
 }
 
 #[post("/groups/<gid>", data = "<newmeeting>")]
@@ -585,14 +600,21 @@ pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
     use crate::schema::news::dsl::*;
     NewsTemplate {
         logged_in: l.user(),
-        stories: news.load(&*conn).expect("Failed to get news from database"),
+        stories: news
+            .order(happened_at.asc())
+            .load(&*conn)
+            .expect("Failed to get news from database"),
     }
 }
 
 #[get("/news.json")]
 pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsStory>> {
     use crate::schema::news::dsl::*;
-    Json(news.load(&*conn).expect("Failed to get news from database"))
+    Json(
+        news.order(happened_at.asc())
+            .load(&*conn)
+            .expect("Failed to get news from database"),
+    )
 }
 
 #[get("/news.xml")]
@@ -613,31 +635,55 @@ pub fn newsstory(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTem
 }
 
 #[get("/news/new")]
-pub fn newnewsstory(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsStoryTemplate {
-    unimplemented!()
+pub fn newnewsstory(conn: ObservDbConn, l: AdminGuard) -> NewNewsStoryTemplate {
+    NewNewsStoryTemplate {
+        logged_in: Some(l.0),
+    }
 }
 
 #[post("/news/new", data = "<newnewsstory>")]
 pub fn newnewsstory_post(
     conn: ObservDbConn,
-    l: MaybeLoggedIn,
+    l: AdminGuard,
     newnewsstory: Form<NewNewsStory>,
-) -> NewNewsStoryTemplate {
-    unimplemented!()
+) -> Redirect {
+    use crate::schema::news::dsl::*;
+
+    insert_into(news)
+        .values(&newnewsstory.into_inner())
+        .execute(&*conn)
+        .expect("Failed to insert news story into database");
+
+    Redirect::to("/news")
 }
 
-#[get("/news/new")]
-pub fn editnewsstory(conn: ObservDbConn, l: MaybeLoggedIn) -> NewNewsStoryTemplate {
-    unimplemented!()
+#[get("/news/<nid>/edit")]
+pub fn editnewsstory(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsStoryTemplate {
+    use crate::schema::news::dsl::*;
+    EditNewsStoryTemplate {
+        logged_in: Some(l.0),
+        story: news
+            .find(nid)
+            .first(&*conn)
+            .expect("Failed to load news story from database"),
+    }
 }
 
-#[put("/news/new", data = "<newnewsstory>")]
-pub fn editnewsstory_post(
+#[put("/news/<nid>", data = "<editnewsstory>")]
+pub fn editnewsstory_put(
     conn: ObservDbConn,
-    l: MaybeLoggedIn,
-    newnewsstory: Form<NewNewsStory>,
-) -> NewNewsStoryTemplate {
-    unimplemented!()
+    l: AdminGuard,
+    editnewsstory: Form<NewNewsStory>,
+    nid: i32,
+) -> Redirect {
+    use crate::schema::news::dsl::*;
+
+    update(news.find(nid))
+        .set(&editnewsstory.into_inner())
+        .execute(&*conn)
+        .expect("Failed to update news story in the database");
+
+    Redirect::to(format!("/news/{}", nid))
 }
 
 #[delete("/news/<nid>")]

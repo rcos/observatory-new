@@ -15,6 +15,8 @@ If you would like to help out please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 - [Diesel](https://diesel.rs): Database ORM
 - [Rocket](https://rocket.rs): Web framework
 - [Askama](https://github.com/djc/askama): Templating engine
+- [FullCalendar](https://fullcalendar.io/): For JavaScript calendars
+- [Bootstrap](https://getbootstrap.com): CSS framework
 
 ## Building
 First you need to install the `openssl` and `sqlite` development headers.

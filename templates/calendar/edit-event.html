@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Event{% endblock %}
+{% block title %}Edit Event - {{ event.title }} {% endblock %}
 
 {% block head %}
 <style>
@@ -35,7 +35,7 @@
         <label for="hosted_by">Hosted By</label>
         <select name="hosted_by" class="custom-select" value="{{ event.hosted_by }}" required>
             {% for user in all_users %}
-            <option value="{{ user.id }}">{{ user.real_name }}</option>
+            <option value="{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</option>
             {% endfor %}
         </select>
     </div>

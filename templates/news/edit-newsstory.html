@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Edit News Event{% endblock %}
+{% block title %}Edit Story - {{ story.title }}{% endblock %}
 
 {% block head %}
 <style>
@@ -8,4 +8,31 @@
 {% endblock %}
 
 {% block content %}
+<form method="PUT" action="/news/{{ story.id }}">
+    <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" name="title" class="form-control" value="{{ story.title }}" required>
+    </div>
+    <div class="form-group">
+        <label for="description"></label>
+        <textarea name="description" class="form-control" required>{{ story.description }}</textarea>
+    </div>
+    <div class="form-group">
+        <label for="start">Happened At</label>
+        <input type="datetime-local" name="happened_at" class="form-control" value="{{ story.happened_at }}" required>
+    </div>
+    <div class="form-group">
+        <label for="color">Calendar Color</label>
+        <select name="color" class="custom-select" required>
+            <option value="red">Red</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+            <option value="yellow">Yellow</option>
+            <option value="orange">Orange</option>
+            <option value="purple">Purple</option>
+            <option value="brown">Brown</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
 {% endblock %}

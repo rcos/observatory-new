@@ -95,6 +95,7 @@ pub struct GroupTemplate {
 #[template(path = "group/new-group.html")]
 pub struct NewGroupTemplate {
     pub logged_in: OptUser,
+    pub all_users: Vec<User>,
 }
 
 #[derive(Template)]

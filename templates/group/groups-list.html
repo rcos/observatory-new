@@ -12,7 +12,7 @@
     {% match logged_in %}
     {% when Some with (u) %}
     {% if u.tier > 1 %}
-    <a class="btn btn-secondary" href="/groups/">New Group</a>
+    <a class="btn btn-secondary" href="/groups/new">New Group</a>
     {% endif %}
     {% when None %}
     {% endmatch %}

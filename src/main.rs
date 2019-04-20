@@ -79,13 +79,19 @@ fn main() {
                 // Groups
                 group,
                 groups,
+                newgroup,
                 newgroup_post,
+                group_delete,
                 newmeeting_post,
                 // News
                 news,
                 news_json,
                 newsstory,
-                newsstory_delete
+                newnewsstory,
+                newnewsstory_post,
+                newsstory_delete,
+                editnewsstory,
+                editnewsstory_put,
             ],
         )
         .launch();
