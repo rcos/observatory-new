@@ -16,6 +16,15 @@
     {% include "header.html" %}
     <main role="main" class="flex-shrink-0">
         <div class="container">
+            <noscript>
+                <p class="alert alert-warning">
+                    It seems JavaScript is either disabled or not supported by your browser.
+                    While we have attempted to make the RCOS Observatory work without JavaScript,
+                    certain functions will not work, so please consider enabling JavaScript or using
+                    a newer browser.
+                    All JavaScript used on this site is free and open source.
+                </p>
+            </noscript>
             <div id="topbar" class="d-flex justify-content-between align-items-center">
                 <h1>{% block title %}{% endblock %}</h1>
                 <div class="btn-toolbar">
