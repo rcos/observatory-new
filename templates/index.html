@@ -95,8 +95,9 @@
         </div>
     </div>
 </section>
-<footer>
-    <pre>Version: {{ version }}</pre>
-    Sponsor logos By Source, Fair Use courtesy of WikiPedia
-</footer>
+{% endblock %}
+
+{% block footer %}
+<p>Observatory 5 version: <code>{{ version }}</code></p>
+<p>Sponsor logos By Source, Fair Use courtesy of WikiPedia</p>
 {% endblock %}
