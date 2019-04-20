@@ -30,3 +30,7 @@ body {
 :checked + .navbar-collapse {
     display: block;
 }
+
+.sponsors .card {
+    width: 20rem;
+}

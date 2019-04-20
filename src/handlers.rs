@@ -43,6 +43,11 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
     Some(Response::build().header(ctype).sized_body(bytes).finalize())
 }
 
+#[get("/favicon.ico")]
+pub fn favicon() -> Redirect {
+    Redirect::to("/static/favicon.webp")
+}
+
 #[get("/signup")]
 pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
     SignUpTemplate {

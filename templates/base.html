@@ -2,13 +2,14 @@
 <html lang="en">
 
 <head>
-    <title>{% block title %}RCOS{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/webp" href="/static/favicon.webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha256-YLGeXaapI0/5IgZopewRJcFXomhRMlYYjugPLSyNjTY=" crossorigin="anonymous" />
     <link rel="stylesheet" href="/static/base.css">
     <script src="/static/base.js"></script>
     {% block head %}{% endblock %}
+    <title>{% block title %}{% endblock %}</title>
 </head>
 
 <body>

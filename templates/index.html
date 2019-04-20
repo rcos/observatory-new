@@ -1,14 +1,102 @@
 {% extends "base.html" %}
 
 {% block head %}
+<title>RCOS</title>
 <style>
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="jumbotron">
-    <h1 class="display-2">RCOS</h1>
-    <p class="lead">Rensselaer Center for Open Source</p>
+    <h1 class="display-2"><img alt="RCOS" class="mw-100" src="/static/lockup-red.webp"></h1>
+    <!-- <p class="lead">Rensselaer Center for Open Source</p> -->
+    <p>
+        Our Mission is to cultivate an inclusive, creative, and entrepreneurial
+        community that seeks to empower students to develop open-source
+        solutions to real-world problems.
+    </p>
 </div>
-<pre>Version: {{ version }}</pre>
+
+<section class="about">
+    <h2>About</h2>
+    <p>
+        <!-- This needs to be updated and expanded -->
+        RCOS is a group of RPI students who work on open source projects. Our members work on a variety of projects,
+        which can be seen on the projects page. To see the presentation schedule look check the calendar.
+    </p>
+</section>
+
+<section class="sponsors">
+    <h2>Sponsors</h2>
+    <!-- The sponsor blurbs probably need to be updated -->
+    <div class="card-columns">
+        <div class="card">
+            <img src="https://upload.wikimedia.org/wikipedia/en/6/6c/RedHat.svg" class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">RedHat</h4>
+                <p class="card-text">
+                    RedHat has funded student projects and learning workshops, including Introduction to Open Source
+                    Software.
+                </p>
+                <a href="https://redhat.com/about" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/d/d2/Mozilla_logo.svg" class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">Mozilla</h4>
+                <p class="card-text">
+                    Helped with leadership program for mentors.
+                </p>
+                <a href="https://mozilla.org" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">Google</h4>
+                <p class="card-text">
+                    Donated MAGPis and Cardboard VR.
+                </p>
+                <a href="https://about.google" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://cdn.makeuseof.com/wp-content/uploads/2018/01/FOSSOrganizations-Open-Source-Initiative.png"
+                class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">Open Source Initiative</h4>
+                <p class="card-text">
+                    Educational Institution Member that has provided opportunities for students.
+                </p>
+                <a href="https://opensource.org" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="http://www.hfoss.org/uploads/images/allgray_notrinity.gif" class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">NSF HFOSS</h4>
+                <p class="card-text">
+                    Affliated member with Trinity, Connecticut College and Wesleyan University
+                </p>
+                <a href="http://hfoss.org" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+        <div class="card">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg"
+                class="card-img-top">
+            <div class="card-body">
+                <h4 class="card-title">Microsoft</h4>
+                <p class="card-text">
+                    Partially Funded Student projects through the Microsoft employee program.
+                </p>
+                <a href="https://microsoft.com/about" target="_blank" class="card-link stretched-link">About</a>
+            </div>
+        </div>
+    </div>
+</section>
+<footer>
+    <pre>Version: {{ version }}</pre>
+    Sponsor logos By Source, Fair Use courtesy of WikiPedia
+</footer>
 {% endblock %}

@@ -41,6 +41,7 @@ fn main() {
             routes![
                 index,
                 staticfile,
+                favicon,
                 dashboard,
                 // Calendar
                 calendar,
