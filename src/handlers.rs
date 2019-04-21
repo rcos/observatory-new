@@ -635,9 +635,23 @@ pub fn editgroup(
     }
 }
 
-#[put("/groups/<gid>")]
-pub fn editgroup_put(conn: ObservDbConn, l: MentorGuard, gid: i32) -> Redirect {
-    unimplemented!()
+#[put("/groups/<gid>", data="<editgroup>")]
+pub fn editgroup_put(conn: ObservDbConn, l: MentorGuard, editgroup: Form<NewGroup>, gid: i32) -> Result<Redirect, Status> {
+    use crate::schema::groups::dsl::*;
+
+    let mut editgroup = editgroup.into_inner();
+
+    let g: Group = groups.find(gid).first(&*conn).expect("Failed to get group from database");
+
+    if l.0.tier > 1 || g.owner_id == l.0.id {
+        if !(l.0.tier > 1) {
+            editgroup.owner_id = l.0.id;
+        }
+        update(groups.find(gid)).set(&editgroup).execute(&*conn).expect("Failed to update group in the database");
+        Ok(Redirect::to(format!("/groups/{}", gid)))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[delete("/groups/<gid>")]

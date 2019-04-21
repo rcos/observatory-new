@@ -8,8 +8,33 @@
 {% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-2">RCOS</h1>
-    <p class="lead">Rensselaer Center for Open Source</p>
-</div>
+<form method="PUT" action="/groups/{{ group.id }}">
+    <div class="form-group">
+        <label for="name">Group Name</label>
+        <input type="text" name="name" class="form-control" value="{{ group.name }}" required autofocus>
+    </div>
+    <div class="form-group">
+        <label for="location">Meeting Location</label>
+        <input type="text" name="location" class="form-control"
+            value="{% match group.location %}{% when Some with (l) %}{{ l }}{% when None %}{% endmatch %}">
+    </div>
+    {% match logged_in %}
+    {% when Some with (u) %}
+    {% if u.tier > 1 %}
+    <div class="form-group">
+        <label for="owner_id">Group Leader</label>
+        <select name="owner_id" class="custom-select">
+            {% for user in all_users %}
+            <option value="{{ user.id }}" {% if user.id == group.owner_id %} selected {% endif %}>{{ user.real_name}}
+                ({{ user.handle }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% else %}
+    <input type="hidden" name="owner_id" value="u.id">
+    {% endif %}
+    {% when None %}
+    {% endmatch %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
 {% endblock %}

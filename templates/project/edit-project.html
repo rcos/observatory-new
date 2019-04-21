@@ -28,7 +28,7 @@
 
     <div class="form-group">
         <label for="owner_id"></label>
-        <select name="owner_id" value="{{ project.owner_id }}">
+        <select name="owner_id" class="custom-select" value="{{ project.owner_id }}">
             {% for user in all_users %}
             <option value="{{ user.id }}" {% if project.owner_id == user.id %} selected {% endif %}>
                 {{ user.real_name }} ({{ user.handle }})</option>

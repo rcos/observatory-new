@@ -85,6 +85,8 @@ fn main() {
                 newgroup_post,
                 group_delete,
                 newmeeting_post,
+                editgroup,
+                editgroup_put,
                 // News
                 news,
                 news_json,

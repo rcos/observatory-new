@@ -102,7 +102,7 @@ pub struct Group {
     pub location: Option<String>,
 }
 
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "groups"]
 pub struct NewGroup {
     pub name: String,
