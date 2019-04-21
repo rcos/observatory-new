@@ -401,7 +401,7 @@ pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEven
             .expect("Failed to get event from database")?,
         all_users: users
             .load(&*conn)
-            .expect("Failed to get users from the database"),
+            .expect("Failed to get users from database"),
     })
 }
 
@@ -451,7 +451,7 @@ pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
         logged_in: Some(admin.0),
         all_users: users
             .load(&*conn)
-            .expect("Failed to get users from the database"),
+            .expect("Failed to get users from database"),
     }
 }
 
@@ -480,7 +480,7 @@ pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> Option<GroupTemplate
         .find(gid)
         .first(&*conn)
         .optional()
-        .expect("Failed to get groups from the database")?;
+        .expect("Failed to get groups from database")?;
 
     let m: Vec<Meeting> = Meeting::belonging_to(&g)
         .load(&*conn)
@@ -500,7 +500,7 @@ pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
         logged_in: Some(l.0),
         groups: groups
             .load(&*conn)
-            .expect("Failed to get groups from the database"),
+            .expect("Failed to get groups from database"),
     }
 }
 
@@ -511,7 +511,7 @@ pub fn newgroup(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
         logged_in: Some(l.0),
         all_users: users
             .load(&*conn)
-            .expect("Failed to get users from the database"),
+            .expect("Failed to get users from database"),
     }
 }
 
@@ -519,7 +519,10 @@ pub fn newgroup(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
 pub fn newgroup_post(conn: ObservDbConn, l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
     use crate::schema::groups::dsl::*;
 
-    insert_into(groups).values(&newgroup.into_inner()).execute(&*conn).expect("Failed to insert group into the database");
+    insert_into(groups)
+        .values(&newgroup.into_inner())
+        .execute(&*conn)
+        .expect("Failed to insert group into database");
     Redirect::to("/groups")
 }
 
@@ -542,6 +545,38 @@ pub fn newmeeting_post(
         .expect("Failed to insert meeting into database");
 
     Redirect::to(format!("/groups/{}", newmeeting.group_id))
+}
+
+#[get("/groups/<gid>/edit")]
+pub fn editgroup(
+    conn: ObservDbConn,
+    l: MentorGuard,
+    gid: i32,
+) -> Result<EditGroupTemplate, Status> {
+    use crate::schema::groups::dsl::*;
+    use crate::schema::users::dsl::*;
+
+    let g: Group = groups
+        .find(gid)
+        .first(&*conn)
+        .expect("Failed to get group from database");
+
+    if l.0.tier > 1 || g.owner_id == l.0.id {
+        Ok(EditGroupTemplate {
+            logged_in: Some(l.0),
+            group: g,
+            all_users: users
+                .load(&*conn)
+                .expect("Failed to get users from database"),
+        })
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[put("/groups/<gid>")]
+pub fn editgroup_put(conn: ObservDbConn, l: MentorGuard, gid: i32) -> Redirect {
+    unimplemented!()
 }
 
 #[delete("/groups/<gid>")]
@@ -618,8 +653,40 @@ pub fn news_json(conn: ObservDbConn, l: MaybeLoggedIn) -> Json<Vec<NewsStory>> {
 }
 
 #[get("/news.xml")]
-pub fn news_rss(conn: ObservDbConn) {
-    unimplemented!()
+pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
+    use crate::schema::news::dsl::*;
+    use rss;
+
+    let all_news: Vec<NewsStory> = news.load(&*conn).expect("Failed to get news from database");
+    let items: Vec<rss::Item> = all_news.iter().map(|story| {
+        let link = format!("https://rcos.io/news/{}", &story.id);
+        let mut guid = rss::Guid::default();
+        guid.set_value(link.clone());
+
+        rss::ItemBuilder::default()
+            .title(story.title.clone())
+            .description(story.description.clone())
+            .link(link)
+            .guid(guid)
+            .pub_date(story.happened_at.format("%a, %d %b %Y %T EST").to_string())
+            .build()
+            .expect("Failed to build RSS Item")
+    }).collect();
+
+    let xml = rss::ChannelBuilder::default()
+        .title("RCOS News")
+        .link("https://rcos.io")
+        .description("News from the Rensselaer Center for Open Source")
+        .items(items)
+        .build()
+        .expect("Failed to build RSS Channel")
+        .to_string();
+    
+    Response::build()
+        .status(Status::Ok)
+        .header(ContentType::XML)
+        .sized_body(Cursor::new(xml))
+        .finalize()
 }
 
 #[get("/news/<nid>")]
@@ -681,7 +748,7 @@ pub fn editnewsstory_put(
     update(news.find(nid))
         .set(&editnewsstory.into_inner())
         .execute(&*conn)
-        .expect("Failed to update news story in the database");
+        .expect("Failed to update news story in database");
 
     Redirect::to(format!("/news/{}", nid))
 }

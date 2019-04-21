@@ -86,6 +86,7 @@ fn main() {
                 // News
                 news,
                 news_json,
+                news_rss,
                 newsstory,
                 newnewsstory,
                 newnewsstory_post,

@@ -103,6 +103,7 @@ pub struct NewGroupTemplate {
 pub struct EditGroupTemplate {
     pub logged_in: OptUser,
     pub group: Group,
+    pub all_users: Vec<User>,
 }
 
 #[derive(Template)]
