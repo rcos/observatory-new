@@ -76,6 +76,8 @@ fn main() {
                 newproject,
                 newproject_post,
                 project_delete,
+                editproject,
+                editproject_put,
                 // Groups
                 group,
                 groups,

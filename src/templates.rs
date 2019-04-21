@@ -72,6 +72,9 @@ pub struct NewProjectTemplate {
 #[template(path = "project/edit-project.html")]
 pub struct EditProjectTemplate {
     pub logged_in: OptUser,
+    pub project: Project,
+    pub repos: Vec<String>,
+    pub all_users: Vec<User>,
 }
 
 #[derive(Template)]

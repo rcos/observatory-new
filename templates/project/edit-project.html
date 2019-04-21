@@ -1,15 +1,51 @@
 {% extends "base.html" %}
 
-{% block title %}Edit Project{% endblock %}
+{% block title %}Edit Project - {{ project.name }}{% endblock %}
 
 {% block head %}
+<script src="/static/edit-project.js"></script>
 <style>
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="jumbotron">
-    <h1 class="display-2">RCOS</h1>
-    <p class="lead">Rensselaer Center for Open Source</p>
-</div>
+<form method="PUT" action="/projects/{{ project.id }}">
+    <div class="form-group">
+        <label for="name">Project Name</label>
+        <input type="text" name="name" class="form-control" value="{{ project.name }}" required autofocus>
+    </div>
+
+    <div class="form-group">
+        <label for="homepage">Project Website</label>
+        <input type="url" name="homepage" class="form-control"
+            value="{% match project.homepage %}{% when Some with (h) %}{{ h }}{% when None%}{% endmatch %}">
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea name="description" class="form-control" required>{{ project.description }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="owner_id"></label>
+        <select name="owner_id" value="{{ project.owner_id }}">
+            {% for user in all_users %}
+            <option value="{{ user.id }}" {% if project.owner_id == user.id %} selected {% endif %}>
+                {{ user.real_name }} ({{ user.handle }})</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="repo-list">Repository URLs <noscript>(As a JSON array)</noscript></label>
+        {% for repo in repos %}
+        <input type="url" class="repo-list form-control" value="{{ repo }}" {% if loop.first %} required {% endif %}>
+        {% endfor %}
+        <div id="more-repos"></div>
+        <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">Add Repo</button>
+    </div>
+
+    <input type="hidden" name="repos" value="[]">
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
 {% endblock %}

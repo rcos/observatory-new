@@ -84,7 +84,7 @@ pub struct Project {
     pub repos: String,
 }
 
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
 #[table_name = "projects"]
 pub struct NewProject {
     pub name: String,

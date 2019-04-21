@@ -3,40 +3,13 @@
 {% block title %}New Project{% endblock %}
 
 {% block head %}
+<script src="/static/edit-project.js"></script>
 <style>
 </style>
 {% endblock %}
 
 {% block content %}
-<script>
-    function add_repo() {
-        let d = document.getElementById("more-repos");
-        let i = document.createElement("input");
-        i.setAttribute("type", "url");
-        i.setAttribute("name", "repos");
-        i.classList.add("form-control");
-        d.appendChild(i);
-    }
-
-    // This is a workaround because Rocket does not handle
-    // Array form values. So we load it all into the last one
-    // As a JSON string.
-    document.addEventListener('DOMContentLoaded', () => {
-        document.getElementById("newproject").onsubmit = e => {
-            e.preventDefault();
-            let val = [];
-            if (e.target.repos.length > 1) {
-                e.target.repos.forEach(e => val.push(e.value));
-            } else {
-                val.push(e.target.repos.value);
-            }
-            document.getElementById("main-repo").value = JSON.stringify(val);
-            e.target.submit();
-        };
-    })
-</script>
-
-<form id="newproject" method="POST">
+<form method="POST">
     <div class="form-group">
         <label for="name">Project Name</label>
         <input type="text" name="name" class="form-control" required autofocus>
@@ -52,18 +25,16 @@
         <textarea name="description" class="form-control" required></textarea>
     </div>
 
+    <noscript>This form requires JavaScript to work, please enable it.</noscript>
     <div class="form-group">
-        <label for="repos">Repository URLs <noscript>(comma seperated)</noscript></label>
+        <label for="repo-list">Repository URLs</label>
+        <input type="url" class="repo-list form-control" required>
         <div id="more-repos"></div>
-        <div class="input-group">
-            <input id="main-repo" type="url" name="repos" class="form-control" required>
-            <noscript></noscript>
-            <div class="input-group-append">
-                <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">+</button>
-            </div>
-        </div>
+        <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">Add Repo</button>
     </div>
+
     <input type="hidden" name="owner_id" value="0">
+    <input type="hidden" name="repos" value="[]">
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

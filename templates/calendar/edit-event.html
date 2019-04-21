@@ -11,7 +11,7 @@
 <form method="PUT" action="/calendar/{{ event.id }}">
     <div class="form-group">
         <label for="title">Title</label>
-        <input type="text" name="title" class="form-control" value="{{ event.title }}" required>
+        <input type="text" name="title" class="form-control" value="{{ event.title }}" required autofocus>
     </div>
     <div class="form-group">
         <label for="description">Description</label>
@@ -35,7 +35,8 @@
         <label for="hosted_by">Hosted By</label>
         <select name="hosted_by" class="custom-select" value="{{ event.hosted_by }}" required>
             {% for user in all_users %}
-            <option value="{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</option>
+            <option value="{{ user.id }}" {% if event.hosted_by == user.id %} selected {% endif %}>{{ user.real_name }}
+                ({{ user.handle }})</option>
             {% endfor %}
         </select>
     </div>

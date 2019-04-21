@@ -292,6 +292,15 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
     let mut newproject = newproject.into_inner();
     newproject.owner_id = l.0.id;
 
+    newproject.repos = serde_json::to_string(
+        &serde_json::from_str::<Vec<String>>(&newproject.repos)
+            .unwrap()
+            .iter()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<&String>>(),
+    )
+    .unwrap();
+
     use crate::schema::projects::dsl::*;
     insert_into(projects)
         .values(&newproject)
@@ -315,14 +324,66 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
     Redirect::to(format!("/projects/{}", p.id))
 }
 
-#[get("/projects/<h>")]
-pub fn editproject(l: UserGuard, h: i32) -> Option<EditProjectTemplate> {
-    unimplemented!()
+#[get("/projects/<h>/edit")]
+pub fn editproject(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+) -> Result<EditProjectTemplate, Status> {
+    use crate::schema::projects::dsl::*;
+    use crate::schema::users::dsl::*;
+
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        Ok(EditProjectTemplate {
+            logged_in: Some(l.0),
+            repos: serde_json::from_str(&p.repos).unwrap(),
+            project: p,
+            all_users: users
+                .load(&*conn)
+                .expect("Failed to get users from database"),
+        })
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[put("/projects/<h>", data = "<editproject>")]
-pub fn editproject_put(conn: ObservDbConn, l: UserGuard, h: i32, editproject: Form<NewProject>) {
-    unimplemented!()
+pub fn editproject_put(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    editproject: Form<NewProject>,
+) -> Result<Redirect, Status> {
+    use crate::schema::projects::dsl::*;
+
+    let mut editproject = editproject.into_inner();
+    editproject.repos = serde_json::to_string(
+        &dbg!(serde_json::from_str::<Vec<String>>(&editproject.repos))
+            .unwrap()
+            .iter()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<&String>>(),
+    )
+    .unwrap();
+
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        update(projects.find(h))
+            .set(&editproject)
+            .execute(&*conn)
+            .expect("Failed to update project in database");
+        Ok(Redirect::to(format!("/projects/{}", h)))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[delete("/projects/<h>")]
@@ -658,20 +719,23 @@ pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
     use rss;
 
     let all_news: Vec<NewsStory> = news.load(&*conn).expect("Failed to get news from database");
-    let items: Vec<rss::Item> = all_news.iter().map(|story| {
-        let link = format!("https://rcos.io/news/{}", &story.id);
-        let mut guid = rss::Guid::default();
-        guid.set_value(link.clone());
+    let items: Vec<rss::Item> = all_news
+        .iter()
+        .map(|story| {
+            let link = format!("https://rcos.io/news/{}", &story.id);
+            let mut guid = rss::Guid::default();
+            guid.set_value(link.clone());
 
-        rss::ItemBuilder::default()
-            .title(story.title.clone())
-            .description(story.description.clone())
-            .link(link)
-            .guid(guid)
-            .pub_date(story.happened_at.format("%a, %d %b %Y %T EST").to_string())
-            .build()
-            .expect("Failed to build RSS Item")
-    }).collect();
+            rss::ItemBuilder::default()
+                .title(story.title.clone())
+                .description(story.description.clone())
+                .link(link)
+                .guid(guid)
+                .pub_date(story.happened_at.format("%a, %d %b %Y %T EST").to_string())
+                .build()
+                .expect("Failed to build RSS Item")
+        })
+        .collect();
 
     let xml = rss::ChannelBuilder::default()
         .title("RCOS News")
@@ -681,7 +745,7 @@ pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
         .build()
         .expect("Failed to build RSS Channel")
         .to_string();
-    
+
     Response::build()
         .status(Status::Ok)
         .header(ContentType::XML)
