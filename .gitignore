@@ -26,3 +26,9 @@ Cargo.lock
 *.sqlite
 *.sqlite3
 *.db
+
+# Various editor files
+.idea
+.vscode
+*.swp
+.directory
