@@ -30,7 +30,7 @@
 {% when None %}
 {% endmatch %}
 
-<p>{{ project.description }}</p>
+<p>{{ project.description|e|md|safe }}</p>
 
 <div id="repos">
     <h3>Repos</h3>

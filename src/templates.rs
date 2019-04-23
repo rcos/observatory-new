@@ -28,3 +28,7 @@ pub struct Error403Template {
 pub struct Error404Template {
     pub logged_in: OptUser,
 }
+
+pub mod filters {
+    pub use askama_filters::filters::*;
+}

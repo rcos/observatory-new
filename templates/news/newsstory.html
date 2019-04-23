@@ -22,5 +22,5 @@
 
 {% block content %}
 <h3>{{ story.happened_at }}</h3>
-<p>{{ story.description }}</p>
+<p>{{ story.description|e|md|safe }}</p>
 {% endblock %}

@@ -51,7 +51,10 @@ pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
 
             rss::ItemBuilder::default()
                 .title(story.title.clone())
-                .description(story.description.clone())
+                .description({
+                    use askama_filters::filters::markdown;
+                    markdown(&story.description.clone()).unwrap()
+                })
                 .link(link)
                 .guid(guid)
                 .pub_date(story.happened_at.format("%a, %d %b %Y %T EST").to_string())

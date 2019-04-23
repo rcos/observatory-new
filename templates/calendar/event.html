@@ -39,7 +39,7 @@
 
 {% match event.description %}
 {% when Some with (val) %}
-<p>{{ val }}</p>
+<p>{{ val|e|md|safe }}</p>
 {% when None %}
 {% endmatch %}
 

@@ -1,4 +1,5 @@
-use crate::templates::OptUser;
+#[allow(unused_imports)]
+use crate::templates::{filters, OptUser};
 
 #[derive(Template)]
 #[template(path = "attend.html")]
