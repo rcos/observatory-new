@@ -11,6 +11,8 @@ CREATE TABLE users (
     password_hash TEXT NOT NULL,
     --- The salt used for the password
     salt TEXT NOT NULL,
+    --- The user's bio
+    bio TEXT NOT NULL,
     -- Is the user active?
     active BOOLEAN NOT NULL DEFAULT 1,
     -- SQLite stores dates as UNIX time
@@ -24,5 +26,5 @@ CREATE TABLE users (
 );
 
 -- Create a special admin user that cannot be logged into
-INSERT INTO users (id, real_name, handle, email, password_hash, salt, active, joined_on, tier)
-VALUES (0, "Admin", "admin", "admin@rcos.io", "", "", 1, 0, 3);
+INSERT INTO users (id, real_name, handle, email, password_hash, salt, bio, active, joined_on, tier)
+VALUES (0, "Admin", "admin", "admin@rcos.io", "", "", "The Admin account for Observatory", 1, 0, 3);

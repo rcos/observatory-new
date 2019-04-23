@@ -177,6 +177,7 @@ impl Fairing for AdminCheck {
                 handle: admin.handle,
                 password_hash: phash,
                 salt: psalt,
+                bio: admin.bio,
                 email: admin.email,
                 tier: admin.tier,
                 active: admin.active,

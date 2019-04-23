@@ -87,6 +87,7 @@ table! {
         email -> Text,
         password_hash -> Text,
         salt -> Text,
+        bio -> Text,
         active -> Bool,
         joined_on -> Timestamp,
         tier -> Integer,

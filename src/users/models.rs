@@ -11,6 +11,7 @@ pub struct User {
     pub password_hash: String,
     #[serde(skip)]
     pub salt: String,
+    pub bio: String,
     pub active: bool,
     pub joined_on: NaiveDateTime,
     pub tier: i32,
@@ -23,6 +24,7 @@ pub struct NewUser {
     pub handle: String,
     pub password_hash: String,
     pub salt: String,
+    pub bio: String,
     pub email: String,
     pub tier: i32,
     pub active: bool,
