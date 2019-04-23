@@ -85,6 +85,7 @@ fn main() {
                 users_json,
                 edituser,
                 edituser_put,
+                user_delete,
                 // Projects
                 project,
                 project_by_handle,

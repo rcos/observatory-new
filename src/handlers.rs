@@ -1,14 +1,13 @@
 use std::io::Cursor;
 use std::path::PathBuf;
 
-use rocket::http::{ContentType, Cookie, Cookies, Status};
-use rocket::request::Form;
+use rocket::http::ContentType;
+
 use rocket::response::{Redirect, Response};
 use rocket::Request;
 
 use crate::guards::*;
 use crate::templates::*;
-use crate::ObservDbConn;
 
 #[get("/")]
 pub fn index(l: MaybeLoggedIn) -> IndexTemplate {

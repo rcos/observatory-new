@@ -1,0 +1,184 @@
+use diesel::prelude::*;
+use diesel::{delete, insert_into, update};
+use rocket::http::Status;
+use rocket::request::Form;
+use rocket::response::Redirect;
+
+use rocket_contrib::json::Json;
+use serde_json;
+
+use crate::guards::*;
+use crate::ObservDbConn;
+
+use super::models::*;
+use super::templates::*;
+
+#[get("/projects/<n>")]
+pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTemplate> {
+    use crate::schema::projects::dsl::*;
+
+    let p: Project = projects
+        .find(n)
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get project from database")?;
+
+    Some(ProjectTemplate {
+        logged_in: l.user(),
+        repos: serde_json::from_str(&p.repos).unwrap(),
+        project: p,
+    })
+}
+
+#[get("/projects/<n>", rank = 2)]
+pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Option<Redirect> {
+    use crate::schema::projects::dsl::*;
+    let p: Project = projects
+        .filter(name.like(n))
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get project from database")?;
+
+    Some(Redirect::to(format!("/projects/{}", p.id)))
+}
+
+#[get("/projects/new")]
+pub fn newproject(l: UserGuard) -> NewProjectTemplate {
+    NewProjectTemplate {
+        logged_in: Some(l.0),
+    }
+}
+
+#[post("/projects/new", data = "<newproject>")]
+pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) -> Redirect {
+    let mut newproject = newproject.into_inner();
+    newproject.owner_id = l.0.id;
+
+    newproject.repos = serde_json::to_string(
+        &serde_json::from_str::<Vec<String>>(&newproject.repos)
+            .unwrap()
+            .iter()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<&String>>(),
+    )
+    .unwrap();
+
+    use crate::schema::projects::dsl::*;
+    insert_into(projects)
+        .values(&newproject)
+        .execute(&*conn)
+        .expect("Failed to insert project into database");
+
+    let p: Project = projects
+        .filter(name.eq(newproject.name))
+        .first(&*conn)
+        .expect("Failed to get project from database");
+
+    use crate::schema::relation_project_user::dsl::*;
+    insert_into(relation_project_user)
+        .values(&NewRelationProjectUser {
+            project_id: p.id,
+            user_id: l.0.id,
+        })
+        .execute(&*conn)
+        .expect("Failed to add user to project");
+
+    Redirect::to(format!("/projects/{}", p.id))
+}
+
+#[get("/projects/<h>/edit")]
+pub fn editproject(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+) -> Result<EditProjectTemplate, Status> {
+    use crate::schema::projects::dsl::*;
+    use crate::schema::users::dsl::*;
+
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        Ok(EditProjectTemplate {
+            logged_in: Some(l.0),
+            repos: serde_json::from_str(&p.repos).unwrap(),
+            project: p,
+            all_users: users
+                .load(&*conn)
+                .expect("Failed to get users from database"),
+        })
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[put("/projects/<h>", data = "<editproject>")]
+pub fn editproject_put(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    editproject: Form<NewProject>,
+) -> Result<Redirect, Status> {
+    use crate::schema::projects::dsl::*;
+
+    let mut editproject = editproject.into_inner();
+    editproject.repos = serde_json::to_string(
+        &dbg!(serde_json::from_str::<Vec<String>>(&editproject.repos))
+            .unwrap()
+            .iter()
+            .filter(|s| !s.is_empty())
+            .collect::<Vec<&String>>(),
+    )
+    .unwrap();
+
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        update(projects.find(h))
+            .set(&editproject)
+            .execute(&*conn)
+            .expect("Failed to update project in database");
+        Ok(Redirect::to(format!("/projects/{}", h)))
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[delete("/projects/<h>")]
+pub fn project_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
+    use crate::schema::projects::dsl::*;
+    delete(projects.find(h))
+        .execute(&*conn)
+        .expect("Failed to delete project from database");
+    Redirect::to("/projects")
+}
+
+#[get("/projects?<s>")]
+pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+    ProjectsListTemplate {
+        logged_in: l.user(),
+        projects: filter_projects(&*conn, s),
+    }
+}
+
+#[get("/projects.json?<s>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
+    Json(filter_projects(&*conn, s))
+}
+
+pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
+    use crate::schema::projects::dsl::*;
+
+    if let Some(term) = term {
+        let sterm = format!("%{}%", term);
+        let filter = name.like(&sterm);
+        projects.filter(filter).load(conn)
+    } else {
+        projects.load(conn)
+    }
+    .expect("Failed to get projects")
+}
