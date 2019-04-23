@@ -1,37 +1,54 @@
 // Needed by Rocket
 #![feature(proc_macro_hygiene, decl_macro)]
 
+#[macro_use]
+extern crate askama;
+#[macro_use]
+extern crate diesel;
+extern crate rand;
 // Ensure all the macros are imported
 #[macro_use]
 extern crate rocket;
 #[macro_use]
 extern crate rocket_contrib;
 #[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate askama;
+extern crate rust_embed;
 #[macro_use]
 extern crate serde_derive;
-#[macro_use]
-extern crate rust_embed;
 
-extern crate rand;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::Rocket;
+
+use handlers::*;
 
 // Module files
 mod guards;
 mod handlers;
-mod helpers;
-mod models;
 mod schema;
 mod templates;
 
-use handlers::*;
+// Table Modules
+mod attend;
+mod auth;
+mod calendar;
+mod groups;
+mod news;
+mod projects;
+mod users;
 
 // Central DB connection
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
 fn main() {
+    use crate::attend::handlers::*;
+    use crate::auth::handlers::*;
+    use crate::calendar::handlers::*;
+    use crate::groups::handlers::*;
+    use crate::news::handlers::*;
+    use crate::projects::handlers::*;
+    use crate::users::handlers::*;
+
     rocket::ignite()
         .attach(ObservDbConn::fairing())
         .attach(AdminCheck)
@@ -106,9 +123,6 @@ fn main() {
 // and generates one if it doesn't
 pub struct AdminCheck;
 
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::Rocket;
-
 impl Fairing for AdminCheck {
     fn info(&self) -> Info {
         Info {
@@ -130,8 +144,8 @@ impl Fairing for AdminCheck {
             .as_str()
             .unwrap();
 
-        use crate::models::{NewUser, User};
         use crate::schema::users::dsl::*;
+        use crate::users::models::{NewUser, User};
         use diesel::prelude::*;
         use diesel::sqlite::SqliteConnection;
 
@@ -144,7 +158,8 @@ impl Fairing for AdminCheck {
             .expect("Failed to get admin from database");
 
         if admin.password_hash.is_empty() {
-            use crate::helpers::*;
+            use crate::attend::code::gen_code;
+            use crate::auth::crypto::*;
 
             let pass = gen_code();
             eprintln!(
@@ -172,5 +187,19 @@ impl Fairing for AdminCheck {
                 .execute(&conn)
                 .expect("Failed to update admin user in database");
         }
+    }
+}
+
+pub mod models {
+    use chrono::NaiveDateTime;
+
+    pub trait Attendable {
+        fn id(&self) -> i32;
+        fn name(&self) -> String;
+        fn time(&self) -> NaiveDateTime;
+        fn code(&self) -> String;
+        fn owner_id(&self) -> i32;
+        fn is_event(&self) -> bool;
+        fn url(&self) -> String;
     }
 }
