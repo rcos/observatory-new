@@ -2,6 +2,7 @@ use chrono::NaiveDateTime;
 
 use crate::models::Attendable;
 use crate::schema::*;
+use crate::users::models::User;
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Group {
@@ -60,7 +61,9 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
-#[derive(Debug, PartialEq, Queryable, Identifiable)]
+#[derive(Debug, PartialEq, Queryable, Associations, Identifiable)]
+#[belongs_to(Group)]
+#[belongs_to(User)]
 #[table_name = "relation_group_user"]
 pub struct RelationGroupUser {
     pub id: i32,

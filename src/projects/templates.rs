@@ -10,6 +10,7 @@ pub struct ProjectTemplate {
     pub logged_in: OptUser,
     pub project: Project,
     pub repos: Vec<String>,
+    pub users: Vec<User>
 }
 
 #[derive(Template)]
@@ -32,4 +33,11 @@ pub struct EditProjectTemplate {
 pub struct ProjectsListTemplate {
     pub logged_in: OptUser,
     pub projects: Vec<Project>,
+}
+
+#[derive(Template)]
+#[template(path = "project/join.html")]
+pub struct JoinTemplate {
+    pub logged_in: OptUser,
+    pub project: Project
 }

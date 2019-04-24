@@ -26,6 +26,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
     Some(ProjectTemplate {
         logged_in: l.user(),
         repos: serde_json::from_str(&p.repos).unwrap(),
+        users: project_users(&*conn, &p),
         project: p,
     })
 }
@@ -219,4 +220,18 @@ pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Pro
         projects.load(conn)
     }
     .expect("Failed to get projects")
+}
+
+use crate::users::models::User;
+
+pub fn project_users(conn: &SqliteConnection, project: &Project) -> Vec<User> {
+    RelationProjectUser::belonging_to(project)
+        .load::<RelationProjectUser>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users.find(r.user_id).first(conn).expect("Failed to get user from database")
+        })
+        .collect()
 }

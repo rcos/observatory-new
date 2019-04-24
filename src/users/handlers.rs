@@ -17,13 +17,15 @@ use super::templates::*;
 pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate> {
     use crate::schema::users::dsl::*;
 
+    let u = users
+        .find(h)
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get user from database")?;
     Some(UserTemplate {
         logged_in: l.user(),
-        user: users
-            .find(h)
-            .first(&*conn)
-            .optional()
-            .expect("Failed to get user from database")?,
+        projects: user_projects(&*conn, &u),
+        user: u,
     })
 }
 
@@ -135,4 +137,36 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> 
         users.load(conn)
     }
     .expect("Failed to get users")
+}
+
+use crate::projects::models::{Project, RelationProjectUser};
+pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
+    RelationProjectUser::belonging_to(user)
+        .load::<RelationProjectUser>(conn)
+        .expect("Failed to load relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::projects::dsl::*;
+            projects
+                .find(r.project_id)
+                .first(conn)
+                .expect("Failed to load project from database")
+        })
+        .collect()
+}
+
+pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
+    use crate::attend::models::Attendance;
+
+    let at = Attendance::belonging_to(user)
+        .load::<Attendance>(conn)
+        .expect("Failed to load attendance from database");
+
+    GradeSummary {
+        attendances: at,
+        needed_attendances: 0,
+        commit_count: 0
+    };
+
+    unimplemented!()
 }

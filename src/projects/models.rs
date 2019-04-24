@@ -1,5 +1,7 @@
 use crate::schema::*;
 
+use crate::users::models::User;
+
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Project {
     pub id: i32,
@@ -21,8 +23,10 @@ pub struct NewProject {
     pub repos: String,
 }
 
-#[derive(Debug, PartialEq, Queryable, Identifiable)]
+#[derive(Debug, PartialEq, Queryable, Associations, Identifiable)]
 #[table_name = "relation_project_user"]
+#[belongs_to(Project)]
+#[belongs_to(User)]
 pub struct RelationProjectUser {
     pub id: i32,
     pub project_id: i32,

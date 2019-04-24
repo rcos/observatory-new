@@ -29,3 +29,12 @@ pub struct NewUser {
     pub tier: i32,
     pub active: bool,
 }
+
+use crate::attend::models::Attendance;
+
+#[derive(Debug, Default)]
+pub struct GradeSummary {
+    pub attendances: Vec<Attendance>,
+    pub needed_attendances: usize,
+    pub commit_count: usize,
+}

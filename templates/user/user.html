@@ -26,7 +26,16 @@
 <div class="container">
     <div>Github: <a href="https://github.com/{{ user.id }}" target="_blank">{{ user.handle }}</a></div>
     <div>Member since: {{ user.joined_on }}</div>
+
     <h2>Bio</h2>
     <p>{{ user.bio|e|md|safe }}</p>
+
+    <h2>Projects</h2>
+    {% for project in projects %}
+    <div>
+        <h4>{{ project.name }}</h4>
+        <a href="/projects/{{ project.id }}">View Here</a>
+    </div>
+    {% endfor %}
 </div>
 {% endblock %}
