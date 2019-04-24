@@ -170,6 +170,44 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>
     Json(filter_projects(&*conn, s))
 }
 
+#[get("/projects/<h>/join")]
+pub fn join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
+    use crate::schema::projects::dsl::*;
+    JoinTemplate {
+        logged_in: Some(l.0),
+        project: projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database")
+    }
+}
+
+#[post("/projects/<h>/join")]
+pub fn join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
+    use crate::schema::projects::dsl::*;
+
+    let a: bool = projects
+        .select(active)
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+    
+    if a {
+        use crate::schema::relation_project_user::dsl::*;
+        insert_into(relation_project_user)
+            .values(&NewRelationProjectUser {
+                project_id: h,
+                user_id: l.0.id
+            })
+            .execute(&*conn)
+            .expect("Failed to add relation to database");
+        Ok(Redirect::to(format!("/projects/{}", h)))
+    } else {
+        Err(Status::Conflict)
+    }
+
+}
+
 pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
     use crate::schema::projects::dsl::*;
 

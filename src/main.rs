@@ -96,6 +96,8 @@ fn main() {
                 project_delete,
                 editproject,
                 editproject_put,
+                join,
+                join_post,
                 // Groups
                 group,
                 groups,

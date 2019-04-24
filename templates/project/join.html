@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Join {{ project.name }}{% endblock %}
+
+{% block head %}
+<style>
+    .card {
+        display: inline-block;
+        margin: auto;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="card">
+    {% if project.active %}
+    <div class="card-body">
+        <p class="card-text">Are you sure you want to join this project?</p>
+        <form method="POST">
+            <button type="submit" class="btn btn-primary">Yes!</button>
+        </form>
+        <a class="btn btn-secondary" href="/projects/{{ project.id }}">No</a>
+    </div>
+    {% else %}
+    <div class="card-body">
+        <p class="card-text">
+            This project is no longer active and cannot be joined.
+            Please talk to a coordinator if this is a mistake,
+            or if you would like to revive this project.
+        </p>
+        <a class="btn btn-secondary" href="/projects/{{ project.id }}">OK</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
