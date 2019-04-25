@@ -9,6 +9,7 @@ use crate::users::models::User;
 pub struct GroupTemplate {
     pub logged_in: OptUser,
     pub group: Group,
+    pub users: Vec<User>,
     pub meetings: Vec<Meeting>,
 }
 

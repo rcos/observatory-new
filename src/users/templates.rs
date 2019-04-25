@@ -3,6 +3,7 @@ use super::models::*;
 use crate::templates::{filters, OptUser};
 
 use crate::projects::models::Project;
+use crate::groups::models::Group;
 
 #[derive(Template)]
 #[template(path = "user/user.html")]
@@ -10,6 +11,7 @@ pub struct UserTemplate {
     pub logged_in: OptUser,
     pub user: User,
     pub projects: Vec<Project>,
+    pub groups: Vec<Group>
 }
 
 #[derive(Template)]

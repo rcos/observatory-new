@@ -177,9 +177,9 @@ pub fn join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
     JoinTemplate {
         logged_in: Some(l.0),
         project: projects
-        .find(h)
-        .first(&*conn)
-        .expect("Failed to get project from database")
+            .find(h)
+            .first(&*conn)
+            .expect("Failed to get project from database"),
     }
 }
 
@@ -192,13 +192,13 @@ pub fn join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, S
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
-    
+
     if a {
         use crate::schema::relation_project_user::dsl::*;
         insert_into(relation_project_user)
             .values(&NewRelationProjectUser {
                 project_id: h,
-                user_id: l.0.id
+                user_id: l.0.id,
             })
             .execute(&*conn)
             .expect("Failed to add relation to database");
@@ -206,7 +206,6 @@ pub fn join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, S
     } else {
         Err(Status::Conflict)
     }
-
 }
 
 pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
@@ -231,7 +230,10 @@ pub fn project_users(conn: &SqliteConnection, project: &Project) -> Vec<User> {
         .iter()
         .map(|r| {
             use crate::schema::users::dsl::*;
-            users.find(r.user_id).first(conn).expect("Failed to get user from database")
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
         })
         .collect()
 }

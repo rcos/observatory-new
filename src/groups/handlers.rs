@@ -27,6 +27,7 @@ pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> Option<GroupTemplate
 
     Some(GroupTemplate {
         logged_in: Some(l.0),
+        users: group_users(&*conn, &g),
         group: g,
         meetings: m,
     })
@@ -153,6 +154,14 @@ pub fn group_delete(conn: ObservDbConn, _l: AdminGuard, gid: i32) -> Redirect {
 }
 
 use crate::users::models::User;
-fn group_users(conn: &SqliteConnection, group: Group) -> Vec<User> {
-    unimplemented!()
+fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
+    RelationGroupUser::belonging_to(group)
+        .load::<RelationGroupUser>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users.find(r.user_id).first(conn).expect("Failed to get user from database")
+        })
+        .collect()
 }

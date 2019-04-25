@@ -17,7 +17,7 @@
     <a class="btn btn-secondary" href="/users/{{ user.id }}/edit">Edit</a>
 </div>
 {% endif %}
-{% when None%}
+{% when None %}
 {% endmatch %}
 {% endblock %}
 
@@ -37,5 +37,21 @@
         <a href="/projects/{{ project.id }}">View Here</a>
     </div>
     {% endfor %}
+
+    {% match logged_in %}
+    {% when Some with (u) %}
+
+    {% if u.tier > 0 %}
+    <h2>Groups</h2>
+    {% for group in groups %}
+    <div>
+        <h4>{{ group.name }}</h4>
+        <a href="/groups/{{ group.id }}">View Here</a>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% when None %}
+    {% endmatch %}
 </div>
 {% endblock %}

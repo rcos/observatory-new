@@ -25,6 +25,7 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate
     Some(UserTemplate {
         logged_in: l.user(),
         projects: user_projects(&*conn, &u),
+        groups: user_groups(&*conn, &u),
         user: u,
     })
 }
@@ -155,6 +156,19 @@ pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
         .collect()
 }
 
+use crate::groups::models::{Group, RelationGroupUser};
+pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
+    RelationGroupUser::belonging_to(user)
+        .load::<RelationGroupUser>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::groups::dsl::*;
+            groups.find(r.group_id).first(conn).expect("Failed to get group from database")
+        })
+        .collect()
+}
+
 pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
     use crate::attend::models::Attendance;
 
@@ -165,7 +179,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
     GradeSummary {
         attendances: at,
         needed_attendances: 0,
-        commit_count: 0
+        commit_count: 0,
     };
 
     unimplemented!()
