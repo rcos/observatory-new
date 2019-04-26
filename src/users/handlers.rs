@@ -22,10 +22,12 @@ pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate
         .first(&*conn)
         .optional()
         .expect("Failed to get user from database")?;
+
     Some(UserTemplate {
         logged_in: l.user(),
         projects: user_projects(&*conn, &u),
         groups: user_groups(&*conn, &u),
+        summary: grade_summary(&*conn, &u),
         user: u,
     })
 }
@@ -164,23 +166,55 @@ pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
         .iter()
         .map(|r| {
             use crate::schema::groups::dsl::*;
-            groups.find(r.group_id).first(conn).expect("Failed to get group from database")
+            groups
+                .find(r.group_id)
+                .first(conn)
+                .expect("Failed to get group from database")
         })
         .collect()
 }
 
 pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
     use crate::attend::models::Attendance;
+    use crate::models::Attendable;
 
     let at = Attendance::belonging_to(user)
         .load::<Attendance>(conn)
-        .expect("Failed to load attendance from database");
+        .expect("Failed to load attendance from database")
+        .iter()
+        .map(|a| {
+            if a.is_event {
+                use crate::schema::events::dsl::*;
+                use crate::calendar::models::Event;
+                Box::new(events
+                    .find(a.event_id.unwrap())
+                    .first::<Event>(conn)
+                    .expect("Failed to load event from database"))
+                    as Box<Attendable>
+            } else {
+                use crate::schema::meetings::dsl::*;
+                use crate::groups::models::Meeting;
+                Box::new(meetings
+                    .find(a.meeting_id.unwrap())
+                    .first::<Meeting>(conn)
+                    .expect("Failed to load meeting from database"))
+                    as Box<Attendable>
+            }
+        })
+        .collect();
+
+    let nat: usize = user_groups(conn, user).iter().fold(0, |a, g| {
+        use crate::schema::meetings::dsl::*;
+        a + meetings
+            .filter(group_id.eq(g.id))
+            .count()
+            .get_result::<i64>(conn)
+            .expect("Failed to get a count of meetings") as usize
+    });
 
     GradeSummary {
         attendances: at,
-        needed_attendances: 0,
+        needed_attendances: nat,
         commit_count: 0,
-    };
-
-    unimplemented!()
+    }
 }

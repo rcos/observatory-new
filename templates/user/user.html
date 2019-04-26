@@ -33,8 +33,9 @@
     <h2>Projects</h2>
     {% for project in projects %}
     <div>
-        <h4>{{ project.name }}</h4>
-        <a href="/projects/{{ project.id }}">View Here</a>
+        <a href="/projects/{{ project.id }}">
+            <h4>{{ project.name }}</h4>
+        </a>
     </div>
     {% endfor %}
 
@@ -43,12 +44,23 @@
 
     {% if u.tier > 0 %}
     <h2>Groups</h2>
-    {% for group in groups %}
-    <div>
-        <h4>{{ group.name }}</h4>
-        <a href="/groups/{{ group.id }}">View Here</a>
-    </div>
-    {% endfor %}
+    <ul>
+        {% for group in groups %}
+        <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Grade Summary</h2>
+    <h3>Commits {{ summary.commit_count }}</h3>
+    <h3>Attendance {{ summary.attendances.len() }} / {{ summary.needed_attendances }}</h3>
+    <details>
+        <summary>Show all Attendance</summary>
+        <ul>
+            {% for at in summary.attendances %}
+            <li><a href="{{ at.url() }}">{{ at.name() }} {{ at.time() }}</a></li>
+            {% endfor %}
+        </ul>
+    </details>
     {% endif %}
 
     {% when None %}

@@ -196,8 +196,9 @@ impl Fairing for AdminCheck {
 
 pub mod models {
     use chrono::NaiveDateTime;
+    use std::fmt::{Debug};
 
-    pub trait Attendable {
+    pub trait Attendable: Debug {
         fn id(&self) -> i32;
         fn name(&self) -> String;
         fn time(&self) -> NaiveDateTime;

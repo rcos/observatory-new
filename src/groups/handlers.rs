@@ -161,7 +161,10 @@ fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
         .iter()
         .map(|r| {
             use crate::schema::users::dsl::*;
-            users.find(r.user_id).first(conn).expect("Failed to get user from database")
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
         })
         .collect()
 }

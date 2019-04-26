@@ -13,6 +13,7 @@ pub struct IndexTemplate {
 #[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
     pub logged_in: OptUser,
+    pub summary: crate::users::models::GradeSummary
 }
 
 //# Catcher Templates

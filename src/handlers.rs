@@ -6,6 +6,7 @@ use rocket::http::ContentType;
 use rocket::response::{Redirect, Response};
 use rocket::Request;
 
+use crate::ObservDbConn;
 use crate::guards::*;
 use crate::templates::*;
 
@@ -18,8 +19,9 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
 }
 
 #[get("/dashboard")]
-pub fn dashboard(l: UserGuard) -> DashboardTemplate {
+pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
     DashboardTemplate {
+        summary: crate::users::handlers::grade_summary(&*conn, &l.0),
         logged_in: Some(l.0),
     }
 }

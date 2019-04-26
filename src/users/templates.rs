@@ -1,9 +1,11 @@
 use super::models::*;
 #[allow(unused_imports)]
 use crate::templates::{filters, OptUser};
+#[allow(unused_imports)]
+use crate::models::Attendable;
 
-use crate::projects::models::Project;
 use crate::groups::models::Group;
+use crate::projects::models::Project;
 
 #[derive(Template)]
 #[template(path = "user/user.html")]
@@ -11,7 +13,8 @@ pub struct UserTemplate {
     pub logged_in: OptUser,
     pub user: User,
     pub projects: Vec<Project>,
-    pub groups: Vec<Group>
+    pub summary: GradeSummary,
+    pub groups: Vec<Group>,
 }
 
 #[derive(Template)]

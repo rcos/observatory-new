@@ -30,11 +30,11 @@ pub struct NewUser {
     pub active: bool,
 }
 
-use crate::attend::models::Attendance;
+use crate::models::Attendable;
 
 #[derive(Debug, Default)]
 pub struct GradeSummary {
-    pub attendances: Vec<Attendance>,
+    pub attendances: Vec<Box<Attendable>>,
     pub needed_attendances: usize,
     pub commit_count: usize,
 }
