@@ -151,3 +151,33 @@ pub fn newsstory_delete(conn: ObservDbConn, _l: AdminGuard, nid: i32) -> Redirec
         .expect("Failed to delete news story from database");
     Redirect::to("/news")
 }
+
+#[get("/news/slides")]
+pub fn news_slides(conn: ObservDbConn) -> SlidesTemplate {
+    let (e, n) = news_summary(&*conn);
+    SlidesTemplate {
+        events: e,
+        news: n
+    }
+}
+
+use crate::calendar::models::Event;
+pub fn news_summary(conn: &SqliteConnection) -> (Vec<Event>, Vec<NewsStory>) {
+    ({
+        use crate::schema::events::dsl::*;
+        let now = chrono::offset::Local::now().format("%F %R").to_string();
+        events
+            .order(start.asc())
+            .filter(start.gt(now))
+            .limit(5)
+            .load(&*conn)
+            .expect("Failed to get news from database")
+    }, {
+        use crate::schema::news::dsl::*;
+        news
+            .order(happened_at.asc())
+            .limit(5)
+            .load(&*conn)
+            .expect("Failed to get news from database")
+    })
+}

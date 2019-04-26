@@ -3,6 +3,14 @@
 {% block head %}
 <title>RCOS</title>
 <style>
+    .jumbotron img {
+        display: block;
+        margin: 0 auto;
+    }
+
+    section {
+        margin: 5rem 0;
+    }
 </style>
 {% endblock %}
 
@@ -24,6 +32,29 @@
         RCOS is a group of RPI students who work on open source projects. Our members work on a variety of projects,
         which can be seen on the projects page. To see the presentation schedule look check the calendar.
     </p>
+</section>
+
+<section class="card-deck">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Mattermost</h5>
+            <p class="card-text">
+                Come talk with us and keep up with important announcements
+                in the official RCOS Mattermost.
+            </p>
+            <a class="card-link stretched-link" href="https://chat.rcos.io">chat.rcos.io</a>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Handbook</h5>
+            <p class="card-text">
+                The official RCOS handbook with all the information
+                on our procedures and grading.
+            </p>
+            <a class="card-link stretched-link" href="https://handbook.rcos.io">handbook.rcos.io</a>
+        </div>
+    </div>
 </section>
 
 <section class="sponsors">

@@ -19,7 +19,20 @@
 
 {% block content %}
 <h2>Projects</h2>
+{% for project in projects %}
+<div>
+    <a href="/projects/{{ project.id }}">
+        <h4>{{ project.name }}</h4>
+    </a>
+</div>
+{% endfor %}
+
 <h2>Groups</h2>
+<ul>
+    {% for group in groups %}
+    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
+    {% endfor %}
+</ul>
 
 <h2>Grade Summary</h2>
 <h3>Commits {{ summary.commit_count }}</h3>

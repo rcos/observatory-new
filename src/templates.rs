@@ -9,11 +9,17 @@ pub struct IndexTemplate {
     pub version: &'static str,
 }
 
+use crate::users::models::GradeSummary;
+use crate::groups::models::Group;
+use crate::projects::models::Project;
+
 #[derive(Template)]
 #[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
     pub logged_in: OptUser,
-    pub summary: crate::users::models::GradeSummary
+    pub projects: Vec<Project>,
+    pub groups: Vec<Group>,
+    pub summary: GradeSummary
 }
 
 //# Catcher Templates

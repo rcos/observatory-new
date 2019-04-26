@@ -3,12 +3,50 @@
 <html lang="en">
 
 <head>
-    <title>Slides</title>
+    <title>News Slides</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0/css/reveal.min.css"
+        integrity="sha256-OxiHrn+gXudPDHxTvXiQzeFjZU/FllSSPmOOYAZ1O/g=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0/css/theme/white.min.css"
+        integrity="sha256-yrL16TdyPisf02WLfBiRl4ST24aYQM/lYN1vhrhc0O8=" crossorigin="anonymous" />
 </head>
 
 <body>
+    <div class="reveal">
+        <div class="slides">
+            <section>
+                <h2><a href="/news">News</a></h2>
+                {% if !news.is_empty() %}
+                <ul>
+                    {% for story in news %}
+                    <li><a href="/news/{{ story.id }}">{{ story.title }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No recent news... stay tuned!
+                {% endif %}
+            </section>
+            <section>
+                <h2><a href="/calendar">Upcoming Events</a></h2>
+                {% if !events.is_empty() %}
+                <ul>
+                    {% for event in events %}
+                    <li><a href="/calendar/{{ event.id }}">{{ event.title }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                No upcoming events... Stay tuned!
+                {% endif %}
+            </section>
+        </div>
+        <a href="/" style="position:absolute;bottom:1rem;left:1rem;z-index:5;"><img src="/static/pill-red.webp"></a>
+    </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0/js/reveal.min.js"
+        integrity="sha256-pv4AarTAzSO6lz+bbMPwmV29XMjkzmFOn601b2pWqXE=" crossorigin="anonymous"></script>
+    <script>
+        Reveal.initialize();
+    </script>
 </body>
 
 </html>

@@ -111,6 +111,7 @@ fn main() {
                 news,
                 news_json,
                 news_rss,
+                news_slides,
                 newsstory,
                 newnewsstory,
                 newnewsstory_post,

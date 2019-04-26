@@ -20,8 +20,11 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
 
 #[get("/dashboard")]
 pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
+    use crate::users::handlers::{grade_summary, user_groups, user_projects};
     DashboardTemplate {
-        summary: crate::users::handlers::grade_summary(&*conn, &l.0),
+        summary: grade_summary(&*conn, &l.0),
+        projects: user_projects(&*conn, &l.0),
+        groups: user_groups(&*conn, &l.0),
         logged_in: Some(l.0),
     }
 }

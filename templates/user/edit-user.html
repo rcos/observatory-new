@@ -40,9 +40,9 @@
     <div class="form-group">
         <label for="tier">Privilege Tier</label>
         <select name="tier" class="custom-select" required>
-            <option value="0">Member</option>
-            <option value="1">Mentor</option>
-            <option value="2">Coordinator</option>
+            <option value="0" {% if user.tier == 0 %}selected{% endif %}>Member</option>
+            <option value="1" {% if user.tier == 1 %}selected{% endif %}>Mentor</option>
+            <option value="2" {% if user.tier == 2 %}selected{% endif %}>Coordinator</option>
         </select>
     </div>
     {% else %}

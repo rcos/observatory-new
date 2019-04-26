@@ -29,3 +29,7 @@
 .sponsors .card {
     width: 20rem;
 }
+
+#topbar .btn-group {
+    margin: 0 1rem;
+}

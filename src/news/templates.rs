@@ -28,3 +28,11 @@ pub struct EditNewsStoryTemplate {
     pub logged_in: OptUser,
     pub story: NewsStory,
 }
+
+use crate::calendar::models::Event;
+#[derive(Template)]
+#[template(path = "news/slides.html")]
+pub struct SlidesTemplate {
+    pub events: Vec<Event>,
+    pub news: Vec<NewsStory>
+}
