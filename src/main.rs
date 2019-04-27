@@ -149,7 +149,7 @@ impl Fairing for AdminCheck {
             .unwrap();
 
         use crate::schema::users::dsl::*;
-        use crate::users::models::{NewUser, User};
+        use crate::users::{NewUser, User};
         use diesel::prelude::*;
         use diesel::sqlite::SqliteConnection;
 
@@ -197,7 +197,7 @@ impl Fairing for AdminCheck {
 
 pub mod models {
     use chrono::NaiveDateTime;
-    use std::fmt::{Debug};
+    use std::fmt::Debug;
 
     pub trait Attendable: Debug {
         fn id(&self) -> i32;

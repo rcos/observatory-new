@@ -4,8 +4,8 @@ use crate::templates::{filters, OptUser};
 #[allow(unused_imports)]
 use crate::models::Attendable;
 
-use crate::groups::models::Group;
-use crate::projects::models::Project;
+use crate::groups::Group;
+use crate::projects::Project;
 
 #[derive(Template)]
 #[template(path = "user/user.html")]

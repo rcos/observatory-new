@@ -25,7 +25,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
 
     Some(ProjectTemplate {
         logged_in: l.user(),
-        repos: serde_json::from_str(&p.repos).unwrap(),
+        repos: project_repos(&p),
         users: project_users(&*conn, &p),
         project: p,
     })
@@ -103,7 +103,7 @@ pub fn editproject(
     if l.0.tier > 1 || p.owner_id == l.0.id {
         Ok(EditProjectTemplate {
             logged_in: Some(l.0),
-            repos: serde_json::from_str(&p.repos).unwrap(),
+            repos: project_repos(&p),
             project: p,
             all_users: users
                 .load(&*conn)
@@ -208,6 +208,10 @@ pub fn join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, S
     }
 }
 
+pub fn project_repos(p: &Project) -> Vec<String> {
+    serde_json::from_str(&p.repos).unwrap()
+}
+
 pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
     use crate::schema::projects::dsl::*;
 
@@ -221,7 +225,7 @@ pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Pro
     .expect("Failed to get projects")
 }
 
-use crate::users::models::User;
+use crate::users::User;
 
 pub fn project_users(conn: &SqliteConnection, project: &Project) -> Vec<User> {
     RelationProjectUser::belonging_to(project)

@@ -153,7 +153,7 @@ pub fn group_delete(conn: ObservDbConn, _l: AdminGuard, gid: i32) -> Redirect {
     Redirect::to("/groups")
 }
 
-use crate::users::models::User;
+use crate::users::User;
 fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
     RelationGroupUser::belonging_to(group)
         .load::<RelationGroupUser>(conn)

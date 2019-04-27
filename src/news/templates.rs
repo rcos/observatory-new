@@ -29,7 +29,7 @@ pub struct EditNewsStoryTemplate {
     pub story: NewsStory,
 }
 
-use crate::calendar::models::Event;
+use crate::calendar::Event;
 #[derive(Template)]
 #[template(path = "news/slides.html")]
 pub struct SlidesTemplate {

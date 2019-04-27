@@ -2,8 +2,8 @@ use diesel::prelude::*;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
-use crate::calendar::models::Event;
-use crate::groups::models::Meeting;
+use crate::calendar::Event;
+use crate::groups::Meeting;
 use crate::models::Attendable;
 
 pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn Attendable>> {

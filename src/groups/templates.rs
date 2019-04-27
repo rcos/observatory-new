@@ -2,7 +2,7 @@ use super::models::*;
 #[allow(unused_imports)]
 use crate::templates::{filters, OptUser};
 
-use crate::users::models::User;
+use crate::users::User;
 
 #[derive(Template)]
 #[template(path = "group/group.html")]

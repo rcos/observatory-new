@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 
 use crate::models::Attendable;
 use crate::schema::*;
-use crate::users::models::User;
+use crate::users::User;
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Group {

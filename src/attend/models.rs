@@ -1,5 +1,5 @@
 use crate::schema::*;
-use crate::users::models::User;
+use crate::users::User;
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
 #[belongs_to(User)]

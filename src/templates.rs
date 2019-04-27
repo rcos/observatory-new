@@ -1,4 +1,4 @@
-use crate::users::models::User;
+use crate::users::User;
 
 pub type OptUser = Option<User>;
 
@@ -9,9 +9,9 @@ pub struct IndexTemplate {
     pub version: &'static str,
 }
 
-use crate::users::models::GradeSummary;
-use crate::groups::models::Group;
-use crate::projects::models::Project;
+use crate::users::GradeSummary;
+use crate::groups::Group;
+use crate::projects::Project;
 
 #[derive(Template)]
 #[template(path = "dashboard.html")]

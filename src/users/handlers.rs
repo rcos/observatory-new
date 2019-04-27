@@ -142,7 +142,7 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> 
     .expect("Failed to get users")
 }
 
-use crate::projects::models::{Project, RelationProjectUser};
+use crate::projects::{Project, RelationProjectUser};
 pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
     RelationProjectUser::belonging_to(user)
         .load::<RelationProjectUser>(conn)
@@ -158,7 +158,7 @@ pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
         .collect()
 }
 
-use crate::groups::models::{Group, RelationGroupUser};
+use crate::groups::{Group, RelationGroupUser};
 pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
     RelationGroupUser::belonging_to(user)
         .load::<RelationGroupUser>(conn)
@@ -175,7 +175,7 @@ pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
 }
 
 pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
-    use crate::attend::models::Attendance;
+    use crate::attend::Attendance;
     use crate::models::Attendable;
 
     let at = Attendance::belonging_to(user)
@@ -185,7 +185,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
         .map(|a| {
             if a.is_event {
                 use crate::schema::events::dsl::*;
-                use crate::calendar::models::Event;
+                use crate::calendar::Event;
                 Box::new(events
                     .find(a.event_id.unwrap())
                     .first::<Event>(conn)
@@ -193,7 +193,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
                     as Box<Attendable>
             } else {
                 use crate::schema::meetings::dsl::*;
-                use crate::groups::models::Meeting;
+                use crate::groups::Meeting;
                 Box::new(meetings
                     .find(a.meeting_id.unwrap())
                     .first::<Meeting>(conn)
