@@ -1,0 +1,20 @@
+# Unwanted folders
+target/
+.git/
+
+# Dockerfile
+Dockerfile
+.dockerignore
+
+Cargo.lock
+
+# Documentation
+*.md
+
+# Database
+*.sqlite
+*.sqlite3
+*.dbk
+
+# dotenv config
+.env

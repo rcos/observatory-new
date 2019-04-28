@@ -1,16 +1,18 @@
-[global.databases]
-sqlite_observ = { url = "./observ.sqlite" }
-
+# Settings for local development
 [development]
 address = "localhost"
 port = 8000
 log = "normal"
+databases = { sqlite_observ = { url = "./observ.sqlite" } }
 
+# Settings for a production deployment
+# Used when build with --release
 [production]
 address = "0.0.0.0"
 port = 8000
 log = "critical"
+databases = { sqlite_observ = { url = "/var/observatory/observ.sqlite" } }
 # Make sure to generate a secret key using:
-# $ openssl rand -base64 32
-# Put it here then uncomment line
-# secret_key = generated key
+# `$ openssl rand -base64 32`
+# Put it here replacing the placeholder and uncomment
+# secret_key = "CHANGEME"

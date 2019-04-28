@@ -1,12 +1,11 @@
 // Needed by Rocket
 #![feature(proc_macro_hygiene, decl_macro)]
 
+// Ensure all the macros are imported
 #[macro_use]
 extern crate askama;
 #[macro_use]
 extern crate diesel;
-extern crate rand;
-// Ensure all the macros are imported
 #[macro_use]
 extern crate rocket;
 #[macro_use]
@@ -15,6 +14,8 @@ extern crate rocket_contrib;
 extern crate rust_embed;
 #[macro_use]
 extern crate serde_derive;
+#[macro_use]
+extern crate diesel_migrations;
 
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::Rocket;
@@ -41,6 +42,8 @@ mod users;
 pub struct ObservDbConn(diesel::SqliteConnection);
 
 fn main() {
+
+    // Load all the handlers
     use crate::attend::handlers::*;
     use crate::auth::handlers::*;
     use crate::calendar::handlers::*;
@@ -50,9 +53,13 @@ fn main() {
     use crate::users::handlers::*;
 
     rocket::ignite()
+        // Attach fairings
         .attach(ObservDbConn::fairing())
+        .attach(DatabaseCreate)
         .attach(AdminCheck)
+        // Register Catchers
         .register(catchers![catch_401, catch_403, catch_404])
+        // Mount handlers
         .mount(
             "/",
             routes![
@@ -123,6 +130,42 @@ fn main() {
         .launch();
 }
 
+// Embed the Migrations into the binary
+embed_migrations!();
+
+pub struct DatabaseCreate;
+
+impl Fairing for DatabaseCreate {
+    fn info(&self) -> Info {
+        Info {
+            name: "Create Database if Needed",
+            kind: Kind::Launch,
+        }
+    }
+
+    fn on_launch(&self, rocket: &Rocket) {
+
+        // Get the database url from the config
+        let conn_url = rocket
+            .config()
+            .get_table("databases")
+            .unwrap()
+            .get("sqlite_observ")
+            .unwrap()
+            .get("url")
+            .unwrap()
+            .as_str()
+            .unwrap();
+
+        use diesel::prelude::*;
+        let conn = SqliteConnection::establish(conn_url)
+            .expect("Failed to connect to database in DatabaseCreate");
+
+        // Run the embedded migrations
+        embedded_migrations::run(&conn).expect("Failed to run embedded migrations");
+    }
+}
+
 // Checks if the Admin user has a password
 // and generates one if it doesn't
 pub struct AdminCheck;
@@ -151,7 +194,6 @@ impl Fairing for AdminCheck {
         use crate::schema::users::dsl::*;
         use crate::users::{NewUser, User};
         use diesel::prelude::*;
-        use diesel::sqlite::SqliteConnection;
 
         let conn = SqliteConnection::establish(conn_url)
             .expect("Failed to connect to database in AdminCheck");
