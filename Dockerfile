@@ -26,8 +26,19 @@ RUN cargo build --release
 # Use Alpine Linux for it's small footprint.
 FROM alpine
 
+# Set the workdir
+WORKDIR /
+
+# Add OpenSSL for the key generation in entrypoint.sh
+RUN apk add openssl
+
+# Create the user's home folder and move to it
+RUN mkdir -p /home/observatory
+WORKDIR /home/observatory
+
 # Create a new user
-RUN adduser -S observatory
+RUN adduser -h /home/observatory -S observatory
+
 
 # Create the folder that the database will be in
 RUN mkdir -p /var/observatory
@@ -39,13 +50,16 @@ RUN chown -R observatory /var/observatory
 USER observatory
 
 # Copy in the binary from the builder
-COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory /
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory .
 
-# Copy in the config from the builder
-COPY --from=builder /build/Rocket.toml /
+# Copy in the config from the host
+COPY Rocket.toml .
+
+# Copy in the entrypoint script from the host
+COPY entrypoint.sh .
 
 # Expose the HTTP port
 EXPOSE 8000
 
 # Run Observatory
-CMD /observatory
+CMD ./entrypoint.sh

@@ -35,7 +35,7 @@ Observatory can be run with Docker with the following command once it has been
 built or pulled.
 
 ```
-$ docker run --name observatory -p 8000:8000 rcos/observatory
+$ docker run --name observatory -i -p 8000:8000 rcos/observatory
 ```
 
 Once that is running Observatory-new will be available on port 8000.
@@ -44,8 +44,6 @@ Once that is running Observatory-new will be available on port 8000.
 
 Before building the image you can edit `Rocket.toml` to configure the server
 as you want it.
-There is one thing that **must** be done however. Please follow the instrucitons
-in the config file on generating a secret key for you server in production mode.
 
 Runtime configuration can be done using enviroment variables.
 See [this page in the Rocket documentation](https://rocket.rs/guide/configuration/#environment)
@@ -82,8 +80,8 @@ $ cargo build --release
 
 The configuration for the server lives in `Rocket.toml`. While we have strived
 for sane defaults you may want to change things in it.
-There is one thing that **must** be done however. Please follow the instrucitons
-in the config file on generating a secret key for you server in production mode.
+Please follow the instrucitons in the config file on generating a secret key for
+your server in production mode.
 
 ### Copy files to Server and Run
 
