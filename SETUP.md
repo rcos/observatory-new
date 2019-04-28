@@ -55,7 +55,7 @@ using an enviroment variable.
 ### Mounts
 
 The only mount of interest is the database which is stored at
-`/var/observatory/` and can be mounted to the host system using the
+`/var/lib/observatory/` and can be mounted to the host system using the
 `-v` flag or eqivalent.
 
 ## Manual

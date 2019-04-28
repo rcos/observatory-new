@@ -41,10 +41,10 @@ RUN adduser -h /home/observatory -S observatory
 
 
 # Create the folder that the database will be in
-RUN mkdir -p /var/observatory
+RUN mkdir -p /var/lib/observatory
 
 # Change the owner of the database folder
-RUN chown -R observatory /var/observatory
+RUN chown -R observatory /var/lib/observatory
 
 # Switch to the user
 USER observatory
