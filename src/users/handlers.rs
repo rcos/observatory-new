@@ -184,21 +184,23 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
         .iter()
         .map(|a| {
             if a.is_event {
-                use crate::schema::events::dsl::*;
                 use crate::calendar::Event;
-                Box::new(events
-                    .find(a.event_id.unwrap())
-                    .first::<Event>(conn)
-                    .expect("Failed to load event from database"))
-                    as Box<Attendable>
+                use crate::schema::events::dsl::*;
+                Box::new(
+                    events
+                        .find(a.event_id.unwrap())
+                        .first::<Event>(conn)
+                        .expect("Failed to load event from database"),
+                ) as Box<Attendable>
             } else {
-                use crate::schema::meetings::dsl::*;
                 use crate::groups::Meeting;
-                Box::new(meetings
-                    .find(a.meeting_id.unwrap())
-                    .first::<Meeting>(conn)
-                    .expect("Failed to load meeting from database"))
-                    as Box<Attendable>
+                use crate::schema::meetings::dsl::*;
+                Box::new(
+                    meetings
+                        .find(a.meeting_id.unwrap())
+                        .first::<Meeting>(conn)
+                        .expect("Failed to load meeting from database"),
+                ) as Box<Attendable>
             }
         })
         .collect();

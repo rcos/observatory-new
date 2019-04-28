@@ -1,8 +1,8 @@
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
-#[allow(unused_imports)]
 use crate::models::Attendable;
+#[allow(unused_imports)]
+use crate::templates::{filters, OptUser};
 
 use crate::groups::Group;
 use crate::projects::Project;

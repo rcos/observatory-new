@@ -4,5 +4,5 @@ pub mod models;
 
 mod templates;
 
-pub use models::*;
 pub use handlers::*;
+pub use models::*;

@@ -6,9 +6,9 @@ use rocket::http::ContentType;
 use rocket::response::{Redirect, Response};
 use rocket::Request;
 
-use crate::ObservDbConn;
 use crate::guards::*;
 use crate::templates::*;
+use crate::ObservDbConn;
 
 #[get("/")]
 pub fn index(l: MaybeLoggedIn) -> IndexTemplate {

@@ -34,5 +34,5 @@ use crate::calendar::Event;
 #[template(path = "news/slides.html")]
 pub struct SlidesTemplate {
     pub events: Vec<Event>,
-    pub news: Vec<NewsStory>
+    pub news: Vec<NewsStory>,
 }
