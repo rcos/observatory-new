@@ -1,3 +1,5 @@
+//! HTTP handlers for attendance codes
+
 use diesel::insert_into;
 use diesel::prelude::*;
 
@@ -11,6 +13,7 @@ use super::code::*;
 use super::models::*;
 use super::templates::*;
 
+/// GET handler for `/attend`
 #[get("/attend")]
 pub fn attend(l: UserGuard) -> AttendTemplate {
     AttendTemplate {
@@ -18,11 +21,20 @@ pub fn attend(l: UserGuard) -> AttendTemplate {
     }
 }
 
+/// An attendance code
+///
+/// Used to parse the incoming form in `attend_post`
 #[derive(FromForm)]
 pub struct AttendCode {
     code: String,
 }
 
+/// POST handler for `/attend`
+///
+/// Handles a POST request containing an attendance code that is being
+/// submitted. If the code is valid it adds the attendance to the database
+/// and redirects to `/`.
+/// Otherwise redirects back to `/attend`.
 #[post("/attend", data = "<code>")]
 pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> Redirect {
     use crate::schema::attendances::dsl::*;

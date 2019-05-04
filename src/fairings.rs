@@ -1,9 +1,19 @@
+//! Various middleware
+//!
+//! Read the [Rocket docs on Fairings](https://rocket.rs/v0.4/guide/fairings/)
+//! for more information about how these work.
+
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::Rocket;
 
 // Embed the Migrations into the binary
 embed_migrations!();
 
+/// Apply database migrations at launch
+///
+/// This will run at the launch of the webserver and apply any unapplied
+/// database maigrations. This serves to create the database at launch so
+/// that you don't have to manually.
 pub struct DatabaseCreate;
 
 impl Fairing for DatabaseCreate {
@@ -36,8 +46,10 @@ impl Fairing for DatabaseCreate {
     }
 }
 
-// Checks if the Admin user has a password
-// and generates one if it doesn't
+/// Check for admin password at launch
+///
+/// Checks if the Admin user has a password and generates one if it doesn't.
+/// This password is printed to `stdout`.
 pub struct AdminCheck;
 
 impl Fairing for AdminCheck {
@@ -61,6 +73,7 @@ impl Fairing for AdminCheck {
             .as_str()
             .unwrap();
 
+        // Import needed things
         use crate::models::{NewUser, User};
         use crate::schema::users::dsl::*;
         use diesel::prelude::*;
@@ -73,6 +86,7 @@ impl Fairing for AdminCheck {
             .first(&conn)
             .expect("Failed to get admin from database");
 
+        // Check if there is no password.
         if admin.password_hash.is_empty() {
             use crate::attend::code::gen_code;
             use crate::auth::crypto::*;
@@ -86,7 +100,7 @@ impl Fairing for AdminCheck {
             let psalt = gen_salt();
             let phash = hash_password(pass, &psalt);
 
-            // Needs to be a NewUser for set()
+            // Needs to be a NewUser for set() so create it
             let nu = NewUser {
                 real_name: admin.real_name,
                 handle: admin.handle,

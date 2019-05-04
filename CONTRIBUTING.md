@@ -21,6 +21,15 @@ For Rust we suggest using the official `rustfmt` tool to format to code.
 For HTML and JavaScript there are a variety of acceptable tools, `prettier`
 would be a good choice.
 
+## Documentation
+
+Any contributions to Observatory should be properly documented using the
+in-code RustDoc format. More information about how to do this can be
+found in the [Rust Book here](https://doc.rust-lang.org/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments).
+
+Please be descriptive in your documentation, it helps both you and us to
+understand your code better and really adds to maintainability.
+
 ## License
 
 The RCOS Observatory is licensed under the permissive MIT license

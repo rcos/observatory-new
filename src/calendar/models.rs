@@ -3,6 +3,7 @@ use chrono::naive::NaiveDateTime;
 use crate::models::Attendable;
 use crate::schema::*;
 
+/// A calendar Event
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Event {
     pub id: i32,
@@ -16,6 +17,7 @@ pub struct Event {
     pub color: Option<String>,
 }
 
+// Implement the Attendable trait for an Event.
 impl Attendable for Event {
     fn id(&self) -> i32 {
         self.id

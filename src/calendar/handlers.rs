@@ -1,3 +1,5 @@
+//! HTTP handlers for the calendar
+
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update};
 use rocket::http::Status;
@@ -13,8 +15,7 @@ use crate::ObservDbConn;
 use super::models::*;
 use super::templates::*;
 
-//# Calendar Handlers
-
+/// GET handler for `/calendar`
 #[get("/calendar")]
 pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     use crate::schema::events::dsl::*;
@@ -28,6 +29,9 @@ pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     }
 }
 
+/// GET handler for `/calendar.json`
+///
+/// JSON endpoint that returns the calendar events as a single JSON array.
 #[get("/calendar.json")]
 pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
     use crate::schema::events::dsl::*;
@@ -40,6 +44,7 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
     )
 }
 
+/// GET handler for `/calendar/<eid>`
 #[get("/calendar/<eid>")]
 pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemplate> {
     use crate::schema::events::dsl::*;
@@ -54,6 +59,7 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
     })
 }
 
+/// GET handler for `/calendar/<eid>/edit`
 #[get("/calendar/<eid>/edit")]
 pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEventTemplate> {
     use crate::schema::events::dsl::*;
@@ -71,6 +77,7 @@ pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEven
     })
 }
 
+/// PUT handler for `/calendar/<eid>`
 #[put("/calendar/<eid>", data = "<editevent>")]
 pub fn editevent_put(
     conn: ObservDbConn,
@@ -101,6 +108,7 @@ pub fn editevent_put(
     }
 }
 
+/// DELETE handler for `/calendar/<eid>
 #[delete("/calendar/<eid>")]
 pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
     use crate::schema::events::dsl::*;
@@ -110,6 +118,7 @@ pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
     Redirect::to("/calendar")
 }
 
+/// GET handler for `/calendar/new`
 #[get("/calendar/new")]
 pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
@@ -121,6 +130,7 @@ pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     }
 }
 
+/// POST handler for `/calendar/new`
 #[post("/calendar/new", data = "<newevent>")]
 pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
     use crate::schema::events::dsl::*;

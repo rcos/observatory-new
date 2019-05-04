@@ -1,5 +1,16 @@
+//! The Rust rewrite of the [RCOS](https://rcos.io) website.
+//! This version is intended to be more maintainable in the long term
+//! and uses a simpler and more conservative set of tools without being
+//! entirely ["boring software"](https://tqdev.com/2018-the-boring-software-manifesto).
 //!
+//! ## Project Structure
+//! Each folder, or "module", in this project corresponds to a different
+//! logical part of Observatory. Most modules contain the following files:
 //!
+//! - `mod.rs` Declares the folder as a module and exports its modules.
+//! - `handlers.rs` HTTP handlers for each route. The core logic of Observatory
+//! - `models.rs` Database models used to fetch and insert into the DB.
+//! - `templates.rs` Defines the state and types for the HTML templates.
 
 // Needed by Rocket
 #![feature(proc_macro_hygiene, decl_macro)]
@@ -9,8 +20,10 @@
 extern crate askama;
 #[macro_use]
 extern crate diesel;
+#[doc(hidden)]
 #[macro_use]
 extern crate rocket;
+#[doc(hidden)]
 #[macro_use]
 extern crate rocket_contrib;
 #[macro_use]
@@ -19,8 +32,6 @@ extern crate rust_embed;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel_migrations;
-
-use handlers::*;
 
 // Module files
 mod fairings;
@@ -40,10 +51,14 @@ mod news;
 mod projects;
 mod users;
 
-/// Central DB connection
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
+/// The main function that starts the program
+///
+/// This is the standard `main` function that acts as the start of the program.
+/// Here it loads Rocket, sets it up with the fairings and handlers,
+/// then launches the server.
 fn main() {
     // Load all the handlers
     use crate::attend::handlers::*;
@@ -53,6 +68,7 @@ fn main() {
     use crate::news::handlers::*;
     use crate::projects::handlers::*;
     use crate::users::handlers::*;
+    use handlers::*;
 
     // Prepare webserver
     rocket::ignite()
@@ -135,6 +151,7 @@ fn main() {
 }
 
 /// Top-level module containing all the models.
+///
 /// This mostly just re-exports the models from their
 /// respective modules to provide an easy way to import.
 pub mod models {
@@ -150,7 +167,10 @@ pub mod models {
     pub use crate::users::models::*;
 
     /// Represents anything that can be attended such as meetings and events.
+    ///
     /// Used to create generics accross anything attendable.
+    /// The trait mostly just defines functions to access the fields of the
+    /// structs that are Attendable.
     pub trait Attendable: Debug {
         fn id(&self) -> i32;
         fn name(&self) -> String;

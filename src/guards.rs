@@ -1,3 +1,9 @@
+//! Page guards
+//!
+//! These are all [Rocket request guards](https://rocket.rs/v0.4/guide/requests/#request-guards)
+//! and are mostly used to validate that the user is logged in and has
+//! permission to view the page they are trying to.
+
 use diesel::prelude::*;
 use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
@@ -6,8 +12,18 @@ use rocket::Outcome;
 use crate::models::User;
 use crate::ObservDbConn;
 
+/// A user might be logged in
+///
+/// This type wraps `UserGuard` and is used to represent that a user
+/// might be logged in, or they might not and that it doesn't
+/// matter which to view the page, but you still want to know they user's
+/// info if they are logged in.
 pub type MaybeLoggedIn = Option<UserGuard>;
 
+/// Guards page for logged in Users
+///
+/// When using this guards and not `MaybeLoggedIn` the user *must* be
+/// logged in to access the page.
 pub struct UserGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for UserGuard {
@@ -41,6 +57,10 @@ impl UserThroughOption for Option<UserGuard> {
     }
 }
 
+/// Guards page for Mentors
+///
+/// The user must be logged in **and** be of the Mentor privledge tier (>0)
+/// in order to access the page.
 pub struct MentorGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for MentorGuard {
@@ -63,6 +83,10 @@ impl UserThroughOption for Option<MentorGuard> {
     }
 }
 
+/// Guards page for Admins
+///
+/// The user must be logged in **and** be of the Admin privledge tier (>1)
+/// in order to access the page.
 pub struct AdminGuard(pub User);
 
 impl<'a, 'r> FromRequest<'a, 'r> for AdminGuard {
@@ -85,6 +109,9 @@ impl UserThroughOption for Option<AdminGuard> {
     }
 }
 
+/// Errors that guards can throw
+///
+/// The various errors that a guard can throw
 #[derive(Debug)]
 pub enum GuardError {
     NotLoggedIn,
@@ -93,6 +120,10 @@ pub enum GuardError {
     DatabaseError(diesel::result::Error),
 }
 
+/// Access a user through an Option<Guard>
+///
+/// This trait defines a convience function to access a user
+/// through a `Option<UserGuard>` or similar.
 pub trait UserThroughOption {
     fn user(self) -> Option<User>;
 }

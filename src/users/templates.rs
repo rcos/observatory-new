@@ -8,7 +8,6 @@ use crate::models::Attendable;
 #[allow(unused_imports)]
 use crate::templates::{filters, OptUser};
 
-
 #[derive(Template)]
 #[template(path = "user/user.html")]
 pub struct UserTemplate {

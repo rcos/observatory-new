@@ -1,4 +1,6 @@
-// Project wide JavaScript imported into base.html
+/*
+ * Project wide JavaScript imported into base.html
+ */
 
 // On page load
 // We use an event listener so we don't override window.onload

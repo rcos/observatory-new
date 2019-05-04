@@ -61,5 +61,5 @@ and deploy observatory-new.
 The code is primarily documented using in-code doc comments.
 This can be viewed either by browsing the source or in a web browser with.
 ```
-$ cargo doc --open
+$ cargo doc --no-deps --document-private-items --all-features --open
 ```

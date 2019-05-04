@@ -1,3 +1,8 @@
+/*
+ * Project wide CSS imported into base.html
+ */
+
+/* Fixes a visual issue with the toolbar */
 .btn-group, form {
     align-self: center;
     max-height: 2.5em;
@@ -8,6 +13,7 @@
     display: inline-block;
 }
 
+/* Collapsing for the navbar */
 @media only screen and (max-width: 992px) {
     .navbar-collapse {
         display: none;

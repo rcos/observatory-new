@@ -1,3 +1,5 @@
+//! HTTP handlers for authentication
+
 use diesel::insert_into;
 use diesel::prelude::*;
 use rocket::http::{Cookie, Cookies};
@@ -12,6 +14,7 @@ use crate::ObservDbConn;
 use super::crypto::*;
 use super::templates::*;
 
+/// GET handler for `/signup`
 #[get("/signup")]
 pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
     SignUpTemplate {
@@ -19,6 +22,12 @@ pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
     }
 }
 
+/// POST handler for `/signup`
+///
+/// Creates a new user in the database with the information provided by the
+/// POSTed form and logs them in.
+///
+/// If all goes well then it redirects to `/` otherwise back to the same page.
 #[post("/signup", data = "<newuser>")]
 pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUser>) -> Redirect {
     use crate::schema::users::dsl::*;
@@ -56,6 +65,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
     Redirect::to(format!("/users/{}", user.id))
 }
 
+/// GET handler for `/login`
 #[get("/login")]
 pub fn login(l: MaybeLoggedIn) -> LogInTemplate {
     LogInTemplate {
@@ -63,12 +73,19 @@ pub fn login(l: MaybeLoggedIn) -> LogInTemplate {
     }
 }
 
+/// User's creditentials
+///
+/// Used to parse the incoming form for `login_post`
 #[derive(Default, FromForm)]
 pub struct LogInForm {
     pub email: String,
     pub password: String,
 }
 
+/// POST handler for `/login`
+///
+/// This handler attempts to verify the creditionals POSTed to it and then
+/// on succes redirects to `/` otherwise back to the same page.
 #[post("/login?<to>", data = "<creds>")]
 pub fn login_post(
     conn: ObservDbConn,
