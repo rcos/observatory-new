@@ -158,7 +158,7 @@ pub fn news_slides(conn: ObservDbConn) -> SlidesTemplate {
     SlidesTemplate { events: e, news: n }
 }
 
-use crate::calendar::Event;
+use crate::models::Event;
 pub fn news_summary(conn: &SqliteConnection) -> (Vec<Event>, Vec<NewsStory>) {
     (
         {

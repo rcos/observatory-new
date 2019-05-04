@@ -1,11 +1,13 @@
+//!
+
 use super::models::*;
+use crate::models::{Group, Project};
+
 #[allow(unused_imports)]
 use crate::models::Attendable;
 #[allow(unused_imports)]
 use crate::templates::{filters, OptUser};
 
-use crate::groups::Group;
-use crate::projects::Project;
 
 #[derive(Template)]
 #[template(path = "user/user.html")]

@@ -3,7 +3,7 @@ use rocket::http::Status;
 use rocket::request::{self, FromRequest, Request};
 use rocket::Outcome;
 
-use crate::users::User;
+use crate::models::User;
 use crate::ObservDbConn;
 
 pub type MaybeLoggedIn = Option<UserGuard>;

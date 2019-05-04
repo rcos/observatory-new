@@ -1,3 +1,6 @@
+//!
+//!
+
 // Needed by Rocket
 #![feature(proc_macro_hygiene, decl_macro)]
 
@@ -26,7 +29,6 @@ mod handlers;
 mod schema;
 mod templates;
 
-
 use fairings::{AdminCheck, DatabaseCreate};
 
 // Table Modules
@@ -38,12 +40,11 @@ mod news;
 mod projects;
 mod users;
 
-// Central DB connection
+/// Central DB connection
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
 fn main() {
-
     // Load all the handlers
     use crate::attend::handlers::*;
     use crate::auth::handlers::*;
@@ -53,6 +54,7 @@ fn main() {
     use crate::projects::handlers::*;
     use crate::users::handlers::*;
 
+    // Prepare webserver
     rocket::ignite()
         // Attach fairings
         .attach(ObservDbConn::fairing())
@@ -128,13 +130,27 @@ fn main() {
                 editnewsstory_put,
             ],
         )
+        // Liftoff! Starts the webserver
         .launch();
 }
 
+/// Top-level module containing all the models.
+/// This mostly just re-exports the models from their
+/// respective modules to provide an easy way to import.
 pub mod models {
     use chrono::NaiveDateTime;
     use std::fmt::Debug;
 
+    // Import then re-export all models
+    pub use crate::attend::models::*;
+    pub use crate::calendar::models::*;
+    pub use crate::groups::models::*;
+    pub use crate::news::models::*;
+    pub use crate::projects::models::*;
+    pub use crate::users::models::*;
+
+    /// Represents anything that can be attended such as meetings and events.
+    /// Used to create generics accross anything attendable.
     pub trait Attendable: Debug {
         fn id(&self) -> i32;
         fn name(&self) -> String;

@@ -15,7 +15,6 @@ impl Fairing for DatabaseCreate {
     }
 
     fn on_launch(&self, rocket: &Rocket) {
-
         // Get the database url from the config
         let conn_url = rocket
             .config()
@@ -62,8 +61,8 @@ impl Fairing for AdminCheck {
             .as_str()
             .unwrap();
 
+        use crate::models::{NewUser, User};
         use crate::schema::users::dsl::*;
-        use crate::users::{NewUser, User};
         use diesel::prelude::*;
 
         let conn = SqliteConnection::establish(conn_url)

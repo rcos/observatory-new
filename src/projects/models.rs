@@ -1,6 +1,6 @@
 use crate::schema::*;
 
-use crate::users::User;
+use crate::models::User;
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Project {

@@ -4,9 +4,9 @@ use rocket::http::{Cookie, Cookies};
 use rocket::request::Form;
 use rocket::response::Redirect;
 
-use crate::groups::NewRelationGroupUser;
 use crate::guards::*;
-use crate::users::{NewUser, User};
+use crate::models::NewRelationGroupUser;
+use crate::models::{NewUser, User};
 use crate::ObservDbConn;
 
 use super::crypto::*;

@@ -225,7 +225,7 @@ pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Pro
     .expect("Failed to get projects")
 }
 
-use crate::users::User;
+use crate::models::User;
 
 pub fn project_users(conn: &SqliteConnection, project: &Project) -> Vec<User> {
     RelationProjectUser::belonging_to(project)

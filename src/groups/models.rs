@@ -1,8 +1,8 @@
 use chrono::NaiveDateTime;
 
 use crate::models::Attendable;
+use crate::models::User;
 use crate::schema::*;
-use crate::users::User;
 
 #[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
 pub struct Group {

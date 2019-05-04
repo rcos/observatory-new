@@ -2,9 +2,9 @@ use diesel::prelude::*;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
 
-use crate::calendar::Event;
-use crate::groups::Meeting;
 use crate::models::Attendable;
+use crate::models::Event;
+use crate::models::Meeting;
 
 pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn Attendable>> {
     if let Some(e) = {

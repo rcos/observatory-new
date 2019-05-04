@@ -1,3 +1,5 @@
+//!
+
 use diesel::prelude::*;
 use diesel::{delete, update};
 use rocket::http::Status;
@@ -142,7 +144,7 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> 
     .expect("Failed to get users")
 }
 
-use crate::projects::{Project, RelationProjectUser};
+use crate::models::{Project, RelationProjectUser};
 pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
     RelationProjectUser::belonging_to(user)
         .load::<RelationProjectUser>(conn)
@@ -158,7 +160,7 @@ pub fn user_projects(conn: &SqliteConnection, user: &User) -> Vec<Project> {
         .collect()
 }
 
-use crate::groups::{Group, RelationGroupUser};
+use crate::models::{Group, RelationGroupUser};
 pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
     RelationGroupUser::belonging_to(user)
         .load::<RelationGroupUser>(conn)
@@ -175,8 +177,8 @@ pub fn user_groups(conn: &SqliteConnection, user: &User) -> Vec<Group> {
 }
 
 pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
-    use crate::attend::Attendance;
     use crate::models::Attendable;
+    use crate::models::Attendance;
 
     let at = Attendance::belonging_to(user)
         .load::<Attendance>(conn)
@@ -184,7 +186,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
         .iter()
         .map(|a| {
             if a.is_event {
-                use crate::calendar::Event;
+                use crate::models::Event;
                 use crate::schema::events::dsl::*;
                 Box::new(
                     events
@@ -193,7 +195,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
                         .expect("Failed to load event from database"),
                 ) as Box<Attendable>
             } else {
-                use crate::groups::Meeting;
+                use crate::models::Meeting;
                 use crate::schema::meetings::dsl::*;
                 Box::new(
                     meetings
