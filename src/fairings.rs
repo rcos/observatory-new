@@ -7,7 +7,7 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::Rocket;
 
 // Embed the Migrations into the binary
-embed_migrations!();
+embed_migrations!("migrations/sqlite");
 
 /// Apply database migrations at launch
 ///
