@@ -78,6 +78,7 @@ fn main() {
             "/",
             routes![
                 index,
+                big,
                 staticfile,
                 favicon,
                 dashboard,

@@ -34,6 +34,14 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
     }
 }
 
+#[get("/big?<text>")]
+pub fn big(l: MaybeLoggedIn, text: String) -> BigTemplate {
+    BigTemplate {
+        logged_in: l.user(),
+        text
+    }
+}
+
 /// GET handler for `/dashboard`
 ///
 /// The logged in user's dashboard showing their groups, projects, and attendance

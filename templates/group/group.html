@@ -58,7 +58,11 @@ Room: {{ val }}
 <h2>Meetings</h2>
 <ul>
     {% for meeting in meetings %}
-    <li>Meeting at {{ meeting.happened_at }} code: <code>{{ meeting.code }}</code></li>
+    <li>
+        Meeting at {{ meeting.happened_at }} code:
+        <code>{{ meeting.code }}</code>
+        <a href="/big?text={{ meeting.code }}">View</a>
+    </li>
     {% endfor %}
 </ul>
 
