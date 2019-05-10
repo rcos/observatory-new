@@ -40,18 +40,6 @@ $ docker run --name observatory -i -p 8000:8000 rcos/observatory
 
 Once that is running Observatory-new will be available on port 8000.
 
-### Configuration
-
-Before building the image you can edit `Rocket.toml` to configure the server
-as you want it.
-
-Runtime configuration can be done using enviroment variables.
-See [this page in the Rocket documentation](https://rocket.rs/guide/configuration/#environment)
-for more information.
-
-If you did not set your secret key before building you should do so
-using an enviroment variable.
-
 ### Mounts
 
 The only mount of interest is the database which is stored at
@@ -76,12 +64,8 @@ easily with
 $ cargo build --release
 ```
 
-### Configuration
-
-The configuration for the server lives in `Rocket.toml`. While we have strived
-for sane defaults you may want to change things in it.
-Please follow the instrucitons in the config file on generating a secret key for
-your server in production mode.
+This will take some time and quite a bit of CPU power as Observatory uses
+aggressive opimization by default.
 
 ### Copy files to Server and Run
 
@@ -93,3 +77,18 @@ the server, you must copy the files over. There are only 3 necessary files to co
 
 Once all that is done you can simply run the `observatory` file and it will be
 available on port 8000.
+
+## Configuration
+
+The configuration for the server lives in `Rocket.toml`. While we have strived
+for sane defaults you may want to change things in it.
+
+If the config file cannot be found at runtime Observatory will attempt to generate
+one based on the default values.
+
+Runtime configuration can be done using enviroment variables.
+See [this page in the Rocket documentation](https://rocket.rs/guide/configuration/#environment)
+for more information.
+
+If you did not set your secret key before building you should do so
+using an enviroment variable.

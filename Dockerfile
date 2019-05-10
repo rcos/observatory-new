@@ -21,6 +21,9 @@ RUN sudo chown -R rust:rust /build/
 # Build the project in release mode
 RUN cargo build --release
 
+# Strip debug symbols out of binary
+RUN strip /build/target/x86_64-unknown-linux-musl/release/observatory
+
 # --- Docker Build Stage 2 ---
 
 # Use Alpine Linux for it's small footprint.
@@ -29,16 +32,12 @@ FROM alpine
 # Set the workdir
 WORKDIR /
 
-# Add OpenSSL for the key generation in entrypoint.sh
-RUN apk add openssl
-
 # Create the user's home folder and move to it
 RUN mkdir -p /home/observatory
 WORKDIR /home/observatory
 
 # Create a new user
 RUN adduser -h /home/observatory -S observatory
-
 
 # Create the folder that the database will be in
 RUN mkdir -p /var/lib/observatory
@@ -52,14 +51,8 @@ USER observatory
 # Copy in the binary from the builder
 COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory .
 
-# Copy in the config from the host
-COPY Rocket.toml .
-
-# Copy in the entrypoint script from the host
-COPY entrypoint.sh .
-
 # Expose the HTTP port
 EXPOSE 8000
 
 # Run Observatory
-CMD ./entrypoint.sh
+CMD ./observatory

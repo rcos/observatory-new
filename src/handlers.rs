@@ -14,6 +14,15 @@ use crate::guards::*;
 use crate::templates::*;
 use crate::ObservDbConn;
 
+// Load all the sub-module's handlers
+pub use crate::attend::handlers::*;
+pub use crate::auth::handlers::*;
+pub use crate::calendar::handlers::*;
+pub use crate::groups::handlers::*;
+pub use crate::news::handlers::*;
+pub use crate::projects::handlers::*;
+pub use crate::users::handlers::*;
+
 /// GET handler for `/`
 ///
 /// The index page of the site
@@ -38,12 +47,19 @@ pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
         logged_in: Some(l.0),
     }
 }
- 
+
 // The access point for rust-embed.
 // For some reason it doesn't like having doc-comments on it.
 #[derive(RustEmbed)]
 #[folder = "static/"]
 struct Embed;
+
+/// Paths that will not be served over `/static`
+///
+/// These files will not be served by the webserver.
+/// However they are still embedded into the binary so be careful.
+// Make sure to increment the length if you add something
+const BLACKLIST: [&str; 1] = ["README.md"];
 
 /// GET handler for static files
 ///
@@ -54,10 +70,18 @@ struct Embed;
 /// available.
 #[get("/static/<file..>")]
 pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
-    let ctype = ContentType::from_extension(file.extension()?.to_str().unwrap())?;
-    let bytes = Cursor::new(Embed::get(file.to_str().unwrap())?);
+    // If file is in the BLACKLIST return None
+    if BLACKLIST.iter().any(|x| x == &file.to_str().unwrap()) {
+        None
+    } else {
+        // Get the mimetype from the request
+        let ctype = ContentType::from_extension(file.extension()?.to_str().unwrap())?;
+        // The bytes of the file in a Read and Seek-able Cursor
+        let bytes = Cursor::new(Embed::get(file.to_str().unwrap())?);
 
-    Some(Response::build().header(ctype).sized_body(bytes).finalize())
+        // Respond with the file
+        Some(Response::build().header(ctype).sized_body(bytes).finalize())
+    }
 }
 
 /// GET handler for `/favicon.ico`
@@ -72,7 +96,7 @@ pub fn favicon() -> Redirect {
 //# # Error Catchers
 
 /// Catch 401 errors
-/// 
+///
 /// Redirects the user to the login page when they try to go to a page that
 /// requires login.
 #[catch(401)]
@@ -81,7 +105,7 @@ pub fn catch_401(req: &Request) -> Redirect {
 }
 
 /// Catch 403 errors
-/// 
+///
 /// A nice page for 403 errors when the user doesn't have access to the
 /// page they are trying to visit.
 #[catch(403)]
@@ -93,7 +117,7 @@ pub fn catch_403(req: &Request) -> Error403Template {
 }
 
 /// Catch 404 errors
-/// 
+///
 /// A nice page for 404 errors
 #[catch(404)]
 pub fn catch_404(req: &Request) -> Error404Template {

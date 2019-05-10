@@ -40,8 +40,6 @@ mod handlers;
 mod schema;
 mod templates;
 
-use fairings::{AdminCheck, DatabaseCreate};
-
 // Table Modules
 mod attend;
 mod auth;
@@ -61,21 +59,18 @@ pub struct ObservDbConn(diesel::SqliteConnection);
 /// then launches the server.
 fn main() {
     // Load all the handlers
-    use crate::attend::handlers::*;
-    use crate::auth::handlers::*;
-    use crate::calendar::handlers::*;
-    use crate::groups::handlers::*;
-    use crate::news::handlers::*;
-    use crate::projects::handlers::*;
-    use crate::users::handlers::*;
     use handlers::*;
+
+    // Load the fairings
+    use fairings::{AdminCheck, ConfigWrite, DatabaseCreate};
 
     // Prepare webserver
     rocket::ignite()
         // Attach fairings
-        .attach(ObservDbConn::fairing())
+        .attach(ConfigWrite)
         .attach(DatabaseCreate)
         .attach(AdminCheck)
+        .attach(ObservDbConn::fairing())
         // Register Catchers
         .register(catchers![catch_401, catch_403, catch_404])
         // Mount handlers

@@ -20,6 +20,7 @@ ring = "*"
 serde = "*"
 serde_json = "*"
 serde_derive = "*"
+base64 = "*"
 
 # Need bundled version for sqlite in Docker
 libsqlite3-sys = { version = "*", features = ["bundled"] }
@@ -28,3 +29,7 @@ libsqlite3-sys = { version = "*", features = ["bundled"] }
 version = "^0.4.0"
 default-features = false
 features = ["diesel_sqlite_pool", "json"]
+
+[profile.release]
+lto = true
+opt-level = 3

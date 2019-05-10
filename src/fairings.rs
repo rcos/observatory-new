@@ -120,3 +120,131 @@ impl Fairing for AdminCheck {
         }
     }
 }
+
+/// Check for the config file at attach
+///
+/// If there is no config file specified Rocket is going to fallback to defaults.
+/// This writes those defaults to a file and makes some alterations
+/// to be what Observatory wants/expects.
+pub struct ConfigWrite;
+
+impl Fairing for ConfigWrite {
+    fn info(&self) -> Info {
+        Info {
+            name: "Writing config if it does not exist",
+            kind: Kind::Attach,
+        }
+    }
+
+    fn on_attach(&self, rocket: Rocket) -> std::result::Result<Rocket, Rocket> {
+        use rocket::config;
+        // Get the current config
+        let mut conf = rocket.config().clone();
+
+        // If there is a config file just return
+        if conf.root().is_some() {
+            return Ok(rocket);
+        }
+
+        println!("\tRocket.toml does not exist, generating...");
+        println!(
+            "\tWARNING: If you set your secret_key via enviroment variable it will be overwritten!"
+        );
+
+        conf.set_root(".");
+
+        // If the database is not set
+        if conf.get_extra("databases").is_err() {
+            // Pick the DB url based on the environment
+            let dburl = match conf.environment {
+                config::Environment::Development | config::Environment::Staging => {
+                    String::from("./observ.sqlite")
+                }
+                config::Environment::Production => {
+                    use std::path::Path;
+                    let p = Path::new("/var/lib/observatory/");
+                    // If we can write to the default production location do so
+                    if p.exists() && !p.metadata().unwrap().permissions().readonly() {
+                        format!("{}{}", p.to_str().unwrap(), "observ.sqlite")
+                    } else {
+                        String::from("./observ.sqlite")
+                    }
+                }
+            };
+
+            // The really ugly but necessary way we need to set the DB url
+            use std::collections::HashMap;
+            let mut hash = HashMap::<String, config::Value>::new();
+            hash.insert(String::from("databases"), {
+                let mut h = HashMap::new();
+                h.insert(String::from("sqlite_observ"), {
+                    let mut h = HashMap::new();
+                    h.insert(String::from("url"), dburl);
+                    h
+                });
+                config::Value::try_from(h).unwrap()
+            });
+            conf.set_extras(hash);
+        }
+
+        // If in production mode generate and set a secret key
+        let s = if rocket.config().environment.is_prod() {
+            // Generate a new secret key
+            let s = gen_secret();
+            // Set the key in the config
+            conf.set_secret_key(s.clone()).unwrap();
+            s
+        } else {
+            String::new()
+        };
+        // Write the config with the key to a file
+        write_config(&conf, &s).unwrap();
+
+        // Write the config to a file
+        // Return the new Rocket based on the modified config
+        Ok(rocket::custom(conf))
+    }
+}
+
+/// Generates a new secret key using Ring
+fn gen_secret() -> String {
+    use base64::encode;
+    use ring::rand::{SecureRandom, SystemRandom};
+
+    let mut buf: [u8; 32] = [0; 32];
+    SystemRandom::new().fill(&mut buf).unwrap();
+    encode(&buf)
+}
+
+/// Writes the config to a file in the same folder as the binary
+fn write_config(conf: &rocket::Config, secret: &String) -> std::io::Result<()> {
+    use std::fs::File;
+    use std::io::Write;
+
+    // Format the string that is going to be written
+    let mut outstring = format!(
+        "[{}]\naddress = \"{}\"\nport = {}\nlog = \"{}\"\n",
+        conf.environment, conf.address, conf.port, conf.log_level
+    );
+
+    // Don't do a secret key if none is given
+    if !secret.is_empty() {
+        outstring += &format!("secret_key = \"{}\"\n", secret);
+    }
+
+    // Get the extra fields like the databases and add them
+    outstring += &format!(
+        "databases = {{ sqlite_observ = {{ url = {} }} }}",
+        conf.extras
+            .get("databases")
+            .unwrap()
+            .get("sqlite_observ")
+            .unwrap()
+            .get("url")
+            .unwrap()
+            .as_str()
+            .unwrap()
+    );
+
+    File::create("./Rocket.toml")?.write_all(outstring.as_bytes())
+}
