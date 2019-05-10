@@ -91,7 +91,7 @@ impl Fairing for AdminCheck {
             use crate::attend::code::gen_code;
             use crate::auth::crypto::*;
 
-            let pass = gen_code();
+            let pass = gen_code() + &gen_code();
             eprintln!(
                 "\tADMIN PASSSWORD: {}\n\tCHANGE THIS AS SOON AS POSSIBLE",
                 pass

@@ -19,8 +19,8 @@
         <p class="card-text">Are you sure you want to join this project?</p>
         <form method="POST">
             <button type="submit" class="btn btn-primary">Yes!</button>
+            <a class="btn btn-secondary" href="/projects/{{ project.id }}">No</a>
         </form>
-        <a class="btn btn-secondary" href="/projects/{{ project.id }}">No</a>
     </div>
     {% else %}
     <div class="card-body">

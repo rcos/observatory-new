@@ -9,16 +9,49 @@ use rocket::response::Redirect;
 use crate::guards::*;
 use crate::models::NewRelationGroupUser;
 use crate::models::{NewUser, User};
+use crate::templates::FormError;
 use crate::ObservDbConn;
 
 use super::crypto::*;
 use super::templates::*;
 
 /// GET handler for `/signup`
-#[get("/signup")]
-pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
+#[get("/signup?<e>")]
+pub fn signup(l: MaybeLoggedIn, e: Option<FormError>) -> SignUpTemplate {
     SignUpTemplate {
         logged_in: l.user(),
+        error: e,
+    }
+}
+
+/// User's signup info
+/// 
+/// Struct used to parse information at signup.
+#[derive(Debug, FromForm)]
+pub struct SignUpForm {
+    email: String,
+    password: String,
+    password_repeat: String,
+    real_name: String,
+    handle: String
+}
+
+impl From<SignUpForm> for NewUser {
+    fn from(f: SignUpForm) -> Self {
+        let mut newuser = Self::default();
+
+        newuser.email = f.email;
+        newuser.real_name = f.real_name;
+        newuser.handle = f.handle;
+
+        let newsalt = gen_salt();
+        newuser.salt = newsalt.clone();
+        newuser.password_hash = hash_password(f.password, &newsalt);
+
+        newuser.tier = 0;
+        newuser.active = true;
+
+        return newuser;
     }
 }
 
@@ -28,16 +61,18 @@ pub fn signup(l: MaybeLoggedIn) -> SignUpTemplate {
 /// POSTed form and logs them in.
 ///
 /// If all goes well then it redirects to `/` otherwise back to the same page.
-#[post("/signup", data = "<newuser>")]
-pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUser>) -> Redirect {
-    use crate::schema::users::dsl::*;
+#[post("/signup", data = "<form>")]
+pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpForm>) -> Redirect {
 
-    let mut newuser = newuser.into_inner();
-    let newsalt = gen_salt();
-    newuser.salt = newsalt.clone();
-    newuser.password_hash = hash_password(newuser.password_hash, &newsalt);
-    newuser.tier = 0;
-    newuser.active = true;
+    let form = form.into_inner();
+    // Make sure the password is properly repeated
+    if form.password != form.password_repeat {
+        return Redirect::to(format!("/signup?e={}", FormError::PasswordMismatch))
+    }
+
+    let newuser = NewUser::from(form);
+
+    use crate::schema::users::dsl::*;
 
     insert_into(users)
         .values(&newuser)
@@ -66,10 +101,11 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, newuser: Form<NewUs
 }
 
 /// GET handler for `/login`
-#[get("/login")]
-pub fn login(l: MaybeLoggedIn) -> LogInTemplate {
+#[get("/login?<e>")]
+pub fn login(l: MaybeLoggedIn, e: Option<FormError>) -> LogInTemplate {
     LogInTemplate {
         logged_in: l.user(),
+        error: e,
     }
 }
 
@@ -99,16 +135,22 @@ pub fn login_post(
 
     let to = to.unwrap_or(String::from("/"));
 
-    let user: User = users
+    // If we find the user
+    if let Some(user) = users
         .filter(&email.eq(creds.email))
-        .first(&*conn)
-        .expect("Failed to get user from database");
-
-    if verify_password(creds.password, user.password_hash, &user.salt) {
-        cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
-        Redirect::to(to)
+        .first::<User>(&*conn)
+        .optional()
+        .expect("Failed to get user from database")
+    {
+        // Verify the password
+        if verify_password(creds.password, user.password_hash, &user.salt) {
+            cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
+            Redirect::to(to)
+        } else {
+            Redirect::to(format!("/login?to={}&e={}", to, FormError::Password))
+        }
     } else {
-        Redirect::to(format!("/login?to={}", to))
+        Redirect::to(format!("/login?to={}&e={}", to, FormError::Email))
     }
 }
 
