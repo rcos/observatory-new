@@ -151,6 +151,10 @@ pub fn editproject_put(
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
+    use crate::schema::relation_project_user::dsl::*;
+    delete(relation_project_user.filter(project_id.eq(h)))
+        .execute(&*conn)
+        .expect("Failed to delete relations from database");
     use crate::schema::projects::dsl::*;
     delete(projects.find(h))
         .execute(&*conn)

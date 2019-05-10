@@ -12,7 +12,7 @@
 {% when Some with (u) %}
 {% if u.tier > 1 || u.id == project.owner_id %}
 <div class="btn-group mr-2">
-    <button id="delete_button" class="btn btn-danger">Delete</button>
+    <button type="delete" class="btn btn-danger">Delete</button>
     <a class="btn btn-secondary" href="/projects/{{ project.id }}/edit">Edit Project</a>
 </div>
 {% endif %}

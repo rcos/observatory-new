@@ -13,7 +13,7 @@
 {% if u.tier > 1 %}
 <div class="btn-group mr-2">
     <a class="btn btn-secondary" href="/news/{{ story.id }}/edit">Edit</a>
-    <button id="delete_button" class="btn btn-danger">Delete</button>
+    <button type="delete" class="btn btn-danger">Delete</button>
 </div>
 {% endif %}
 {% when None %}

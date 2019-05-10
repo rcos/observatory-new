@@ -4,7 +4,7 @@ use crate::models::Attendable;
 use crate::models::User;
 use crate::schema::*;
 
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Serialize)]
 pub struct Group {
     pub id: i32,
     pub name: String,
@@ -12,7 +12,7 @@ pub struct Group {
     pub location: Option<String>,
 }
 
-#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
+#[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
 #[table_name = "groups"]
 pub struct NewGroup {
     pub name: String,
@@ -20,7 +20,7 @@ pub struct NewGroup {
     pub location: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Associations, Serialize)]
 #[belongs_to(Group)]
 pub struct Meeting {
     pub id: i32,
@@ -54,14 +54,14 @@ impl Attendable for Meeting {
     }
 }
 
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, Clone, FromForm, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
     pub code: String,
     pub group_id: i32,
 }
 
-#[derive(Debug, PartialEq, Queryable, Associations, Identifiable)]
+#[derive(Debug, PartialEq, Clone, Queryable, Associations, Identifiable)]
 #[belongs_to(Group)]
 #[belongs_to(User)]
 #[table_name = "relation_group_user"]
@@ -71,7 +71,7 @@ pub struct RelationGroupUser {
     pub user_id: i32,
 }
 
-#[derive(Debug, Default, Insertable)]
+#[derive(Debug, Default, Clone, Insertable)]
 #[table_name = "relation_group_user"]
 pub struct NewRelationGroupUser {
     pub group_id: i32,

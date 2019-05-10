@@ -6,15 +6,18 @@
 // We use an event listener so we don't override window.onload
 document.addEventListener('DOMContentLoaded', () => {
 
-    // Any button with id 'delete_button' will make a DELETE request to the same page
-    let del = document.getElementById("delete_button")
-    if (del) {
+    // Any button with type 'delete' will make a DELETE request to the
+    // provided `action` or the same page
+    document.querySelectorAll("button[type=\"delete\"]").forEach(del => {
         del.addEventListener('click', (e) => {
-            fetch(window.location, {
-                method: 'DELETE'
-            }).then((res) => window.location = res.url)
-        })
-    }
+            let url = del.getAttribute("action") || window.location;
+            if (confirm("Are you sure?")) {
+                fetch(url, {
+                    method: 'DELETE'
+                }).then((res) => window.location = res.url)
+            }
+        });
+    });
 
 
     // HTML forms cannot handle PUT requests

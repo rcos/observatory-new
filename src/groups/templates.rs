@@ -34,3 +34,11 @@ pub struct GroupsListTemplate {
     pub logged_in: OptUser,
     pub groups: Vec<Group>,
 }
+
+#[derive(Template)]
+#[template(path = "group/add-user.html")]
+pub struct AddUserTemplate {
+    pub logged_in: OptUser,
+    pub group: Group,
+    pub all_users: Vec<User>,
+}

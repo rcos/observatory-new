@@ -4,7 +4,7 @@ use crate::models::Attendable;
 use crate::schema::*;
 
 /// A calendar Event
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Serialize)]
 pub struct Event {
     pub id: i32,
     pub start: NaiveDateTime,
@@ -42,7 +42,7 @@ impl Attendable for Event {
     }
 }
 
-#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
+#[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
 #[table_name = "events"]
 pub struct NewEvent {
     pub title: String,

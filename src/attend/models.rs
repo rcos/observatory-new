@@ -7,7 +7,7 @@ use crate::models::User;
 use crate::schema::*;
 
 /// Models an attendance in the database
-#[derive(Debug, PartialEq, Queryable, Identifiable, Associations, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Associations, Serialize)]
 #[belongs_to(User)]
 pub struct Attendance {
     /// ID of the attendance
@@ -23,7 +23,7 @@ pub struct Attendance {
 }
 
 /// Used to create a new attendance in the database
-#[derive(Debug, Default, FromForm, Insertable)]
+#[derive(Debug, Default, Clone, FromForm, Insertable)]
 #[table_name = "attendances"]
 pub struct NewAttendance {
     /// The user this attendance belongs to

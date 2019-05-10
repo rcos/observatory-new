@@ -2,7 +2,7 @@ use crate::schema::*;
 
 use crate::models::User;
 
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Serialize)]
 pub struct Project {
     pub id: i32,
     pub name: String,
@@ -13,7 +13,7 @@ pub struct Project {
     pub repos: String,
 }
 
-#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
+#[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
 #[table_name = "projects"]
 pub struct NewProject {
     pub name: String,
@@ -23,7 +23,7 @@ pub struct NewProject {
     pub repos: String,
 }
 
-#[derive(Debug, PartialEq, Queryable, Associations, Identifiable)]
+#[derive(Debug, PartialEq, Clone, Queryable, Associations, Identifiable)]
 #[table_name = "relation_project_user"]
 #[belongs_to(Project)]
 #[belongs_to(User)]
@@ -33,7 +33,7 @@ pub struct RelationProjectUser {
     pub user_id: i32,
 }
 
-#[derive(Debug, Default, Insertable)]
+#[derive(Debug, Default, Clone, Insertable)]
 #[table_name = "relation_project_user"]
 pub struct NewRelationProjectUser {
     pub project_id: i32,

@@ -2,7 +2,7 @@ use chrono::NaiveDateTime;
 
 use crate::schema::*;
 
-#[derive(Debug, PartialEq, Queryable, Identifiable, Serialize)]
+#[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Serialize)]
 #[table_name = "news"]
 pub struct NewsStory {
     pub id: i32,
@@ -12,7 +12,7 @@ pub struct NewsStory {
     pub color: Option<String>,
 }
 
-#[derive(Debug, Default, FromForm, Insertable, AsChangeset)]
+#[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
 #[table_name = "news"]
 pub struct NewNewsStory {
     pub happened_at: String,

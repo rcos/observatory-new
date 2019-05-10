@@ -25,7 +25,7 @@ pub fn signup(l: MaybeLoggedIn, e: Option<FormError>) -> SignUpTemplate {
 }
 
 /// User's signup info
-/// 
+///
 /// Struct used to parse information at signup.
 #[derive(Debug, FromForm)]
 pub struct SignUpForm {
@@ -33,7 +33,7 @@ pub struct SignUpForm {
     password: String,
     password_repeat: String,
     real_name: String,
-    handle: String
+    handle: String,
 }
 
 impl From<SignUpForm> for NewUser {
@@ -63,11 +63,10 @@ impl From<SignUpForm> for NewUser {
 /// If all goes well then it redirects to `/` otherwise back to the same page.
 #[post("/signup", data = "<form>")]
 pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpForm>) -> Redirect {
-
     let form = form.into_inner();
     // Make sure the password is properly repeated
     if form.password != form.password_repeat {
-        return Redirect::to(format!("/signup?e={}", FormError::PasswordMismatch))
+        return Redirect::to(format!("/signup?e={}", FormError::PasswordMismatch));
     }
 
     let newuser = NewUser::from(form);
