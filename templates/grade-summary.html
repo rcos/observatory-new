@@ -1,0 +1,16 @@
+<h2>Grade Summary</h2>
+{% match summary.commit_count %}
+{% when Some with (c) %}
+<h3>Commits {{ c }}</h3>
+{% when None %}
+<h3>Commit count unknown</h3>
+{% endmatch %}
+<h3>Attendance {{ summary.attendances.len() }} / {{ summary.needed_attendances }}</h3>
+<details>
+    <summary>Show all Attendance</summary>
+    <ul>
+        {% for at in summary.attendances %}
+        <li><a href="{{ at.url() }}">{{ at.name() }} {{ at.time() }}</a></li>
+        {% endfor %}
+    </ul>
+</details>

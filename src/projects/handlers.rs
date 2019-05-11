@@ -245,3 +245,60 @@ pub fn project_users(conn: &SqliteConnection, project: &Project) -> Vec<User> {
         })
         .collect()
 }
+
+/// Get the commits in the project
+///
+/// This function calls to the GitHub API to get the commits.
+///
+/// If the project does not use GitHub for it's repo this returns `None`.
+/// Otherwise it returns a vector of JSON values with each repo having an
+/// entry.
+///
+/// TODO support other services like GitLab.
+pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<serde_json::Value>> {
+    // Get the repos from the DB
+    let mut repos: Vec<String> = {
+        use crate::schema::projects::dsl::*;
+        serde_json::from_str(
+            &projects
+                .find(proj.id)
+                .select(repos)
+                .first::<String>(conn)
+                .expect("Failed to get repos from the database"),
+        )
+        .unwrap()
+    };
+
+    // No repos at all
+    if repos.is_empty() {
+        return None;
+    }
+
+    // Use a regex to filter to only GitHub and convert to the API string
+    use regex::Regex;
+    let re = Regex::new(r"^(https?://)?github\.com/(\S+/\S+)/?$")
+        .expect("Failed to build regular expression");
+    repos = repos
+        .iter()
+        .filter(|s| re.is_match(&s))
+        .map(|s| String::from(re.replace(s, "https://api.github.com/repos/$2/commits")))
+        .collect();
+
+    // If no GitHub repos
+    if repos.is_empty() {
+        return None;
+    }
+
+    // Get the commits and return them
+    Some(
+        repos
+            .iter()
+            .map(|s| {
+                reqwest::get(s)
+                    .expect("Failed to get response from GitHub")
+                    .json::<serde_json::Value>()
+                    .expect("Failed to parse from JSON")
+            })
+            .collect(),
+    )
+}

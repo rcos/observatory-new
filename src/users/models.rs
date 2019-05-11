@@ -36,5 +36,5 @@ use crate::models::Attendable;
 pub struct GradeSummary {
     pub attendances: Vec<Box<Attendable>>,
     pub needed_attendances: usize,
-    pub commit_count: usize,
+    pub commit_count: Option<usize>,
 }

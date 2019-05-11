@@ -50,17 +50,8 @@
         {% endfor %}
     </ul>
 
-    <h2>Grade Summary</h2>
-    <h3>Commits {{ summary.commit_count }}</h3>
-    <h3>Attendance {{ summary.attendances.len() }} / {{ summary.needed_attendances }}</h3>
-    <details>
-        <summary>Show all Attendance</summary>
-        <ul>
-            {% for at in summary.attendances %}
-            <li><a href="{{ at.url() }}">{{ at.name() }} {{ at.time() }}</a></li>
-            {% endfor %}
-        </ul>
-    </details>
+    <hr />
+    {% include "grade-summary.html" %}
     {% endif %}
 
     {% when None %}

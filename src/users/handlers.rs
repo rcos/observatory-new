@@ -219,6 +219,30 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
     GradeSummary {
         attendances: at,
         needed_attendances: nat,
-        commit_count: 0,
+        commit_count: user_commits_count(conn, user),
     }
+}
+
+use crate::handlers::project_commits;
+pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize> {
+    Some(
+        dbg!(user_projects(conn, &user)
+            .iter()
+            .map(|p| project_commits(conn, p).unwrap())
+            .flatten()
+            .collect::<Vec<serde_json::Value>>()[0]
+            .as_array()
+            .unwrap())
+            .iter()
+            .filter(|c| {
+                c.get("author")
+                    .unwrap()
+                    .get("login")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+                    == user.handle
+            })
+            .count(),
+    )
 }

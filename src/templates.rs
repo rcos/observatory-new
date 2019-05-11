@@ -17,16 +17,16 @@ pub struct IndexTemplate {
     pub logged_in: OptUser,
     pub version: &'static str,
 }
- 
+
 /// Big text template
-/// 
+///
 /// This is a simple template that just shows the given text large
 /// across the screen. Useful for attendance codes.
 #[derive(Template)]
 #[template(path = "big.html")]
 pub struct BigTemplate {
     pub logged_in: OptUser,
-    pub text: String
+    pub text: String,
 }
 
 use crate::models::GradeSummary;

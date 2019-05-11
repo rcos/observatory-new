@@ -38,7 +38,7 @@ pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
 pub fn big(l: MaybeLoggedIn, text: String) -> BigTemplate {
     BigTemplate {
         logged_in: l.user(),
-        text
+        text,
     }
 }
 
