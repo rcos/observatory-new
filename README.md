@@ -1,5 +1,7 @@
 # observatory-new
 
+<img src="./logo.svg" alt="RCOS Observatory logo" style="max-width:50%; margin:auto;">
+
 Rewrite of the RCOS observatory in a way that hopefully makes a bit more sense.
 Since we have kinda lost track of what number we're on at this point I am
 codenaming this version Observatory-New (I think it's the 5th version though).
