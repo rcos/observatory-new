@@ -233,16 +233,16 @@ pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize>
             .collect::<Vec<serde_json::Value>>()[0]
             .as_array()
             .unwrap())
-            .iter()
-            .filter(|c| {
-                c.get("author")
-                    .unwrap()
-                    .get("login")
-                    .unwrap()
-                    .as_str()
-                    .unwrap()
-                    == user.handle
-            })
-            .count(),
+        .iter()
+        .filter(|c| {
+            c.get("author")
+                .unwrap()
+                .get("login")
+                .unwrap()
+                .as_str()
+                .unwrap()
+                == user.handle
+        })
+        .count(),
     )
 }

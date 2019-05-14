@@ -5,4 +5,4 @@ Pages are mostly plain HTML but also use the Jinja2 style syntax for templating.
 Check Askama's documentation for more info.
 
 Pages are organized in the same manner as the Rust code is, logically by
-purpose.
+purpose with related pages in the same folder.

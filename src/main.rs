@@ -49,6 +49,10 @@ mod news;
 mod projects;
 mod users;
 
+/// The database connection
+///
+/// This struct is the wrapper for the database connection which
+/// is mounted as a fairing and can be accessed as a request guard.
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 

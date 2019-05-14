@@ -1,3 +1,5 @@
+//!
+
 use super::models::*;
 #[allow(unused_imports)]
 use crate::templates::{filters, OptUser};

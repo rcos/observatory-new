@@ -16,6 +16,9 @@ use super::models::*;
 use super::templates::*;
 
 /// GET handler for `/calendar`
+///
+/// Returns the main calendar page which either shows the FullCalendar view
+/// or a plain HTML list if JS is off.
 #[get("/calendar")]
 pub fn calendar(conn: ObservDbConn, l: MaybeLoggedIn) -> CalendarTemplate {
     use crate::schema::events::dsl::*;
@@ -45,6 +48,8 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
 }
 
 /// GET handler for `/calendar/<eid>`
+///
+/// A single calendar event's page with information on the event.
 #[get("/calendar/<eid>")]
 pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemplate> {
     use crate::schema::events::dsl::*;
@@ -60,24 +65,51 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
 }
 
 /// GET handler for `/calendar/<eid>/edit`
+///
+/// The page to edit a calendar event.
+///
+/// Restricted to Admins and the event owner.
 #[get("/calendar/<eid>/edit")]
-pub fn editevent(conn: ObservDbConn, l: AdminGuard, eid: i32) -> Option<EditEventTemplate> {
+pub fn editevent(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEventTemplate, Status> {
+    let l = l.0;
+
     use crate::schema::events::dsl::*;
     use crate::schema::users::dsl::*;
-    Some(EditEventTemplate {
-        logged_in: Some(l.0),
-        event: events
-            .find(eid)
-            .first(&*conn)
-            .optional()
-            .expect("Failed to get event from database")?,
-        all_users: users
-            .load(&*conn)
-            .expect("Failed to get users from database"),
-    })
+
+    let host_id: i32 = events
+        .find(eid)
+        .select(hosted_by)
+        .first(&*conn)
+        .expect("Failed to get event code");
+
+    if l.tier > 1 || l.id == host_id {
+        Ok(EditEventTemplate {
+            logged_in: Some(l),
+            event: if let Some(e) = events
+                .find(eid)
+                .first(&*conn)
+                .optional()
+                .expect("Failed to get event from database")
+            {
+                e
+            } else {
+                // Return early
+                return Err(Status::NotFound);
+            },
+            all_users: users
+                .load(&*conn)
+                .expect("Failed to get users from database"),
+        })
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 /// PUT handler for `/calendar/<eid>`
+///
+/// Changes the calendar event. For use with `editevent`.
+///
+/// Restricted to Admins and the event owner.
 #[put("/calendar/<eid>", data = "<editevent>")]
 pub fn editevent_put(
     conn: ObservDbConn,
@@ -109,6 +141,10 @@ pub fn editevent_put(
 }
 
 /// DELETE handler for `/calendar/<eid>
+///
+/// Deletes an event from the calendar and database.
+///
+/// Restricted to Admins.
 #[delete("/calendar/<eid>")]
 pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
     use crate::schema::events::dsl::*;
@@ -119,6 +155,10 @@ pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
 }
 
 /// GET handler for `/calendar/new`
+///
+/// Template to create a new calendar event.
+///
+/// Restricted to Admins.
 #[get("/calendar/new")]
 pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
@@ -131,6 +171,10 @@ pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
 }
 
 /// POST handler for `/calendar/new`
+///
+/// Creates the new calendar event. For use with `newevent`.
+///
+/// Restricted to Admins.
 #[post("/calendar/new", data = "<newevent>")]
 pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
     use crate::schema::events::dsl::*;

@@ -1,3 +1,5 @@
+//!
+
 use chrono::NaiveDateTime;
 
 use crate::models::Attendable;

@@ -2,10 +2,15 @@
 //!
 //! Various templates that do not belong to any of the other modules or
 //! are "top-level" such as the index and static route.
+//!
+//! Template contain the state of the page they relate to and are returned
+//! by a handler since they can be rendered to HTML.
 
 use crate::models::User;
 
 /// Companion to `MaybeLoggedIn`
+///
+/// HTML File: `index.html`
 ///
 /// This is a simple wrapper to act as the companion to `MaybeLoggedIn`
 /// where that is a Guard and this is just the `User`.
@@ -20,6 +25,8 @@ pub struct IndexTemplate {
 
 /// Big text template
 ///
+/// HTML File: `big.html`
+///
 /// This is a simple template that just shows the given text large
 /// across the screen. Useful for attendance codes.
 #[derive(Template)]
@@ -33,6 +40,12 @@ use crate::models::GradeSummary;
 use crate::models::Group;
 use crate::models::Project;
 
+/// User Dashboard template
+///
+/// HTML File: `dashboard.html`
+///
+/// This template shows the user's dashboard with the projects
+/// and groups they are a part of as well as their grade summary.
 #[derive(Template)]
 #[template(path = "dashboard.html")]
 pub struct DashboardTemplate {
@@ -44,19 +57,32 @@ pub struct DashboardTemplate {
 
 //# Catcher Templates
 
+/// 403 error template
+///
+/// HTML File: `catchers/403.html`
+///
+/// Just tells the user they are unauthorized.
 #[derive(Template)]
 #[template(path = "catchers/403.html")]
 pub struct Error403Template {
     pub logged_in: OptUser,
 }
 
+/// 404 error template
+///
+/// HTML File: `catchers/404.html`
+///
+/// Just tells the user they are lost.
 #[derive(Template)]
 #[template(path = "catchers/404.html")]
 pub struct Error404Template {
     pub logged_in: OptUser,
 }
 
-/// Puts the filters in the proper namespace
+/// Filters namespace
+///
+/// Puts the filters in the proper namespace so that templates can use them.
+/// Done like this so we can add custom filters later.
 pub mod filters {
     pub use askama_filters::filters::*;
 }
@@ -117,6 +143,7 @@ impl<T: AsRef<str>> From<T> for FormError {
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
 
+// Let's a FormError be created from a Rocket Form.
 impl<'v> FromFormValue<'v> for FormError {
     type Error = &'v RawStr;
 
