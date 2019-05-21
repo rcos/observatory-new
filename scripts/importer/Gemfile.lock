@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    bson (4.4.2)
+    mongo (2.8.0)
+      bson (>= 4.4.2, < 5.0.0)
+    sqlite3 (1.4.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  mongo
+  sqlite3
+
+BUNDLED WITH
+   1.17.2

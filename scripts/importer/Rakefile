@@ -1,0 +1,7 @@
+task :install do
+    `bundle install --path vendor/bundle`
+end
+
+task run: [:install] do
+    `bundle exec ruby importer.rb`
+end

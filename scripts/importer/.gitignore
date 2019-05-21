@@ -1,0 +1,5 @@
+# Don't commit gems
+vendor/
+
+# Don't commit output
+importer.sql
