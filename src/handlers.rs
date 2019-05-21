@@ -98,7 +98,7 @@ pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
 /// favicon, so this is a quick way to support that.
 #[get("/favicon.ico")]
 pub fn favicon() -> Redirect {
-    Redirect::to("/static/favicon.webp")
+    Redirect::to("/static/img/favicon.webp")
 }
 
 //# # Error Catchers
