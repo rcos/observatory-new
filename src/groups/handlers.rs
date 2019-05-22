@@ -3,6 +3,7 @@ use diesel::{delete, insert_into, update};
 use rocket::http::Status;
 use rocket::request::Form;
 use rocket::response::Redirect;
+use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
 use crate::guards::*;
@@ -44,8 +45,18 @@ pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
     }
 }
 
+#[get("/groups.json")]
+pub fn groups_json(conn: ObservDbConn, _l: MentorGuard) -> Json<Vec<Group>> {
+    use crate::schema::groups::dsl::*;
+    Json(
+        groups
+            .load(&*conn)
+            .expect("Failed to get groups from database"),
+    )
+}
+
 #[get("/groups/new")]
-pub fn newgroup(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
+pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
     use crate::schema::users::dsl::*;
     NewGroupTemplate {
         logged_in: Some(l.0),
@@ -56,7 +67,7 @@ pub fn newgroup(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
 }
 
 #[post("/groups/new", data = "<newgroup>")]
-pub fn newgroup_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
+pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
     let newgroup = newgroup.into_inner();
 
     use crate::schema::groups::dsl::*;
@@ -83,8 +94,24 @@ pub fn newgroup_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup
     Redirect::to("/groups")
 }
 
-#[post("/groups/<gid>", data = "<newmeeting>")]
-pub fn newmeeting_post(
+#[get("/groups/<gid>/meetings")]
+pub fn meetings(gid: i32) -> Redirect {
+    Redirect::to(format!("/groups/{}", gid))
+}
+
+#[get("/groups/<gid>/meetings.json")]
+pub fn meetings_json(conn: ObservDbConn, _l: MentorGuard, gid: i32) -> Json<Vec<Meeting>> {
+    use crate::schema::meetings::dsl::*;
+    Json(
+        meetings
+            .filter(group_id.eq(gid))
+            .load(&*conn)
+            .expect("Failed to get meetings from database"),
+    )
+}
+
+#[post("/groups/<gid>/meetings/new", data = "<newmeeting>")]
+pub fn meeting_new_post(
     conn: ObservDbConn,
     _l: MentorGuard,
     gid: i32,
@@ -105,7 +132,11 @@ pub fn newmeeting_post(
 }
 
 #[get("/groups/<gid>/members/add")]
-pub fn adduser(conn: ObservDbConn, l: MentorGuard, gid: i32) -> Result<AddUserTemplate, Status> {
+pub fn group_user_add(
+    conn: ObservDbConn,
+    l: MentorGuard,
+    gid: i32,
+) -> Result<AddUserTemplate, Status> {
     use crate::schema::groups::dsl::*;
     use crate::schema::users::dsl::*;
 
@@ -139,7 +170,7 @@ pub struct AddUserForm {
 }
 
 #[post("/groups/<gid>/members/add", data = "<form>")]
-pub fn adduser_post(
+pub fn group_user_add_post(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
@@ -168,7 +199,7 @@ pub fn adduser_post(
 }
 
 #[delete("/groups/<gid>/members/<uid>")]
-pub fn removeuser(
+pub fn group_user_delete(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
@@ -193,7 +224,7 @@ pub fn removeuser(
 }
 
 #[get("/groups/<gid>/edit")]
-pub fn editgroup(
+pub fn group_edit(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
@@ -220,7 +251,7 @@ pub fn editgroup(
 }
 
 #[put("/groups/<gid>", data = "<editgroup>")]
-pub fn editgroup_put(
+pub fn group_edit_put(
     conn: ObservDbConn,
     l: MentorGuard,
     editgroup: Form<NewGroup>,

@@ -19,7 +19,7 @@
 {% if u.tier > 1 || u.id == group.owner_id %}
 <div class="btn-group mr-2">
     <a class="btn btn-primary" href="/groups/{{ group.id }}/members/add">Add User</a>
-    <form method="POST">
+    <form method="POST" action="/groups/{{ group.id }}/meetings/new">
         <input type="hidden" name="group_id" value="{{ group.id }}">
         <input type="hidden" name="code" value="code">
         <button type="submit" class="btn btn-secondary">New Meeting</button>

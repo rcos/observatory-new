@@ -80,7 +80,7 @@ pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
 }
 
 #[get("/news/<nid>")]
-pub fn newsstory(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTemplate {
+pub fn story(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTemplate {
     use crate::schema::news::dsl::*;
     NewsStoryTemplate {
         logged_in: l.user(),
@@ -92,14 +92,14 @@ pub fn newsstory(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTem
 }
 
 #[get("/news/new")]
-pub fn newnewsstory(_conn: ObservDbConn, l: AdminGuard) -> NewNewsStoryTemplate {
+pub fn story_new(_conn: ObservDbConn, l: AdminGuard) -> NewNewsStoryTemplate {
     NewNewsStoryTemplate {
         logged_in: Some(l.0),
     }
 }
 
 #[post("/news/new", data = "<newnewsstory>")]
-pub fn newnewsstory_post(
+pub fn story_new_post(
     conn: ObservDbConn,
     _l: AdminGuard,
     newnewsstory: Form<NewNewsStory>,
@@ -115,7 +115,7 @@ pub fn newnewsstory_post(
 }
 
 #[get("/news/<nid>/edit")]
-pub fn editnewsstory(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsStoryTemplate {
+pub fn story_edit(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsStoryTemplate {
     use crate::schema::news::dsl::*;
     EditNewsStoryTemplate {
         logged_in: Some(l.0),
@@ -127,7 +127,7 @@ pub fn editnewsstory(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsSto
 }
 
 #[put("/news/<nid>", data = "<editnewsstory>")]
-pub fn editnewsstory_put(
+pub fn story_edit_put(
     conn: ObservDbConn,
     _l: AdminGuard,
     editnewsstory: Form<NewNewsStory>,
@@ -144,7 +144,7 @@ pub fn editnewsstory_put(
 }
 
 #[delete("/news/<nid>")]
-pub fn newsstory_delete(conn: ObservDbConn, _l: AdminGuard, nid: i32) -> Redirect {
+pub fn story_delete(conn: ObservDbConn, _l: AdminGuard, nid: i32) -> Redirect {
     use crate::schema::news::dsl::*;
     delete(news.find(nid))
         .execute(&*conn)

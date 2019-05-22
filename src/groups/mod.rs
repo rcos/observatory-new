@@ -5,11 +5,15 @@
 //!
 //! ## Routes
 //! - `/groups`
+//! - `/groups.json`
 //! - `/groups/new`
 //! - `/groups/<gid>`
 //! - `/groups/<gid>/add`
 //! - `/groups/<gid>/remove/<uid>`
 //! - `/groups/<gid>/edit`
+//! - `/groups/<gid>/meetings
+//! - `/groups/<gid>/meetings.json
+//! - `/groups/<gid>/meetings/new
 
 pub mod handlers;
 pub mod models;

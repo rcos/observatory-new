@@ -48,7 +48,7 @@ pub fn user_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, h: String) -> Optio
 }
 
 #[get("/users/<h>/edit")]
-pub fn edituser(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemplate> {
+pub fn user_edit(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemplate> {
     use crate::schema::users::dsl::*;
 
     Some(EditUserTemplate {
@@ -62,7 +62,7 @@ pub fn edituser(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemp
 }
 
 #[put("/users/<h>", data = "<edituser>")]
-pub fn edituser_put(
+pub fn user_edit_put(
     conn: ObservDbConn,
     l: UserGuard,
     h: i32,

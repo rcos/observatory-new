@@ -70,7 +70,7 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
 ///
 /// Restricted to Admins and the event owner.
 #[get("/calendar/<eid>/edit")]
-pub fn editevent(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEventTemplate, Status> {
+pub fn event_edit(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEventTemplate, Status> {
     let l = l.0;
 
     use crate::schema::events::dsl::*;
@@ -111,7 +111,7 @@ pub fn editevent(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEvent
 ///
 /// Restricted to Admins and the event owner.
 #[put("/calendar/<eid>", data = "<editevent>")]
-pub fn editevent_put(
+pub fn event_edit_put(
     conn: ObservDbConn,
     l: UserGuard,
     eid: i32,
@@ -160,7 +160,7 @@ pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
 ///
 /// Restricted to Admins.
 #[get("/calendar/new")]
-pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
+pub fn event_new(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
     NewEventTemplate {
         logged_in: Some(admin.0),
@@ -176,7 +176,11 @@ pub fn newevent(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
 ///
 /// Restricted to Admins.
 #[post("/calendar/new", data = "<newevent>")]
-pub fn newevent_post(conn: ObservDbConn, _admin: AdminGuard, newevent: Form<NewEvent>) -> Redirect {
+pub fn event_new_post(
+    conn: ObservDbConn,
+    _admin: AdminGuard,
+    newevent: Form<NewEvent>,
+) -> Redirect {
     use crate::schema::events::dsl::*;
 
     let mut newevent = newevent.into_inner();
