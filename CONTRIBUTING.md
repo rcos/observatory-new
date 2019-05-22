@@ -4,6 +4,15 @@ Thank you for your interest in contributing to the RCOS Observatory!
 Please read the following guidelines before opening an issue or
 pull request.
 
+## Hooks
+
+There are 2 git hooks as part of this project:
+
+1. Before every commit `cargo fmt` is run to clean up code.
+2. Before every push `cargo check` is run to verify that the code compiles correctly.
+
+These are to ensure that the project maintains code quality.
+
 ## Conduct
 
 Please conduct yourself in a respectful and professional manner.

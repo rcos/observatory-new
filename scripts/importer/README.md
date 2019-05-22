@@ -11,9 +11,9 @@ Run the script with `rake run` or `bundle exec ruby importer.rb`.
 This uses the following Ruby Gems:
 - [Mongo](https://rubygems.org/gems/mongo)
 
-These gems require that you have `ruby-devel`
-installed in order to build their native bindings.
-These should be available from your distrobutions package manager.
+This gem requires that you have `ruby-devel`
+installed in order to build its native bindings.
+This should be available from your distributions package manager.
 
-These gems can be installed locally using `rake install` or
+Gems can be installed locally using `rake deps` or
 `bundle install --path vendor/bundle`.

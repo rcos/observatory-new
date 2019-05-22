@@ -1,5 +1,6 @@
 # Don't commit gems
 vendor/
+Gemfile.lock
 
 # Don't commit output
 importer.sql
