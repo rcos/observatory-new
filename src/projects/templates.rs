@@ -41,3 +41,11 @@ pub struct JoinTemplate {
     pub logged_in: OptUser,
     pub project: Project,
 }
+
+#[derive(Template)]
+#[template(path = "project/add-user.html")]
+pub struct AddUserTemplate {
+    pub logged_in: OptUser,
+    pub project: Project,
+    pub all_users: Vec<User>,
+}

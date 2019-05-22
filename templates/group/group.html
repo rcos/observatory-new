@@ -18,7 +18,7 @@
 {% endif %}
 {% if u.tier > 1 || u.id == group.owner_id %}
 <div class="btn-group mr-2">
-    <a class="btn btn-primary" href="/groups/{{ group.id }}/add">Add User</a>
+    <a class="btn btn-primary" href="/groups/{{ group.id }}/members/add">Add User</a>
     <form method="POST">
         <input type="hidden" name="group_id" value="{{ group.id }}">
         <input type="hidden" name="code" value="code">
@@ -45,8 +45,8 @@ Room: {{ val }}
         <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
         {% match logged_in %}
         {% when Some with (u) %}
-        {% if u.tier > 1 || u.id == group.owner_id %}
-        <button type="delete" action="/groups/{{ group.id }}/remove/{{ user.id }}"
+        {% if (u.tier > 1 || u.id == group.owner_id) && user.id != group.owner_id %}
+        <button type="delete" action="/groups/{{ group.id }}/members/{{ user.id }}"
             class="btn btn-danger">Remove</button>
         {% endif %}
         {% when None %}

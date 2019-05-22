@@ -104,7 +104,7 @@ pub fn newmeeting_post(
     Redirect::to(format!("/groups/{}", newmeeting.group_id))
 }
 
-#[get("/groups/<gid>/add")]
+#[get("/groups/<gid>/members/add")]
 pub fn adduser(conn: ObservDbConn, l: MentorGuard, gid: i32) -> Result<AddUserTemplate, Status> {
     use crate::schema::groups::dsl::*;
     use crate::schema::users::dsl::*;
@@ -138,7 +138,7 @@ pub struct AddUserForm {
     uid: i32,
 }
 
-#[post("/groups/<gid>/add", data = "<form>")]
+#[post("/groups/<gid>/members/add", data = "<form>")]
 pub fn adduser_post(
     conn: ObservDbConn,
     l: MentorGuard,
@@ -167,7 +167,7 @@ pub fn adduser_post(
     }
 }
 
-#[delete("/groups/<gid>/remove/<uid>")]
+#[delete("/groups/<gid>/members/<uid>")]
 pub fn removeuser(
     conn: ObservDbConn,
     l: MentorGuard,

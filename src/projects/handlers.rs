@@ -44,14 +44,18 @@ pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Op
 }
 
 #[get("/projects/new")]
-pub fn newproject(l: UserGuard) -> NewProjectTemplate {
+pub fn project_new(l: UserGuard) -> NewProjectTemplate {
     NewProjectTemplate {
         logged_in: Some(l.0),
     }
 }
 
 #[post("/projects/new", data = "<newproject>")]
-pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewProject>) -> Redirect {
+pub fn project_new_post(
+    conn: ObservDbConn,
+    l: UserGuard,
+    newproject: Form<NewProject>,
+) -> Redirect {
     let mut newproject = newproject.into_inner();
     newproject.owner_id = l.0.id;
 
@@ -88,7 +92,7 @@ pub fn newproject_post(conn: ObservDbConn, l: UserGuard, newproject: Form<NewPro
 }
 
 #[get("/projects/<h>/edit")]
-pub fn editproject(
+pub fn project_edit(
     conn: ObservDbConn,
     l: UserGuard,
     h: i32,
@@ -115,7 +119,7 @@ pub fn editproject(
 }
 
 #[put("/projects/<h>", data = "<editproject>")]
-pub fn editproject_put(
+pub fn project_edit_put(
     conn: ObservDbConn,
     l: UserGuard,
     h: i32,
@@ -125,7 +129,7 @@ pub fn editproject_put(
 
     let mut editproject = editproject.into_inner();
     editproject.repos = serde_json::to_string(
-        &dbg!(serde_json::from_str::<Vec<String>>(&editproject.repos))
+        &serde_json::from_str::<Vec<String>>(&editproject.repos)
             .unwrap()
             .iter()
             .filter(|s| !s.is_empty())
@@ -175,8 +179,116 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>
     Json(filter_projects(&*conn, s))
 }
 
-#[get("/projects/<h>/join")]
-pub fn join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
+#[get("/projects/<h>/members")]
+pub fn project_members(h: i32) -> Redirect {
+    Redirect::to(format!("/projects/{}", h))
+}
+
+#[get("/projects/<h>/members.json")]
+pub fn project_members_json(conn: ObservDbConn, h: i32) -> Json<Vec<User>> {
+    Json(project_users(&*conn, &{
+        use crate::schema::projects::dsl::*;
+        projects
+            .find(h)
+            .first(&*conn)
+            .expect("Failed to get project from database")
+    }))
+}
+
+#[get("/projects/<h>/members/add")]
+pub fn project_member_add(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+) -> Result<AddUserTemplate, Status> {
+    let p: Project = {
+        use crate::schema::projects::dsl::*;
+        projects
+            .find(h)
+            .first(&*conn)
+            .expect("Failed to get project from database")
+    };
+
+    if l.0.tier > 0 || l.0.id == p.owner_id {
+        Ok(AddUserTemplate {
+            logged_in: Some(l.0),
+            project: p,
+            all_users: {
+                use crate::schema::users::dsl::*;
+                users
+                    .load(&*conn)
+                    .expect("Failed to get users from database")
+            },
+        })
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[derive(FromForm)]
+pub struct UserId {
+    pub uid: i32,
+}
+
+#[post("/projects/<h>/members/add", data = "<userid>")]
+pub fn project_member_add_post(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    userid: Form<UserId>,
+) -> Result<Redirect, Status> {
+    let p: Project = {
+        use crate::schema::projects::dsl::*;
+        projects
+            .find(h)
+            .first(&*conn)
+            .expect("Failed to get project from database")
+    };
+
+    if l.0.tier > 0 || l.0.id == p.owner_id {
+        use crate::schema::relation_project_user::dsl::*;
+        insert_into(relation_project_user)
+            .values(&NewRelationProjectUser {
+                project_id: h,
+                user_id: userid.into_inner().uid,
+            })
+            .execute(&*conn)
+            .expect("Failed to insert relation into database");
+        Ok(Redirect::to(format!("/projects/{}", h)))
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[delete("/projects/<h>/members/<uid>")]
+pub fn project_member_delete(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    uid: i32,
+) -> Result<Redirect, Status> {
+    let owner_id: i32 = {
+        use crate::schema::projects::dsl::*;
+        projects
+            .find(h)
+            .select(owner_id)
+            .first(&*conn)
+            .expect("Failed to get project from database")
+    };
+
+    if l.0.tier > 0 || l.0.id == owner_id {
+        use crate::schema::relation_project_user::dsl::*;
+        delete(relation_project_user.filter(project_id.eq(h).and(user_id.eq(uid))))
+            .execute(&*conn)
+            .expect("Failed to delete relation from database");
+        Ok(Redirect::to(format!("/projects/{}", h)))
+    } else {
+        Err(Status::Unauthorized)
+    }
+}
+
+#[get("/projects/<h>/members/join")]
+pub fn project_join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
     use crate::schema::projects::dsl::*;
     JoinTemplate {
         logged_in: Some(l.0),
@@ -187,8 +299,8 @@ pub fn join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
     }
 }
 
-#[post("/projects/<h>/join")]
-pub fn join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
+#[post("/projects/<h>/members/join")]
+pub fn project_join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
     use crate::schema::projects::dsl::*;
 
     let a: bool = projects
