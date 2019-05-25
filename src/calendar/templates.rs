@@ -2,7 +2,7 @@
 
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::{filters, FormError, OptUser};
 
 use crate::models::User;
 
@@ -41,6 +41,7 @@ pub struct EventTemplate {
 pub struct NewEventTemplate {
     pub logged_in: OptUser,
     pub all_users: Vec<User>,
+    pub error: Option<FormError>,
 }
 
 /// Template for editing an Event
@@ -54,4 +55,5 @@ pub struct EditEventTemplate {
     pub logged_in: OptUser,
     pub event: Event,
     pub all_users: Vec<User>,
+    pub error: Option<FormError>,
 }

@@ -1,6 +1,6 @@
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::{filters, FormError, OptUser};
 
 #[derive(Template)]
 #[template(path = "news/news.html")]
@@ -20,6 +20,7 @@ pub struct NewsStoryTemplate {
 #[template(path = "news/new-newsstory.html")]
 pub struct NewNewsStoryTemplate {
     pub logged_in: OptUser,
+    pub error: Option<FormError>,
 }
 
 #[derive(Template)]
@@ -27,6 +28,7 @@ pub struct NewNewsStoryTemplate {
 pub struct EditNewsStoryTemplate {
     pub logged_in: OptUser,
     pub story: NewsStory,
+    pub error: Option<FormError>,
 }
 
 use crate::models::Event;

@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% include "../form-error.html" %}
+
 <form method="PUT" action="/news/{{ story.id }}">
     <div class="form-group">
         <label for="title">Title</label>

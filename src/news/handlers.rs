@@ -9,6 +9,7 @@ use rocket::response::{Redirect, Response};
 use rocket_contrib::json::Json;
 
 use crate::guards::*;
+use crate::templates::FormError;
 use crate::ObservDbConn;
 
 use super::models::*;
@@ -91,10 +92,11 @@ pub fn story(conn: ObservDbConn, l: MaybeLoggedIn, nid: i32) -> NewsStoryTemplat
     }
 }
 
-#[get("/news/new")]
-pub fn story_new(_conn: ObservDbConn, l: AdminGuard) -> NewNewsStoryTemplate {
+#[get("/news/new?<e>")]
+pub fn story_new(_conn: ObservDbConn, l: AdminGuard, e: Option<FormError>) -> NewNewsStoryTemplate {
     NewNewsStoryTemplate {
         logged_in: Some(l.0),
+        error: e,
     }
 }
 
@@ -106,16 +108,26 @@ pub fn story_new_post(
 ) -> Redirect {
     use crate::schema::news::dsl::*;
 
+    let newnewsstory = newnewsstory.into_inner();
+    if newnewsstory.check_times().is_err() {
+        return Redirect::to(format!("/news/new?e={}", FormError::InvalidDate));
+    }
+
     insert_into(news)
-        .values(&newnewsstory.into_inner())
+        .values(&newnewsstory)
         .execute(&*conn)
         .expect("Failed to insert news story into database");
 
     Redirect::to("/news")
 }
 
-#[get("/news/<nid>/edit")]
-pub fn story_edit(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsStoryTemplate {
+#[get("/news/<nid>/edit?<e>")]
+pub fn story_edit(
+    conn: ObservDbConn,
+    l: AdminGuard,
+    nid: i32,
+    e: Option<FormError>,
+) -> EditNewsStoryTemplate {
     use crate::schema::news::dsl::*;
     EditNewsStoryTemplate {
         logged_in: Some(l.0),
@@ -123,6 +135,7 @@ pub fn story_edit(conn: ObservDbConn, l: AdminGuard, nid: i32) -> EditNewsStoryT
             .find(nid)
             .first(&*conn)
             .expect("Failed to load news story from database"),
+        error: e,
     }
 }
 
@@ -135,8 +148,13 @@ pub fn story_edit_put(
 ) -> Redirect {
     use crate::schema::news::dsl::*;
 
+    let editnewsstory = editnewsstory.into_inner();
+    if editnewsstory.check_times().is_err() {
+        return Redirect::to(format!("/news/{}/edit?e={}", nid, FormError::InvalidDate));
+    }
+
     update(news.find(nid))
-        .set(&editnewsstory.into_inner())
+        .set(&editnewsstory)
         .execute(&*conn)
         .expect("Failed to update news story in database");
 

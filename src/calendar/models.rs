@@ -78,3 +78,16 @@ pub struct NewEvent {
     /// Optional color to display the event on the calendar
     pub color: Option<String>,
 }
+
+impl NewEvent {
+    /// Verifies that the start and end times are valid
+    pub fn check_times(&self) -> Result<(), chrono::ParseError> {
+        NaiveDateTime::parse_from_str(&self.start, "%F %R")
+            .or(NaiveDateTime::parse_from_str(&self.start, "%F %T"))
+            .and(
+                NaiveDateTime::parse_from_str(&self.end, "%F %R")
+                    .or(NaiveDateTime::parse_from_str(&self.end, "%F %T")),
+            )
+            .and(Ok(()))
+    }
+}

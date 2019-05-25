@@ -10,10 +10,11 @@ use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
 use crate::guards::*;
-use crate::ObservDbConn;
 
 use super::models::*;
 use super::templates::*;
+use crate::templates::FormError;
+use crate::ObservDbConn;
 
 /// GET handler for `/calendar`
 ///
@@ -69,8 +70,13 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
 /// The page to edit a calendar event.
 ///
 /// Restricted to Admins and the event owner.
-#[get("/calendar/<eid>/edit")]
-pub fn event_edit(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEventTemplate, Status> {
+#[get("/calendar/<eid>/edit?<e>")]
+pub fn event_edit(
+    conn: ObservDbConn,
+    l: UserGuard,
+    eid: i32,
+    e: Option<FormError>,
+) -> Result<EditEventTemplate, Status> {
     let l = l.0;
 
     use crate::schema::events::dsl::*;
@@ -99,6 +105,7 @@ pub fn event_edit(conn: ObservDbConn, l: UserGuard, eid: i32) -> Result<EditEven
             all_users: users
                 .load(&*conn)
                 .expect("Failed to get users from database"),
+            error: e,
         })
     } else {
         Err(Status::Unauthorized)
@@ -121,6 +128,13 @@ pub fn event_edit_put(
 
     use crate::schema::events::dsl::*;
     let mut editevent = editevent.into_inner();
+    if editevent.check_times().is_err() {
+        return Ok(Redirect::to(format!(
+            "/calendar/{}/edit?e={}",
+            eid,
+            FormError::InvalidDate
+        )));
+    }
     let (atcode, host_id): (String, i32) = events
         .find(eid)
         .select((code, hosted_by))
@@ -159,14 +173,15 @@ pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
 /// Template to create a new calendar event.
 ///
 /// Restricted to Admins.
-#[get("/calendar/new")]
-pub fn event_new(conn: ObservDbConn, admin: AdminGuard) -> NewEventTemplate {
+#[get("/calendar/new?<e>")]
+pub fn event_new(conn: ObservDbConn, admin: AdminGuard, e: Option<FormError>) -> NewEventTemplate {
     use crate::schema::users::dsl::*;
     NewEventTemplate {
         logged_in: Some(admin.0),
         all_users: users
             .load(&*conn)
             .expect("Failed to get users from database"),
+        error: e,
     }
 }
 
@@ -184,6 +199,9 @@ pub fn event_new_post(
     use crate::schema::events::dsl::*;
 
     let mut newevent = newevent.into_inner();
+    if newevent.check_times().is_err() {
+        return Redirect::to(format!("/calendar/new?e={}", FormError::InvalidDate));
+    }
     newevent.code = attendance_code(&*conn);
 
     insert_into(events)

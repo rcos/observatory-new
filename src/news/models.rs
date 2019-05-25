@@ -20,3 +20,11 @@ pub struct NewNewsStory {
     pub description: String,
     pub color: Option<String>,
 }
+
+impl NewNewsStory {
+    pub fn check_times(&self) -> Result<(), chrono::ParseError> {
+        NaiveDateTime::parse_from_str(&self.happened_at, "%F %R")
+            .or(NaiveDateTime::parse_from_str(&self.happened_at, "%F %T"))
+            .and(Ok(()))
+    }
+}

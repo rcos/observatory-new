@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% include "../form-error.html" %}
+
 <form method="PUT" action="/calendar/{{ event.id }}">
     <div class="form-group">
         <label for="title">Title</label>

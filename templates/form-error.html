@@ -23,6 +23,10 @@ This file can be included into another page to display an error in a form.
 <div class="alert alert-warning">
     Passwords do not match, please re-type them and try again.
 </div>
+{% when FormError::InvalidDate %}
+<div class="alert alert-warning">
+    Date is invalid. Must be in a form like <code>2018-04-21 15:30</code>.
+</div>
 {% when FormError::Other %}
 <div class="alert alert-warning">
     There is an issue with this form, please check it and try again.
