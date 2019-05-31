@@ -1,6 +1,6 @@
-# observatory-new
+# Observatory-new
 
-<img src="./logo.svg" alt="RCOS Observatory logo" style="display:block;max-width:50%;margin:auto;"/>
+<img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
 Rewrite of the RCOS observatory in a way that hopefully makes a bit more sense.
 Since we have kinda lost track of what number we're on at this point I am
@@ -22,27 +22,33 @@ If you would like to help out please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 - [Bootstrap](https://getbootstrap.com): CSS framework
 
 ## Building
-First you need to install the `openssl` development headers.
-How to do this varies by system but on Linux the packages are usually named
-something like `libssl-devel` or similar.
-
-Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19))
-so you need to set [Rustup](https://rustup.rs) to use it by running the following in the
-`observatory-new` folder.
+Before anything else make sure that you have the development tools for your
+system. On Ubuntu/Debian you can install these with:
 
 ```
-$ rustup override set nightly
+$ sudo apt install build-essential pkg-config
 ```
 
-however the Rust official tooling does not support the generic `nightly` target
-so I suggest using the latest dated version of `nightly` that the [RLS]()
+Then you need to install the `openssl` development headers.
+How to do this varies by system but on Ubuntu the package is
+`libssl-dev` and should be similar on other distros.
+
+Next install Rust with [Rustup](https://rustup.rs). Instructions are on the
+website linked and is fairly straightforward.
+
+Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19)).
+However the Rust official tooling does not support the generic `nightly` target
+so I suggest using the latest dated version of `nightly` that the [RLS](https://github.com/rust-lang/rls)
 supports. You can check that [on this page](https://rust-lang.github.io/rustup-components-history/)
-and can install it with the following command. Make sure to keep this version
+and can install it with the following command. **Make sure to run this in the `observatory-new` folder.**
 up to date.
 
 ```
 $ rustup override set nightly-YYYY-MM-DD
 ```
+
+You have to manually keep this up to date, so every week or so run
+the command a gain with a newer date.
 
 After that it's as simple as
 ```
@@ -56,7 +62,9 @@ $ cargo run
 
 ## Deploying
 
-Please read [the Setup instructions](./SETUP.md) for information on how to setup
+**This is for deploying to a server, not a developer machine**
+
+Please read [the Deploying instructions](./DEPLOYING.md) for information on how to setup
 and deploy observatory-new.
 
 ## Documentation
