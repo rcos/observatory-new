@@ -103,6 +103,8 @@ pub enum FormError {
     Credentials,
     /// The password and it's repeat are not the same
     PasswordMismatch,
+    /// The email is already in use by another user
+    UserExists,
     /// A date field was the wrong format invalid
     InvalidDate,
     /// Some other unknown error
@@ -122,6 +124,7 @@ impl fmt::Display for FormError {
                 FormError::Password => "password",
                 FormError::Credentials => "credentials",
                 FormError::PasswordMismatch => "mismatch",
+                FormError::UserExists => "exists",
                 FormError::InvalidDate => "date",
                 FormError::Other => "other",
             }
@@ -137,6 +140,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "password" => FormError::Password,
             "credentials" => FormError::Credentials,
             "mismatch" => FormError::PasswordMismatch,
+            "exists" => FormError::UserExists,
             "date" => FormError::InvalidDate,
             "other" => FormError::Other,
             _ => FormError::Other,
