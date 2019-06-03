@@ -74,11 +74,12 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
     use crate::schema::users::dsl::*;
 
     // Check if user's email is already signed up
-    if let Some(user) = users
+    if users
         .filter(&email.eq(&*newuser.email))
         .first::<User>(&*conn)
         .optional()
         .expect("Failed to get user from database")
+        .is_some()
     {
         return Redirect::to(format!("/signup?e={}", FormError::UserExists));
     } else {
