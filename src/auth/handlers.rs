@@ -88,7 +88,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
             .values(&newuser)
             .execute(&*conn)
             .expect("Failed to add user to database");
-        
+
         let user: User = users
             .filter(&email.eq(&*newuser.email))
             .first(&*conn)

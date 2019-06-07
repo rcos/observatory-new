@@ -209,15 +209,23 @@ pub fn project_member_add(
             .expect("Failed to get project from database")
     };
 
+    let pu = project_users(&*conn, &p);
+
+    use crate::schema::users::dsl::*;
+    let all_users: Vec<User> = users
+        .load(&*conn)
+        .expect("Failed to get users from database");
+
     if l.0.tier > 0 || l.0.id == p.owner_id {
         Ok(AddUserTemplate {
             logged_in: Some(l.0),
             project: p,
             all_users: {
-                use crate::schema::users::dsl::*;
-                users
-                    .load(&*conn)
-                    .expect("Failed to get users from database")
+                all_users
+                    .iter()
+                    .filter(|&e| !pu.iter().any(|x| e == x))
+                    .cloned()
+                    .collect()
             },
         })
     } else {
