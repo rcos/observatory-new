@@ -155,7 +155,7 @@ pub fn group_user_add(
             group: g,
             all_users: all_users
                 .iter()
-                .filter(|&e| !gu.iter().any(|x| e == x))
+                .filter(|&e| !gu.contains(e))
                 .cloned()
                 .collect(),
         })
