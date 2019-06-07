@@ -222,7 +222,7 @@ pub fn project_member_add(
                     .load(&*conn)
                     .expect("Failed to get users from database")
                     .iter()
-                    .filter(|&e| !pu.iter().any(|x| e == x))
+                    .filter(|&e| !pu.contains(e))
                     .cloned()
                     .collect()
             },
