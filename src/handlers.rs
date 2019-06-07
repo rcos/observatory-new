@@ -79,7 +79,7 @@ const BLACKLIST: [&str; 1] = ["README.md"];
 #[get("/static/<file..>")]
 pub fn staticfile(file: PathBuf) -> Option<Response<'static>> {
     // If file is in the BLACKLIST return None
-    if BLACKLIST.iter().any(|x| x == &file.to_str().unwrap()) {
+    if BLACKLIST.contains(&file.to_str().unwrap()) {
         None
     } else {
         // Get the mimetype from the request
