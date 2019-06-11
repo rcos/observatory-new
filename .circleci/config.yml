@@ -1,0 +1,21 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+    - image: rust:nightly
+  steps:
+    - checkout
+    - restore_cache:
+      key: project-cache
+    - run:
+      name: Nightly Build
+      command: |
+        rustc --version
+        cargo --version
+        cargo build
+    - save_cache:
+      key: project-cache
+      paths:
+        - "~/.cargo"
+        - "./target"
