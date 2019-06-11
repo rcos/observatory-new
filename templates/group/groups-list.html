@@ -26,10 +26,8 @@
     </thead>
     <tbody>
         {% for group in groups %}
-        <tr class="position-relative">
-            <td>
-                <a class="stretched-link" href="/groups/{{ group.id }}">{{ group.name }}</a>
-            </td>
+        <tr class="clickable-row" data-href="/groups/{{ group.id }}">
+            <td><a href="/groups/{{ group.id }}">{{ group.name }}</a></td>
         </tr>
         {% endfor %}
     </tbody>

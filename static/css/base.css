@@ -43,3 +43,7 @@
 #big {
     font-size: 11rem;
 }
+
+tr.clickable-row {
+    cursor: pointer;
+}

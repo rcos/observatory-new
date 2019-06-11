@@ -11,4 +11,4 @@ if id -nG $(whoami) | grep -qw "docker"; then
     SUDO=""
 fi
 
-eval "${SUDO} docker build -t rcos/observatory .."
+eval "${SUDO} docker build --rm --squash -t rcos/observatory .."
