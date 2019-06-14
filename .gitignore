@@ -32,3 +32,4 @@ Cargo.lock
 .vscode
 *.swp
 .directory
+observatory-new.code-workspace
