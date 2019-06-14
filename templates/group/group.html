@@ -62,7 +62,7 @@ Room: {{ val }}
     {% when Some with (u) %}
     <li>
         Meeting at {{ meeting.happened_at }}
-        {% if u.tier > 1 %}
+        {% if u.tier > 0 %}
             code:
             <code>{{ meeting.code }}</code>
             <a href="/big?text={{ meeting.code }}">View</a>

@@ -33,4 +33,3 @@ Cargo.lock
 *.swp
 .directory
 observatory-new.code-workspace
-.gitignore
