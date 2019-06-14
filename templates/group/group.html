@@ -58,11 +58,18 @@ Room: {{ val }}
 <h2>Meetings</h2>
 <ul>
     {% for meeting in meetings %}
+    {% match logged_in %}
+    {% when Some with (u) %}
     <li>
-        Meeting at {{ meeting.happened_at }} code:
-        <code>{{ meeting.code }}</code>
-        <a href="/big?text={{ meeting.code }}">View</a>
+        Meeting at {{ meeting.happened_at }}
+        {% if u.tier > 1 %}
+            code:
+            <code>{{ meeting.code }}</code>
+            <a href="/big?text={{ meeting.code }}">View</a>
+        {% endif %}
     </li>
+    {% when None %}
+    {% endmatch %}
     {% endfor %}
 </ul>
 
