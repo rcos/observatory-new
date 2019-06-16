@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Rows in tables can be clicked on to navigate to them
+    document.querySelectorAll("tr.clickable-row").forEach(row => {
+        row.addEventListener('click', (e) => {
+            window.location = row.dataset.href;
+        });
+    });
 
     // HTML forms cannot handle PUT requests
     // So this adds the functionality

@@ -59,8 +59,8 @@
         </thead>
         <tbody>
             {% for event in events %}
-            <tr class="position-relative">
-                <td><a class="stretched-link" href="/calendar/{{ event.id }}">{{ event.title }}</a></td>
+            <tr class="clickable-row" data-href="/calendar/{{ event.id }}">
+                <td><a href="/calendar/{{ event.id }}">{{ event.title }}</a></td>
                 <td>{{ event.start }}</td>
             </tr>
             {% endfor %}
