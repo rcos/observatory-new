@@ -8,16 +8,19 @@ use rocket::response::Redirect;
 
 use crate::guards::*;
 use crate::ObservDbConn;
+use crate::models::RelationGroupUser;
+use crate::templates::FormError;
 
 use super::code::*;
 use super::models::*;
 use super::templates::*;
 
 /// GET handler for `/attend`
-#[get("/attend")]
-pub fn attend(l: UserGuard) -> AttendTemplate {
+#[get("/attend?<e>")]
+pub fn attend(l: UserGuard, e: Option<FormError>) -> AttendTemplate {
     AttendTemplate {
         logged_in: Some(l.0),
+        error: e
     }
 }
 
@@ -37,26 +40,40 @@ pub struct AttendCode {
 /// Otherwise redirects back to `/attend`.
 #[post("/attend", data = "<code>")]
 pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> Redirect {
-    use crate::schema::attendances::dsl::*;
+    use crate::schema::relation_group_user::dsl::*;
 
     if let Some(m) = verify_code(&*conn, &code.code) {
-        let (mid, eid) = if m.is_event() {
-            (None, Some(m.id()))
+        let (mid, eid, gid) = if m.is_event() {
+            (None, Some(m.id()), None)
         } else {
-            (Some(m.id()), None)
+            (Some(m.id()), None, m.group_id())
         };
-        let newattend = NewAttendance {
-            user_id: l.0.id,
-            is_event: m.is_event(),
-            meeting_id: mid,
-            event_id: eid,
-        };
-        insert_into(attendances)
-            .values(&newattend)
-            .execute(&*conn)
-            .expect("Failed to insert attendance into database");
-        Redirect::to("/")
+
+        if m.is_event()
+            || (!m.is_event()
+                && relation_group_user
+                    .filter(group_id.eq(gid.unwrap()).and(user_id.eq(l.0.id)))
+                    .first::<RelationGroupUser>(&*conn)
+                    .optional()
+                    .expect("Failed to get relations from database")
+                    .is_some())
+        {
+            use crate::schema::attendances::dsl::*;
+            let newattend = NewAttendance {
+                user_id: l.0.id,
+                is_event: m.is_event(),
+                meeting_id: mid,
+                event_id: eid,
+            };
+            insert_into(attendances)
+                .values(&newattend)
+                .execute(&*conn)
+                .expect("Failed to insert attendance into database");
+            Redirect::to("/")
+        } else {
+            Redirect::to(format!("/attend?e={}", FormError::InvalidCode))
+        }
     } else {
-        Redirect::to("/attend")
+        Redirect::to(format!("/attend?e={}", FormError::InvalidCode))
     }
 }

@@ -34,7 +34,7 @@ use crate::models::Attendable;
 
 #[derive(Debug, Default)]
 pub struct GradeSummary {
-    pub attendances: Vec<Box<Attendable>>,
+    pub attendances: Vec<Box<dyn Attendable>>,
     pub needed_attendances: usize,
     pub commit_count: Option<usize>,
 }

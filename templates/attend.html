@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% include "form-error.html" %}
+
 <form method="POST">
     <input type="text" name="code" class="form-control">
     <button type="submit" class="btn btn-primary">Submit</button>

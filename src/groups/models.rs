@@ -48,6 +48,13 @@ impl Attendable for Meeting {
     fn owner_id(&self) -> i32 {
         self.hosted_by
     }
+    fn group_id(&self) -> Option<i32> {
+        if !self.is_event() {
+            Some(self.group_id)
+        } else {
+            None
+        }
+    }
     fn is_event(&self) -> bool {
         false
     }
