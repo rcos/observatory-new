@@ -12,5 +12,5 @@ use crate::templates::{filters, FormError, OptUser};
 #[template(path = "attend.html")]
 pub struct AttendTemplate {
     pub logged_in: OptUser,
-    pub error: Option<FormError>
+    pub error: Option<FormError>,
 }

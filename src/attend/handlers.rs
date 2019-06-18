@@ -7,9 +7,9 @@ use rocket::request::Form;
 use rocket::response::Redirect;
 
 use crate::guards::*;
-use crate::ObservDbConn;
 use crate::models::RelationGroupUser;
 use crate::templates::FormError;
+use crate::ObservDbConn;
 
 use super::code::*;
 use super::models::*;
@@ -20,7 +20,7 @@ use super::templates::*;
 pub fn attend(l: UserGuard, e: Option<FormError>) -> AttendTemplate {
     AttendTemplate {
         logged_in: Some(l.0),
-        error: e
+        error: e,
     }
 }
 
@@ -40,8 +40,6 @@ pub struct AttendCode {
 /// Otherwise redirects back to `/attend`.
 #[post("/attend", data = "<code>")]
 pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> Redirect {
-    use crate::schema::relation_group_user::dsl::*;
-
     if let Some(m) = verify_code(&*conn, &code.code) {
         let (mid, eid, gid) = if m.is_event() {
             (None, Some(m.id()), None)
@@ -49,16 +47,25 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
             (Some(m.id()), None, m.group_id())
         };
 
-        if m.is_event()
-            || (!m.is_event()
-                && relation_group_user
-                    .filter(group_id.eq(gid.unwrap()).and(user_id.eq(l.0.id)))
-                    .first::<RelationGroupUser>(&*conn)
-                    .optional()
-                    .expect("Failed to get relations from database")
-                    .is_some())
-        {
-            use crate::schema::attendances::dsl::*;
+        let user_in_group = {
+            use crate::schema::relation_group_user::dsl::*;
+            relation_group_user
+                .filter(group_id.eq(gid.unwrap()).and(user_id.eq(l.0.id)))
+                .first::<RelationGroupUser>(&*conn)
+                .optional()
+                .expect("Failed to get relations from database")
+                .is_some()
+        };
+
+        use crate::schema::attendances::dsl::*;
+        let user_attended = attendances
+            .filter(meeting_id.eq(mid).and(user_id.eq(l.0.id)))
+            .first::<Attendance>(&*conn)
+            .optional()
+            .expect("Failed to get attendances from database")
+            .is_some();
+
+        if !user_attended && (m.is_event() || (!m.is_event() && user_in_group)) {
             let newattend = NewAttendance {
                 user_id: l.0.id,
                 is_event: m.is_event(),
