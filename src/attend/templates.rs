@@ -1,7 +1,7 @@
 //! HTML templates for attendance
 
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::{filters, FormError, OptUser};
 
 /// Attendance page template
 ///
@@ -12,4 +12,5 @@ use crate::templates::{filters, OptUser};
 #[template(path = "attend.html")]
 pub struct AttendTemplate {
     pub logged_in: OptUser,
+    pub error: Option<FormError>
 }

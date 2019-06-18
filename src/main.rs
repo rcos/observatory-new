@@ -188,6 +188,9 @@ pub mod models {
         fn time(&self) -> NaiveDateTime;
         fn code(&self) -> String;
         fn owner_id(&self) -> i32;
+        fn group_id(&self) -> Option<i32> {
+            None
+        }
         fn is_event(&self) -> bool;
         fn url(&self) -> String;
     }

@@ -193,7 +193,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
                         .find(a.event_id.unwrap())
                         .first::<Event>(conn)
                         .expect("Failed to load event from database"),
-                ) as Box<Attendable>
+                ) as Box<dyn Attendable>
             } else {
                 use crate::models::Meeting;
                 use crate::schema::meetings::dsl::*;
@@ -202,7 +202,7 @@ pub fn grade_summary(conn: &SqliteConnection, user: &User) -> GradeSummary {
                         .find(a.meeting_id.unwrap())
                         .first::<Meeting>(conn)
                         .expect("Failed to load meeting from database"),
-                ) as Box<Attendable>
+                ) as Box<dyn Attendable>
             }
         })
         .collect();
