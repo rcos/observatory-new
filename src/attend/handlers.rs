@@ -58,12 +58,21 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
         };
 
         use crate::schema::attendances::dsl::*;
-        let user_attended = attendances
-            .filter(meeting_id.eq(mid).and(user_id.eq(l.0.id)))
-            .first::<Attendance>(&*conn)
-            .optional()
-            .expect("Failed to get attendances from database")
-            .is_some();
+        let user_attended = if m.is_event() {
+            attendances
+                .filter(event_id.eq(eid).and(user_id.eq(l.0.id)))
+                .first::<Attendance>(&*conn)
+                .optional()
+                .expect("Failed to get attendances from database")
+                .is_some()
+        } else {
+            attendances
+                .filter(meeting_id.eq(mid).and(user_id.eq(l.0.id)))
+                .first::<Attendance>(&*conn)
+                .optional()
+                .expect("Failed to get attendances from database")
+                .is_some()
+        };
 
         if !user_attended && (m.is_event() || (!m.is_event() && user_in_group)) {
             let newattend = NewAttendance {
