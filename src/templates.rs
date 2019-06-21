@@ -55,6 +55,14 @@ pub struct DashboardTemplate {
     pub summary: GradeSummary,
 }
 
+/// Site Map template
+///
+/// HTML File: `sitemap.html`
+
+#[derive(Template)]
+#[template(path = "sitemap.html")]
+pub struct SitemapTemplate {}
+
 //# Catcher Templates
 
 /// 403 error template
