@@ -15,7 +15,6 @@
 <body class="d-flex flex-column h-100">
     {% include "header.html" %}
     <main role="main" class="flex-shrink-0">
-        <a href="/sitemap.html">&nbsp;</a>
         <div class="container">
             <noscript>
                 <p class="alert alert-warning">
@@ -37,6 +36,11 @@
             </div>
         </div>
     </main>
+
+    <div name="divHrefB" style="height: 0px;width: 0px;overflow:hidden;">
+        <a href="sitemap.html">Site Map</a>
+    </div>
+    
     <footer class="text-center footer mt-auto py-3">
         <div class="container">
             {% block footer %}{% endblock %}
