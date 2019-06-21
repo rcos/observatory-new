@@ -19,9 +19,13 @@ This file can be included into another page to display an error in a form.
 <div class="alert alert-warning">
     Incorrect email or password. Make sure that they are spelled correctly.
 </div>
-{% when FormError::UserExists %}
+{% when FormError::EmailExists %}
 <div class="alert alert-warning">
     Email is already in use, please login or try another email.
+</div>
+{% when FormError::GitExists %}
+<div class="alert alert-warning">
+    GitHub Handle is already in use, please login or try another GitHub Handle.
 </div>
 {% when FormError::PasswordMismatch %}
 <div class="alert alert-warning">

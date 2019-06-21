@@ -81,33 +81,43 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
         .expect("Failed to get user from database")
         .is_some()
     {
-        return Redirect::to(format!("/signup?e={}", FormError::UserExists));
-    } else {
-        // Insert the new user into the database
-        insert_into(users)
-            .values(&newuser)
-            .execute(&*conn)
-            .expect("Failed to add user to database");
-
-        let user: User = users
-            .filter(&email.eq(&*newuser.email))
-            .first(&*conn)
-            .expect("Failed to get user from database");
-        {
-            use crate::schema::relation_group_user::dsl::*;
-            insert_into(relation_group_user)
-                .values(&NewRelationGroupUser {
-                    group_id: 0,
-                    user_id: user.id,
-                })
-                .execute(&*conn)
-                .expect("Failed to insert new relation into database");
-        }
-
-        cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
-
-        Redirect::to(format!("/users/{}", user.id))
+        return Redirect::to(format!("/signup?e={}", FormError::EmailExists));
     }
+
+    if users
+        .filter(&handle.eq(&*newuser.handle))
+        .first::<User>(&*conn)
+        .optional()
+        .expect("Failed to get user from database")
+        .is_some()
+    {
+        return Redirect::to(format!("/signup?e={}", FormError::GitExists));
+    }
+
+    // Insert the new user into the database
+    insert_into(users)
+        .values(&newuser)
+        .execute(&*conn)
+        .expect("Failed to add user to database");
+
+    let user: User = users
+        .filter(&email.eq(&*newuser.email))
+        .first(&*conn)
+        .expect("Failed to get user from database");
+    {
+        use crate::schema::relation_group_user::dsl::*;
+        insert_into(relation_group_user)
+            .values(&NewRelationGroupUser {
+                group_id: 0,
+                user_id: user.id,
+            })
+            .execute(&*conn)
+            .expect("Failed to insert new relation into database");
+    }
+
+    cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
+
+    Redirect::to(format!("/users/{}", user.id))
 }
 
 /// GET handler for `/login`
