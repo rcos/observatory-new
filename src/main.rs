@@ -86,6 +86,7 @@ fn main() {
                 staticfile,
                 favicon,
                 dashboard,
+                sitemap,
                 // Calendar
                 calendar,
                 calendar_json,

@@ -59,10 +59,8 @@ pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
 /// GET handler for `/sitemap`
 #[get("/sitemap")]
 pub fn sitemap() -> SitemapTemplate {
-    SitemapTemplate {
-    }
+    SitemapTemplate {}
 }
-
 
 // The access point for rust-embed.
 // For some reason it doesn't like having doc-comments on it.
