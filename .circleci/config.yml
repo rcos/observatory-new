@@ -11,11 +11,11 @@ jobs:
 
     - run:
         name: Nightly Build
-        command: cargo build --all
+        command: "cargo build --all"
 
     - run:
         name: Unit Tests
-        command: cargo test --all
+        command: "cargo test --all"
 
     - save_cache:
       key: observatory-cache
