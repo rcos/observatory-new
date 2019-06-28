@@ -11,10 +11,7 @@ jobs:
 
     - run:
         name: Nightly Build
-        command: |
-          rustc --version --verbose
-          cargo --version --verbose
-          cargo build --all
+        command: cargo build --all
 
     - run:
         name: Unit Tests
