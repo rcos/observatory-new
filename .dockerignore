@@ -1,6 +1,8 @@
 # Unwanted folders
 target/
+scripts/
 .git/
+.circleci/
 
 # Dockerfile
 Dockerfile
