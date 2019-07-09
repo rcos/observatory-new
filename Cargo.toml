@@ -14,7 +14,7 @@ rand = "^0.7.0"
 reqwest = "^0.9.16"
 rocket = "^0.4.1"
 rss = "^1.7.0"
-rust-embed = "^4.3.0"
+rust-embed = "^5.0.1"
 
 # By using * we match the library versions
 regex = "*"
