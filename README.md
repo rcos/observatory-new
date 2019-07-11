@@ -1,4 +1,5 @@
 # Observatory-new
+[![CircleCI](https://circleci.com/gh/rcos/observatory-new.svg?style=svg)](https://circleci.com/gh/rcos/observatory-new)
 
 <img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
@@ -41,7 +42,6 @@ However the Rust official tooling does not support the generic `nightly` target
 so I suggest using the latest dated version of `nightly` that the [RLS](https://github.com/rust-lang/rls)
 supports. You can check that [on this page](https://rust-lang.github.io/rustup-components-history/)
 and can install it with the following command. **Make sure to run this in the `observatory-new` folder.**
-up to date.
 
 ```
 $ rustup override set nightly-YYYY-MM-DD
