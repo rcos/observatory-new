@@ -166,7 +166,7 @@ pub fn group_user_add(
 
 #[derive(FromForm)]
 pub struct AddUserForm {
-    uid: i32,
+    uid: Option<i32>,
 }
 
 #[post("/groups/<gid>/members/add", data = "<form>")]
@@ -185,14 +185,19 @@ pub fn group_user_add_post(
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
         use crate::schema::relation_group_user::dsl::*;
-        insert_into(relation_group_user)
-            .values(&NewRelationGroupUser {
-                group_id: g.id,
-                user_id: form.into_inner().uid,
-            })
-            .execute(&*conn)
-            .expect("Failed to insert new relation into database");
-        Ok(Redirect::to(format!("/groups/{}", gid)))
+
+        if let Some(uid) = form.into_inner().uid {
+            insert_into(relation_group_user)
+                .values(&NewRelationGroupUser {
+                    group_id: g.id,
+                    user_id: uid,
+                })
+                .execute(&*conn)
+                .expect("Failed to insert new relation into database");
+            Ok(Redirect::to(format!("/groups/{}", gid)))
+        } else {
+            Ok(Redirect::to("/"))
+        }
     } else {
         Err(Status::Unauthorized)
     }
