@@ -39,6 +39,7 @@ mod guards;
 mod handlers;
 mod schema;
 mod templates;
+#[cfg(test)] mod tests;
 
 // Table Modules
 mod attend;
@@ -56,12 +57,7 @@ mod users;
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
-/// The main function that starts the program
-///
-/// This is the standard `main` function that acts as the start of the program.
-/// Here it loads Rocket, sets it up with the fairings and handlers,
-/// then launches the server.
-fn main() {
+pub fn rocket() -> rocket::Rocket {
     // Load all the handlers
     use handlers::*;
 
@@ -157,8 +153,16 @@ fn main() {
                 story_edit_put,
             ],
         )
-        // Liftoff! Starts the webserver
-        .launch();
+}
+
+/// The main function that starts the program
+///
+/// This is the standard `main` function that acts as the start of the program.
+/// Here it loads Rocket, sets it up with the fairings and handlers,
+/// then launches the server.
+fn main() {
+    // Liftoff! Starts the webserver
+    rocket().launch();
 }
 
 /// Top-level module containing all the models.
