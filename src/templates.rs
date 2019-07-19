@@ -113,8 +113,10 @@ pub enum FormError {
     PasswordMismatch,
     /// The email is already in use by another user
     EmailExists,
-    /// The github handel is already in use by another user
+    /// The github handle is already in use by another user
     GitExists,
+    /// The mattermost handle is already in use by another user
+    MmostExists,
     /// An attendance code does not exist or is used by a non-affiliated member
     InvalidCode,
     /// A date field was the wrong format invalid
@@ -138,6 +140,7 @@ impl fmt::Display for FormError {
                 FormError::PasswordMismatch => "mismatch",
                 FormError::EmailExists => "emailExists",
                 FormError::GitExists => "gitExists",
+                FormError::MmostExists => "mmostExists",
                 FormError::InvalidCode => "code",
                 FormError::InvalidDate => "date",
                 FormError::Other => "other",
@@ -156,6 +159,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "mismatch" => FormError::PasswordMismatch,
             "emailExists" => FormError::EmailExists,
             "gitExists" => FormError::GitExists,
+            "mmostExists" => FormError::MmostExists, 
             "code" => FormError::InvalidCode,
             "date" => FormError::InvalidDate,
             "other" => FormError::Other,

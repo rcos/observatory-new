@@ -87,6 +87,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
         return Redirect::to(format!("/signup?e={}", FormError::EmailExists));
     }
 
+    // Check if user's github is already signed up
     if users
         .filter(&handle.eq(&*newuser.handle))
         .first::<User>(&*conn)
@@ -95,6 +96,17 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
         .is_some()
     {
         return Redirect::to(format!("/signup?e={}", FormError::GitExists));
+    }
+
+    // Check if user's mattermost is already signed up
+    if users
+        .filter(&mmost.eq(&*newuser.mmost))
+        .first::<User>(&*conn)  
+        .optional()
+        .expect("Failed to get user from database")
+        .is_some()
+    {
+        return Redirect::to(format!("/signup?e={}", FormError::MmostExists));
     }
 
     // Insert the new user into the database
