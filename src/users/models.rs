@@ -15,6 +15,7 @@ pub struct User {
     pub active: bool,
     pub joined_on: NaiveDateTime,
     pub tier: i32,
+    pub mmost: String,
 }
 
 #[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
@@ -28,6 +29,7 @@ pub struct NewUser {
     pub email: String,
     pub tier: i32,
     pub active: bool,
+    pub mmost: String,
 }
 
 use crate::models::Attendable;
