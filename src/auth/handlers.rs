@@ -34,6 +34,7 @@ pub struct SignUpForm {
     password_repeat: String,
     real_name: String,
     handle: String,
+    mmost: String,
 }
 
 impl From<SignUpForm> for NewUser {
@@ -43,6 +44,7 @@ impl From<SignUpForm> for NewUser {
         newuser.email = f.email;
         newuser.real_name = f.real_name;
         newuser.handle = f.handle;
+        newuser.mmost = f.mmost;
 
         let newsalt = gen_salt();
         newuser.salt = newsalt.clone();
@@ -50,6 +52,7 @@ impl From<SignUpForm> for NewUser {
 
         newuser.tier = 0;
         newuser.active = true;
+
 
         return newuser;
     }
