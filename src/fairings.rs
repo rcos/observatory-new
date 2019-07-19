@@ -110,6 +110,7 @@ impl Fairing for AdminCheck {
                 email: admin.email,
                 tier: admin.tier,
                 active: admin.active,
+                mmost: admin.mmost,
             };
 
             use diesel::update;
