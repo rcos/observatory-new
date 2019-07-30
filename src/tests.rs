@@ -7,6 +7,10 @@ use rocket::http::Status;
 use rocket::local::Client;
 use std::fs;
 
+#[derive(RustEmbed)]
+#[folder = "static/"]
+struct Embed;
+
 // Get all handlers in case we need to test other functions
 pub use crate::attend::handlers::*;
 pub use crate::auth::handlers::*;
@@ -33,6 +37,7 @@ fn check_static_content() {
     assert!(response.body().is_some());
     let body_str = response.body_string().unwrap();
     assert!(body_str.contains("chat.rcos.io"));
+    Embed::get("img/favicon.webp").unwrap();
 }
 
 #[test]
@@ -74,6 +79,7 @@ fn add_user() {
         email: String::from("doej@test-rcos.io"),
         tier: 0,
         active: true,
+        mmost: String::from("JDMM"),
     };
 
     insert_into(users)
