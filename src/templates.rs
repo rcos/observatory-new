@@ -159,7 +159,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "mismatch" => FormError::PasswordMismatch,
             "emailExists" => FormError::EmailExists,
             "gitExists" => FormError::GitExists,
-            "mmostExists" => FormError::MmostExists, 
+            "mmostExists" => FormError::MmostExists,
             "code" => FormError::InvalidCode,
             "date" => FormError::InvalidDate,
             "other" => FormError::Other,

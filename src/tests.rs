@@ -50,7 +50,8 @@ fn add_user() {
         .expect("File Creation Error");
 
     let _client = Client::new(rocket()).unwrap();
-    let conn_url = _client.rocket()
+    let conn_url = _client
+        .rocket()
         .config()
         .get_table("databases")
         .unwrap()
@@ -103,7 +104,9 @@ fn add_user() {
     }
 
     assert_eq!("JD1".to_string(), user.handle);
-    fs::remove_file("./observ.sqlite").ok().expect("File Deletion Error");
+    fs::remove_file("./observ.sqlite")
+        .ok()
+        .expect("File Deletion Error");
     fs::rename("./observ.sqlite.backup", "./observ.sqlite")
         .ok()
         .expect("File Renaming Error");

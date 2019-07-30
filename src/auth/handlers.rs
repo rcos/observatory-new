@@ -53,7 +53,6 @@ impl From<SignUpForm> for NewUser {
         newuser.tier = 0;
         newuser.active = true;
 
-
         return newuser;
     }
 }
@@ -101,7 +100,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
     // Check if user's mattermost is already signed up
     if users
         .filter(&mmost.eq(&*newuser.mmost))
-        .first::<User>(&*conn)  
+        .first::<User>(&*conn)
         .optional()
         .expect("Failed to get user from database")
         .is_some()
