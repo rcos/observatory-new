@@ -39,7 +39,8 @@ mod guards;
 mod handlers;
 mod schema;
 mod templates;
-#[cfg(test)] mod tests;
+#[cfg(test)]
+mod tests;
 
 // Table Modules
 mod attend;
