@@ -6,6 +6,7 @@ use diesel::prelude::*;
 use rocket::http::Status;
 use rocket::local::Client;
 use std::fs;
+use std::path::Path;
 
 #[derive(RustEmbed)]
 #[folder = "static/"]
@@ -42,9 +43,14 @@ fn check_static_content() {
 
 #[test]
 fn add_user() {
-    fs::rename("./observ.sqlite", "./observ.sqlite.backup")
-        .ok()
-        .expect("File Renaming Error");
+    let mut db_exists = false;
+    if Path::new("./observ.sqlite").is_file() {
+        fs::rename("./observ.sqlite", "./observ.sqlite.backup")
+            .ok()
+            .expect("File Renaming Error");
+        db_exists = true;
+    }
+
     fs::File::create("./observ.sqlite")
         .ok()
         .expect("File Creation Error");
@@ -107,7 +113,10 @@ fn add_user() {
     fs::remove_file("./observ.sqlite")
         .ok()
         .expect("File Deletion Error");
-    fs::rename("./observ.sqlite.backup", "./observ.sqlite")
-        .ok()
-        .expect("File Renaming Error");
+    
+    if db_exists {
+        fs::rename("./observ.sqlite.backup", "./observ.sqlite")
+            .ok()
+            .expect("File Renaming Error");
+    }
 }
