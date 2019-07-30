@@ -32,6 +32,8 @@ FROM alpine
 # Set the workdir
 WORKDIR /
 
+USER root
+
 # Create the user's home folder and move to it
 RUN mkdir -p /home/observatory
 WORKDIR /home/observatory
@@ -43,7 +45,7 @@ RUN adduser -h /home/observatory -S observatory
 RUN mkdir -p /var/lib/observatory
 
 # Change the owner of the database folder
-RUN chown -R observatory /var/lib/observatory
+RUN chown -R observatory /var/lib/observatory/
 
 # Switch to the user
 USER observatory

@@ -3,25 +3,23 @@ version: 2
 jobs:
   build:
     docker:
-    - image: rust:nightly
-  steps:
-    - checkout
-    - restore_cache:
-        key: observatory-cache
+      - image: rustlang/rust:nightly
 
-    - run:
-        name: Nightly Build
-        command: |
-          rustc --version --verbose
-          cargo --version --verbose
-          cargo build --all
+    steps:
+      - checkout
+      - restore_cache:
+          key: observatory-cache
 
-    - run:
-        name: Unit Tests
-        command: cargo test --all
+      - run:
+          name: Nightly Build
+          command: "cargo build --all"
 
-    - save_cache:
-      key: observatory-cache
-      paths:
-        - "~/.cargo"
-        - "./target"
+      - run:
+          name: Unit Tests
+          command: "cargo test --all"
+
+      - save_cache:
+          key: observatory-cache
+          paths:
+            - "~/.cargo"
+            - "./target"

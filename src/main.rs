@@ -83,6 +83,7 @@ pub fn rocket() -> rocket::Rocket {
                 staticfile,
                 favicon,
                 dashboard,
+                sitemap,
                 // Calendar
                 calendar,
                 calendar_json,

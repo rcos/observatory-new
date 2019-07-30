@@ -55,6 +55,14 @@ pub struct DashboardTemplate {
     pub summary: GradeSummary,
 }
 
+/// Site Map template
+///
+/// HTML File: `sitemap.html`
+
+#[derive(Template)]
+#[template(path = "sitemap.html")]
+pub struct SitemapTemplate {}
+
 //# Catcher Templates
 
 /// 403 error template
@@ -104,7 +112,11 @@ pub enum FormError {
     /// The password and it's repeat are not the same
     PasswordMismatch,
     /// The email is already in use by another user
-    UserExists,
+    EmailExists,
+    /// The github handle is already in use by another user
+    GitExists,
+    /// The mattermost handle is already in use by another user
+    MmostExists,
     /// An attendance code does not exist or is used by a non-affiliated member
     InvalidCode,
     /// A date field was the wrong format invalid
@@ -126,7 +138,9 @@ impl fmt::Display for FormError {
                 FormError::Password => "password",
                 FormError::Credentials => "credentials",
                 FormError::PasswordMismatch => "mismatch",
-                FormError::UserExists => "exists",
+                FormError::EmailExists => "emailExists",
+                FormError::GitExists => "gitExists",
+                FormError::MmostExists => "mmostExists",
                 FormError::InvalidCode => "code",
                 FormError::InvalidDate => "date",
                 FormError::Other => "other",
@@ -143,7 +157,9 @@ impl<T: AsRef<str>> From<T> for FormError {
             "password" => FormError::Password,
             "credentials" => FormError::Credentials,
             "mismatch" => FormError::PasswordMismatch,
-            "exists" => FormError::UserExists,
+            "emailExists" => FormError::EmailExists,
+            "gitExists" => FormError::GitExists,
+            "mmostExists" => FormError::MmostExists, 
             "code" => FormError::InvalidCode,
             "date" => FormError::InvalidDate,
             "other" => FormError::Other,

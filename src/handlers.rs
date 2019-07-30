@@ -56,6 +56,12 @@ pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
     }
 }
 
+/// GET handler for `/sitemap`
+#[get("/sitemap")]
+pub fn sitemap() -> SitemapTemplate {
+    SitemapTemplate {}
+}
+
 // The access point for rust-embed.
 // For some reason it doesn't like having doc-comments on it.
 #[derive(RustEmbed)]
@@ -68,6 +74,11 @@ struct Embed;
 /// However they are still embedded into the binary so be careful.
 // Make sure to increment the length if you add something
 const BLACKLIST: [&str; 1] = ["README.md"];
+
+#[test]
+fn test_static_files() {
+    Embed::get("img/favicon.webp").unwrap();
+}
 
 /// GET handler for static files
 ///
