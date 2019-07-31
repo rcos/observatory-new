@@ -75,11 +75,6 @@ struct Embed;
 // Make sure to increment the length if you add something
 const BLACKLIST: [&str; 1] = ["README.md"];
 
-#[test]
-fn test_static_files() {
-    Embed::get("img/favicon.webp").unwrap();
-}
-
 /// GET handler for static files
 ///
 /// Any file in the `static/` directory can be accessed through this just
