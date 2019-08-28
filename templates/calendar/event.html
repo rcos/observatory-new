@@ -32,7 +32,7 @@
 {% match logged_in %}
 {% when Some with (u) %}
 {% if u.tier > 0 || u.id == event.hosted_by %}
-<h3>Code <code>{{ event.code }}</code></h3>
+<h3>Code <code>{{ event.code }}</code><small><a href="/big?text={{ event.code }}">View Larger</a></small></h3>
 {% endif %}
 {% when None %}
 {% endmatch %}
