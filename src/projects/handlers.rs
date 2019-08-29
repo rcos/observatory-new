@@ -400,7 +400,7 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
     repos = repos
         .iter()
         .filter(|s| re.is_match(&s))
-        .map(|s| String::from(re.replace(s, "https://api.github.com/repos/$2/commits")))
+        .map(|s| String::from(re.replace(s, "https://api.github.com/repos/$2/commits?per_page=100")))
         .collect();
 
     // If no GitHub repos
