@@ -113,7 +113,7 @@ fn add_user() {
     fs::remove_file("./observ.sqlite")
         .ok()
         .expect("File Deletion Error");
-    
+
     if db_exists {
         fs::rename("./observ.sqlite.backup", "./observ.sqlite")
             .ok()

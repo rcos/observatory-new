@@ -92,7 +92,7 @@ table! {
         active -> Bool,
         joined_on -> Timestamp,
         tier -> Integer,
-        mmost -> Text,
+        mmost -> Nullable<Text>,
     }
 }
 

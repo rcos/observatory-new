@@ -22,11 +22,9 @@ CREATE TABLE users (
     -- 1 mentor
     -- 2 coordinator
     -- 3 the special Admin user
-    tier INTEGER NOT NULL DEFAULT 0,
-    -- User's Matermost handle
-    mmost TEXT NOT NULL UNIQUE
+    tier INTEGER NOT NULL DEFAULT 0
 );
 
 -- Create a special admin user that cannot be logged into
-INSERT INTO users (id, real_name, handle, email, password_hash, salt, bio, active, joined_on, tier, mmost)
-VALUES (0, "Admin", "admin", "admin@rcos.io", "", "", "The Admin account for Observatory", 1, 0, 3, "admin");
+INSERT INTO users (id, real_name, handle, email, password_hash, salt, bio, active, joined_on, tier)
+VALUES (0, "Admin", "admin", "admin@rcos.io", "", "", "The Admin account for Observatory", 1, 0, 3);
