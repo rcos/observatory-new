@@ -48,6 +48,7 @@ table! {
         title -> Text,
         description -> Text,
         color -> Nullable<Text>,
+        announcement -> Bool,
     }
 }
 

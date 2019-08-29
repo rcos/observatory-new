@@ -21,7 +21,7 @@ pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
     NewsTemplate {
         logged_in: l.user(),
         stories: news
-            .order(happened_at.asc())
+            .order(happened_at.desc())
             .load(&*conn)
             .expect("Failed to get news from database"),
     }
@@ -31,7 +31,7 @@ pub fn news(conn: ObservDbConn, l: MaybeLoggedIn) -> NewsTemplate {
 pub fn news_json(conn: ObservDbConn, _l: MaybeLoggedIn) -> Json<Vec<NewsStory>> {
     use crate::schema::news::dsl::*;
     Json(
-        news.order(happened_at.asc())
+        news.order(happened_at.desc())
             .load(&*conn)
             .expect("Failed to get news from database"),
     )
@@ -183,7 +183,7 @@ pub fn news_summary(conn: &SqliteConnection) -> (Vec<Event>, Vec<NewsStory>) {
             use crate::schema::events::dsl::*;
             let now = chrono::offset::Local::now().format("%F %R").to_string();
             events
-                .order(start.asc())
+                .order(start.desc())
                 .filter(start.gt(now))
                 .limit(5)
                 .load(&*conn)
@@ -191,7 +191,7 @@ pub fn news_summary(conn: &SqliteConnection) -> (Vec<Event>, Vec<NewsStory>) {
         },
         {
             use crate::schema::news::dsl::*;
-            news.order(happened_at.asc())
+            news.order(happened_at.desc())
                 .limit(5)
                 .load(&*conn)
                 .expect("Failed to get news from database")

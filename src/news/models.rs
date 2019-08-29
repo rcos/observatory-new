@@ -10,6 +10,7 @@ pub struct NewsStory {
     pub title: String,
     pub description: String,
     pub color: Option<String>,
+    pub announcement: bool,
 }
 
 #[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
@@ -19,6 +20,7 @@ pub struct NewNewsStory {
     pub title: String,
     pub description: String,
     pub color: Option<String>,
+    pub announcement: bool,
 }
 
 impl NewNewsStory {

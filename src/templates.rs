@@ -7,6 +7,7 @@
 //! by a handler since they can be rendered to HTML.
 
 use crate::models::User;
+use crate::news::models::NewsStory;
 
 /// Companion to `MaybeLoggedIn`
 ///
@@ -20,6 +21,7 @@ pub type OptUser = Option<User>;
 #[template(path = "index.html")]
 pub struct IndexTemplate {
     pub logged_in: OptUser,
+    pub announcement: Option<NewsStory>,
     pub version: &'static str,
 }
 

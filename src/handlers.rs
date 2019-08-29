@@ -27,9 +27,19 @@ pub use crate::users::handlers::*;
 ///
 /// The index page of the site
 #[get("/")]
-pub fn index(l: MaybeLoggedIn) -> IndexTemplate {
+pub fn index(conn: ObservDbConn, l: MaybeLoggedIn) -> IndexTemplate {
     IndexTemplate {
         logged_in: l.user(),
+        announcement: {
+            use crate::news::models::NewsStory;
+            use crate::schema::news::dsl::*;
+            use diesel::prelude::*;
+            news.filter(announcement.eq(true))
+                .order(happened_at.desc())
+                .first::<NewsStory>(&*conn)
+                .optional()
+                .expect("Failed to get latest annoucement from news table of database")
+        },
         version: env!("CARGO_PKG_VERSION"),
     }
 }
