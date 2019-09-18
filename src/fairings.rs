@@ -148,9 +148,6 @@ impl Fairing for ConfigWrite {
         }
 
         println!("\tRocket.toml does not exist, generating...");
-        println!(
-            "\tWARNING: If you set your secret_key via enviroment variable it will be overwritten!"
-        );
 
         conf.set_root(".");
 
@@ -190,12 +187,21 @@ impl Fairing for ConfigWrite {
 
         // If in production mode generate and set a secret key
         let s = if rocket.config().environment.is_prod() {
-            // Generate a new secret key
-            let s = gen_secret();
+            // Check if there was an environment variable one
+            let s = if let Some((_, value)) = std::env::vars().find(|(k, _)| k == "ROCKET_SECRET_KEY") {
+                println!("\tUsing secret key from ROCKET_SECRET_KEY environment variable");
+                value 
+            } else {
+                // Generate a new secret key
+                println!("\tGenerating new secret key");
+                gen_secret()
+            };
             // Set the key in the config
             conf.set_secret_key(s.clone()).unwrap();
             s
         } else {
+            // If we're not in production mode we don't care about
+            // the secret key so just use a blank string
             String::new()
         };
         // Write the config with the key to a file
@@ -235,7 +241,7 @@ fn write_config(conf: &rocket::Config, secret: &String) -> std::io::Result<()> {
 
     // Get the extra fields like the databases and add them
     outstring += &format!(
-        "databases = {{ sqlite_observ = {{ url = {} }} }}",
+        "databases = {{ sqlite_observ = {{ url = \"{}\", pool_size = 20 }} }}",
         conf.extras
             .get("databases")
             .unwrap()
