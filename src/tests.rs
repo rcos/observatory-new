@@ -107,7 +107,7 @@ fn cleanup(test_name : String) {
 fn launch() {
     let config = setup(String::from("test_launch"));
 
-    let _client = Client::new(rocket(true, config)).unwrap();
+    let _client = Client::new(rocket(config)).unwrap();
     let conn_url = create_connection_url(&_client);
 
     let conn = SqliteConnection::establish(conn_url.as_str())
@@ -124,7 +124,7 @@ fn launch() {
 fn check_static_content() {
     let config = setup(String::from("test_static_content"));
 
-    let _client = Client::new(rocket(true, config)).unwrap();
+    let _client = Client::new(rocket(config)).unwrap();
     let conn_url = create_connection_url(&_client);
 
     let conn = SqliteConnection::establish(conn_url.as_str())
@@ -146,7 +146,7 @@ fn check_static_content() {
 fn add_user() {
     let config = setup(String::from("test_add_user"));
 
-    let _client = Client::new(rocket(true, config)).unwrap();
+    let _client = Client::new(rocket(config)).unwrap();
     let conn_url = create_connection_url(&_client);
 
     let conn = SqliteConnection::establish(conn_url.as_str())

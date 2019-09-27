@@ -58,14 +58,14 @@ mod users;
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
-pub fn rocket(is_test : bool, test_config : Option<rocket::Config>) -> rocket::Rocket {
+pub fn rocket(test_config : Option<rocket::Config>) -> rocket::Rocket {
     // Load all the handlers
     use handlers::*;
 
     // Load the fairings
     use fairings::{AdminCheck, ConfigWrite, DatabaseCreate};
 
-    let app = if is_test {
+    let app = if test_config.is_some() {
         rocket::custom(test_config.unwrap())
     } else {
         rocket::ignite()
@@ -169,7 +169,7 @@ pub fn rocket(is_test : bool, test_config : Option<rocket::Config>) -> rocket::R
 /// then launches the server.
 fn main() {
     // Liftoff! Starts the webserver
-    rocket(false, None).launch();
+    rocket(None).launch();
 }
 
 /// Top-level module containing all the models.
