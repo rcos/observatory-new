@@ -7,6 +7,8 @@ use rocket::http::Status;
 use rocket::local::Client;
 use std::fs;
 use std::path::Path;
+use std::collections::HashMap;
+use rocket::config::{Config, Environment, Value, LoggingLevel};
 
 #[derive(RustEmbed)]
 #[folder = "static/"]
@@ -24,39 +26,10 @@ pub use crate::users::handlers::*;
 // Embed the Migrations into the binary
 embed_migrations!("migrations/sqlite");
 
-#[test]
-fn launch() {
-    let _client = Client::new(rocket()).unwrap();
-    let response = _client.get("/").dispatch();
-    assert_eq!(response.status(), Status::Ok);
-}
+// Static connection variable
 
-#[test]
-fn check_static_content() {
-    let _client = Client::new(rocket()).unwrap();
-    let mut response = _client.get("/").dispatch();
-    assert!(response.body().is_some());
-    let body_str = response.body_string().unwrap();
-    assert!(body_str.contains("chat.rcos.io"));
-    Embed::get("img/favicon.webp").unwrap();
-}
-
-#[test]
-fn add_user() {
-    let mut db_exists = false;
-    if Path::new("./observ.sqlite").is_file() {
-        fs::rename("./observ.sqlite", "./observ.sqlite.backup")
-            .ok()
-            .expect("File Renaming Error");
-        db_exists = true;
-    }
-
-    fs::File::create("./observ.sqlite")
-        .ok()
-        .expect("File Creation Error");
-
-    let _client = Client::new(rocket()).unwrap();
-    let conn_url = _client
+fn create_connection_url(client : &rocket::local::Client) -> String {
+    return String::from(client
         .rocket()
         .config()
         .get_table("databases")
@@ -66,9 +39,117 @@ fn add_user() {
         .get("url")
         .unwrap()
         .as_str()
+        .unwrap());
+}
+
+fn setup(test_name : String) -> Option<rocket::Config> {
+    let mut db_path = String::from("./");
+    db_path.push_str(test_name.as_str());
+    db_path.push_str("/");
+
+    let db_path_exists = Path::new(db_path.as_str()).is_dir();
+
+    if !db_path_exists {
+        fs::create_dir(db_path.as_str())
+            .ok()
+            .expect("Dir Creation Error");
+    }
+
+
+    let mut db_file_path = String::from(db_path.as_str());
+    db_file_path.push_str(test_name.as_str());
+    db_file_path.push_str(".sqlite");
+
+    let db_file_exists = Path::new(db_file_path.as_str()).is_file();
+    
+    if !db_file_exists {
+        fs::File::create(db_file_path.as_str())
+            .ok()
+            .expect("File Creation Error");
+    }
+
+    let mut database_config = HashMap::new();
+    let mut databases = HashMap::new();
+    database_config.insert("url", Value::from(db_file_path.as_str()));
+    databases.insert("sqlite_observ", Value::from(database_config));
+
+    let config = Config::build(Environment::Development)
+        .root("/")
+        .address("localhost")
+        .port(8000)
+        .log_level(LoggingLevel::Normal)
+        .extra("databases", databases)
+        .finalize()
         .unwrap();
 
-    let conn = SqliteConnection::establish(conn_url)
+    Some(config)
+}
+
+fn cleanup(test_name : String) {
+    let mut db_path_string = String::from("./");
+    db_path_string.push_str(test_name.as_str());
+    db_path_string.push_str("/");
+
+    let mut db_file_string = String::from(db_path_string.as_str());
+    db_file_string.push_str(test_name.as_str());
+    db_file_string.push_str(".sqlite");
+
+    fs::remove_file(db_file_string)
+        .ok()
+        .expect("File Deletion Error");
+    
+    fs::remove_dir(db_path_string)
+        .ok()
+        .expect("Dir Deletion Error");
+}
+
+#[test]
+fn launch() {
+    let config = setup(String::from("test_launch"));
+
+    let _client = Client::new(rocket(config)).unwrap();
+    let conn_url = create_connection_url(&_client);
+
+    let conn = SqliteConnection::establish(conn_url.as_str())
+        .expect("Failed to connect to database in LaunchTest");
+    embedded_migrations::run(&conn).expect("Failed to run embedded migrations");
+
+    let response = _client.get("/").dispatch();
+    assert_eq!(response.status(), Status::Ok);
+
+    cleanup(String::from("test_launch"));
+}
+
+#[test]
+fn check_static_content() {
+    let config = setup(String::from("test_static_content"));
+
+    let _client = Client::new(rocket(config)).unwrap();
+    let conn_url = create_connection_url(&_client);
+
+    let conn = SqliteConnection::establish(conn_url.as_str())
+        .expect("Failed to connect to database in StaticContentTest");
+    embedded_migrations::run(&conn).expect("Failed to run embedded migrations");
+
+    let mut response = _client.get("/").dispatch();
+    assert!(response.body().is_some());
+
+    let body_str = response.body_string().unwrap();
+    assert!(body_str.contains("chat.rcos.io"));
+
+    Embed::get("img/favicon.webp").unwrap();
+
+    cleanup(String::from("test_static_content"));
+}
+
+#[test]
+fn add_user() {
+    let config = setup(String::from("test_add_user"));
+
+    let _client = Client::new(rocket(config)).unwrap();
+    let conn_url = create_connection_url(&_client);
+
+    let conn = SqliteConnection::establish(conn_url.as_str())
         .expect("Failed to connect to database in AddUserTest");
     embedded_migrations::run(&conn).expect("Failed to run embedded migrations");
 
@@ -110,13 +191,6 @@ fn add_user() {
     }
 
     assert_eq!("JD1".to_string(), user.handle);
-    fs::remove_file("./observ.sqlite")
-        .ok()
-        .expect("File Deletion Error");
-    
-    if db_exists {
-        fs::rename("./observ.sqlite.backup", "./observ.sqlite")
-            .ok()
-            .expect("File Renaming Error");
-    }
+
+    cleanup(String::from("test_add_user"));
 }
