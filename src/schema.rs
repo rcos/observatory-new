@@ -93,6 +93,8 @@ table! {
         joined_on -> Timestamp,
         tier -> Integer,
         mmost -> Text,
+        former -> Bool,
+        extrn -> Bool,
     }
 }
 
