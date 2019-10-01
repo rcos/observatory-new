@@ -11,7 +11,7 @@ databases = { sqlite_observ = { url = "./observ.sqlite" } }
 address = "0.0.0.0"
 port = 8000
 log = "critical"
-databases = { sqlite_observ = { url = "/var/lib/observatory/observ.sqlite" } }
+databases = { sqlite_observ = { url = "/var/lib/observatory/observ.sqlite", pool_size = 20 } }
 # Make sure to generate a secret key using:
 # `$ openssl rand -base64 32`
 # Put it here replacing the placeholder and uncomment
