@@ -11,6 +11,7 @@ pub struct Project {
     pub owner_id: i32,
     pub active: bool,
     pub repos: String,
+    pub extrn: bool,
 }
 
 #[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
@@ -21,6 +22,7 @@ pub struct NewProject {
     pub homepage: Option<String>,
     pub owner_id: i32,
     pub repos: String,
+    pub extrn: bool,
 }
 
 #[derive(Debug, PartialEq, Clone, Queryable, Associations, Identifiable)]

@@ -61,6 +61,7 @@ table! {
         owner_id -> Integer,
         active -> Bool,
         repos -> Text,
+        extrn -> Bool,
     }
 }
 
