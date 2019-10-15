@@ -38,17 +38,13 @@ Next install Rust with [Rustup](https://rustup.rs). Instructions are on the
 website linked and is fairly straightforward.
 
 Rocket requires Rust Nightly ([for now](https://github.com/SergioBenitez/Rocket/issues/19)).
-However the Rust official tooling does not support the generic `nightly` target
-so I suggest using the latest dated version of `nightly` that the [RLS](https://github.com/rust-lang/rls)
-supports. You can check that [on this page](https://rust-lang.github.io/rustup-components-history/)
-and can install it with the following command. **Make sure to run this in the `observatory-new` folder.**
-
+This can be set for the Observatory-new repository folder specifically by running
 ```
-$ rustup override set nightly-YYYY-MM-DD
+rustup override set nightly
 ```
-
-You have to manually keep this up to date, so every week or so run
-the command a gain with a newer date.
+in cloned folder.
+As of Rustup 1.20.0 this will automatically install the additional tools and can be updated
+with `rustup update`.
 
 After that it's as simple as
 ```
