@@ -194,6 +194,15 @@ pub fn group_user_add_post(
                 })
                 .execute(&*conn)
                 .expect("Failed to insert new relation into database");
+
+            let mut group_user_add_audit = String::from("User ");
+            group_user_add_audit.push_str(l.0.id.to_string().as_str());
+            group_user_add_audit.push_str(" has added User ");
+            group_user_add_audit.push_str(uid.to_string().as_str());
+            group_user_add_audit.push_str(" to Group ");
+            group_user_add_audit.push_str(g.id.to_string().as_str());
+            audit_logger!("{}", group_user_add_audit);
+            
             Ok(Redirect::to(format!("/groups/{}", gid)))
         } else {
             Ok(Redirect::to("/"))
