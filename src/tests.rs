@@ -168,6 +168,8 @@ fn add_user() {
         tier: 0,
         active: true,
         mmost: String::from("JDMM"),
+        former: false,
+        extrn: false,
     };
 
     insert_into(users)
