@@ -123,6 +123,15 @@ pub fn meeting_new_post(
     newmeeting.group_id = gid;
     newmeeting.code = attendance_code(&*conn);
 
+    let mut meeting_new_post_audit = String::from("User ");
+    meeting_new_post_audit.push_str(&*_l.0.id.to_string());
+    meeting_new_post_audit.push_str(" [");
+    meeting_new_post_audit.push_str(&_l.0.email);
+    meeting_new_post_audit.push_str("] has generated an attendance code for Group ");
+    meeting_new_post_audit.push_str(&*gid.to_string());
+
+    audit_logger!("{}", meeting_new_post_audit);
+
     insert_into(meetings)
         .values(&newmeeting)
         .execute(&*conn)

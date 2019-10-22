@@ -204,10 +204,19 @@ pub fn event_new_post(
     }
     newevent.code = attendance_code(&*conn);
 
+    let mut event_new_post_audit = String::from("User ");
+    event_new_post_audit.push_str(&*_admin.0.id.to_string());
+    event_new_post_audit.push_str(" [");
+    event_new_post_audit.push_str(&_admin.0.email);
+    event_new_post_audit.push_str("] has generated an attendance code for Event ");
+    event_new_post_audit.push_str(&newevent.title);
+
+    audit_logger!("{}", event_new_post_audit);
+
     insert_into(events)
         .values(&newevent)
         .execute(&*conn)
-        .expect("Failed to add user to database");
+        .expect("Failed to add event to database");
 
     Redirect::to("/calendar")
 }

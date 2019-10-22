@@ -1,0 +1,6 @@
+[2019-10-18 16:29:18.315190 -04:00] INFO [src/main.rs:207] Audit Logger Initialized!
+[2019-10-18 17:09:46.204073 -04:00] INFO [src/main.rs:207] Audit Logger Initialized!
+[2019-10-18 17:10:05.148190 -04:00] INFO [src/groups/handlers.rs:133] User 0 [admin@rcos.io] has generated an attendance code for Group 1
+[2019-10-18 17:14:21.125112 -04:00] INFO [src/main.rs:207] Audit Logger Initialized!
+[2019-10-18 17:16:49.936166 -04:00] INFO [src/main.rs:207] Audit Logger Initialized!
+[2019-10-18 17:17:22.632900 -04:00] INFO [src/calendar/handlers.rs:214] User 0 [admin@rcos.io] has generated an attendance code for Event Test Event 2
