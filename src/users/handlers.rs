@@ -228,7 +228,7 @@ pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize>
     Some(
         user_projects(conn, &user)
             .iter()
-            .map(|p| project_commits(conn, p).unwrap())
+            .filter_map(|p| project_commits(conn, p))
             .flatten()
             .collect::<Vec<serde_json::Value>>()
             .first()?
@@ -236,11 +236,11 @@ pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize>
             .iter()
             .filter(|c| {
                 c.get("author")
-                    .unwrap()
+                    .expect("Failed to get author from JSON")
                     .get("login")
-                    .unwrap()
+                    .expect("Failed to get login from JSON")
                     .as_str()
-                    .unwrap()
+                    .expect("Failed to convert to a string")
                     == user.handle
             })
             .count(),
