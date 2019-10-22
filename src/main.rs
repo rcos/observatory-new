@@ -58,7 +58,7 @@ mod users;
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
-pub fn rocket(test_config : Option<rocket::Config>) -> rocket::Rocket {
+pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
     // Load all the handlers
     use handlers::*;
 
@@ -70,7 +70,7 @@ pub fn rocket(test_config : Option<rocket::Config>) -> rocket::Rocket {
     } else {
         rocket::ignite()
     };
-    
+
     // Prepare webserver
     app.attach(ConfigWrite)
         // Attach fairings

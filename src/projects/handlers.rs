@@ -13,6 +13,28 @@ use crate::ObservDbConn;
 use super::models::*;
 use super::templates::*;
 
+/// GET handler for `/projects?s`
+/// Project list page with an optional search string,
+
+#[get("/projects?<s>")]
+pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+    ProjectsListTemplate {
+        logged_in: l.user(),
+        projects: filter_projects(&*conn, s),
+    }
+}
+
+/// GET handler for `/projects?s`
+/// Return JSON object of the project with an optional search string
+
+#[get("/projects.json?<s>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
+    Json(filter_projects(&*conn, s))
+}
+
+/// GET handler for `/projects/id`
+/// Gets an indivual project from the data base by its ID and returns its template
+
 #[get("/projects/<n>")]
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
@@ -31,6 +53,9 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
     })
 }
 
+/// GET handler for `/projects/name`
+/// Gets the ID of the project by its name and then redirects to the above function
+
 #[get("/projects/<n>", rank = 2)]
 pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Option<Redirect> {
     use crate::schema::projects::dsl::*;
@@ -43,12 +68,18 @@ pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Op
     Some(Redirect::to(format!("/projects/{}", p.id)))
 }
 
+/// GET handler for `/projects/new`
+/// Returns the new project template
+
 #[get("/projects/new")]
 pub fn project_new(l: UserGuard) -> NewProjectTemplate {
     NewProjectTemplate {
         logged_in: Some(l.0),
     }
 }
+
+/// POST `/project/new`
+/// Accepts the data from the new project template form and creates the project in the data base
 
 #[post("/projects/new", data = "<newproject>")]
 pub fn project_new_post(
@@ -57,8 +88,9 @@ pub fn project_new_post(
     newproject: Form<NewProject>,
 ) -> Redirect {
     let mut newproject = newproject.into_inner();
-    newproject.owner_id = l.0.id;
+    newproject.owner_id = l.0.id; // set owner to be the person who created the project
 
+    // handles the fact that projects can have multiple repos
     newproject.repos = serde_json::to_string(
         &serde_json::from_str::<Vec<String>>(&newproject.repos)
             .unwrap()
@@ -68,17 +100,20 @@ pub fn project_new_post(
     )
     .unwrap();
 
+    // inserts the project into the data base
     use crate::schema::projects::dsl::*;
     insert_into(projects)
         .values(&newproject)
         .execute(&*conn)
         .expect("Failed to insert project into database");
 
+    // retrieves the object from the database after creating it
     let p: Project = projects
-        .filter(name.eq(newproject.name))
+        .filter(name.eq(newproject.name)) // CHANGEME switch to id
         .first(&*conn)
         .expect("Failed to get project from database");
 
+    //creates the relation for the project owner
     use crate::schema::relation_project_user::dsl::*;
     insert_into(relation_project_user)
         .values(&NewRelationProjectUser {
@@ -90,6 +125,9 @@ pub fn project_new_post(
 
     Redirect::to(format!("/projects/{}", p.id))
 }
+
+/// GET handler for `/projects/edit`
+/// Get the project template for editing
 
 #[get("/projects/<h>/edit")]
 pub fn project_edit(
@@ -104,6 +142,8 @@ pub fn project_edit(
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
+
+    //checks to see what tier logged in user is or if there the owner
     if l.0.tier > 1 || p.owner_id == l.0.id {
         Ok(EditProjectTemplate {
             logged_in: Some(l.0),
@@ -117,6 +157,9 @@ pub fn project_edit(
         Err(Status::Unauthorized)
     }
 }
+
+/// PUT handler for `/projects/edit`
+/// Uploads the edits made to the projects template form
 
 #[put("/projects/<h>", data = "<editproject>")]
 pub fn project_edit_put(
@@ -142,6 +185,7 @@ pub fn project_edit_put(
         .first(&*conn)
         .expect("Failed to get project from database");
 
+    //checks to see what tier logged in user is or if there the owner so no one outside the project messes with it
     if l.0.tier > 1 || p.owner_id == l.0.id {
         update(projects.find(h))
             .set(&editproject)
@@ -152,6 +196,9 @@ pub fn project_edit_put(
         Err(Status::Unauthorized)
     }
 }
+
+/// DELETE handler for `/projects/h`
+/// Deletes relation from all users tied to the project then deletes the project
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
@@ -175,23 +222,16 @@ pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redire
     }
 }
 
-#[get("/projects?<s>")]
-pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
-    ProjectsListTemplate {
-        logged_in: l.user(),
-        projects: filter_projects(&*conn, s),
-    }
-}
-
-#[get("/projects.json?<s>")]
-pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
-    Json(filter_projects(&*conn, s))
-}
+/// GET handler for `/projects/h/members`
+/// Redirects to the projects page
 
 #[get("/projects/<h>/members")]
 pub fn project_members(h: i32) -> Redirect {
     Redirect::to(format!("/projects/{}", h))
 }
+
+/// GET handler for `/projects/h/members.json`
+/// Returns the JSON object of the members of the project
 
 #[get("/projects/<h>/members.json")]
 pub fn project_members_json(conn: ObservDbConn, h: i32) -> Json<Vec<User>> {
@@ -203,6 +243,9 @@ pub fn project_members_json(conn: ObservDbConn, h: i32) -> Json<Vec<User>> {
             .expect("Failed to get project from database")
     }))
 }
+
+/// GET handler for `/projects/h/members/add`
+/// Returns the member add page
 
 #[get("/projects/<h>/members/add")]
 pub fn project_member_add(
@@ -222,11 +265,13 @@ pub fn project_member_add(
 
     use crate::schema::users::dsl::*;
 
+    //checks to see what tier your logged into
     if l.0.tier > 0 || l.0.id == p.owner_id {
         Ok(AddUserTemplate {
             logged_in: Some(l.0),
             project: p,
             all_users: {
+                // gets a list of users not in the project
                 users
                     .load(&*conn)
                     .expect("Failed to get users from database")
@@ -241,10 +286,15 @@ pub fn project_member_add(
     }
 }
 
+///Form struct for user add
+
 #[derive(FromForm)]
 pub struct UserId {
     pub uid: i32,
 }
+
+///POST handler for `projects/h/members/add`
+/// This adds the user to the project form
 
 #[post("/projects/<h>/members/add", data = "<userid>")]
 pub fn project_member_add_post(
@@ -261,6 +311,7 @@ pub fn project_member_add_post(
             .expect("Failed to get project from database")
     };
 
+    //checks to see if your the right tier so you cant jsut send what you want
     if l.0.tier > 0 || l.0.id == p.owner_id {
         use crate::schema::relation_project_user::dsl::*;
         insert_into(relation_project_user)
@@ -275,6 +326,9 @@ pub fn project_member_add_post(
         Err(Status::Unauthorized)
     }
 }
+
+///DELETE handler for `projects/h/members/uid`
+/// Removes user relation from the project
 
 #[delete("/projects/<h>/members/<uid>")]
 pub fn project_member_delete(
@@ -303,6 +357,9 @@ pub fn project_member_delete(
     }
 }
 
+///GET handler for `projects/h/members/join`
+/// Returns the join page for a particular project
+
 #[get("/projects/<h>/members/join")]
 pub fn project_join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
     use crate::schema::projects::dsl::*;
@@ -314,6 +371,9 @@ pub fn project_join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
             .expect("Failed to get project from database"),
     }
 }
+
+///POST handler for `projects/h/members/join`
+/// The User confirms they want to join the project user relation added to project database
 
 #[post("/projects/<h>/members/join")]
 pub fn project_join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
@@ -339,6 +399,8 @@ pub fn project_join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Red
         Err(Status::Conflict)
     }
 }
+
+//# Helper Functions
 
 pub fn project_repos(p: &Project) -> Vec<String> {
     serde_json::from_str(&p.repos).unwrap()
