@@ -16,7 +16,7 @@ pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn At
     if let Some(e) = {
         use crate::schema::events::dsl::*;
         events
-            .filter(code.eq(vcode))
+            .filter(code.eq(vcode.to_lowercase()))
             .first::<Event>(conn)
             .optional()
             .expect("Failed to get events from database")
@@ -26,7 +26,7 @@ pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn At
         if let Some(m) = {
             use crate::schema::meetings::dsl::*;
             meetings
-                .filter(code.eq(vcode))
+                .filter(code.eq(vcode.to_lowercase()))
                 .first::<Meeting>(conn)
                 .optional()
                 .expect("Failed to get meetings from database")
