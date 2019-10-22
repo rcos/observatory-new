@@ -352,7 +352,7 @@ pub fn project_member_delete(
 }
 
 ///GET handler for `projects/h/members/join`
-/// Returns the join page for a patricular project
+/// Returns the join page for a particular project
 
 #[get("/projects/<h>/members/join")]
 pub fn project_join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {

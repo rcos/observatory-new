@@ -17,7 +17,7 @@ pub struct Project {
     pub homepage: Option<String>,
     /// ID of the student that owns the project
     pub owner_id: i32,
-    /// Checks if this an old project that is being worked on this semester
+    /// Checks if this is a project that is currently being worked on this semester
     pub active: bool,
     /// Link the Project repository
     pub repos: String,
