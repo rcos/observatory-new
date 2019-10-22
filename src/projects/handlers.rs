@@ -154,16 +154,26 @@ pub fn project_edit_put(
 }
 
 #[delete("/projects/<h>")]
-pub fn project_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
-    use crate::schema::relation_project_user::dsl::*;
-    delete(relation_project_user.filter(project_id.eq(h)))
-        .execute(&*conn)
-        .expect("Failed to delete relations from database");
+pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
     use crate::schema::projects::dsl::*;
-    delete(projects.find(h))
-        .execute(&*conn)
-        .expect("Failed to delete project from database");
-    Redirect::to("/projects")
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
+
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        use crate::schema::relation_project_user::dsl::*;
+        delete(relation_project_user.filter(project_id.eq(h)))
+            .execute(&*conn)
+            .expect("Failed to delete relations from database");
+        use crate::schema::projects::dsl::*;
+        delete(projects.find(h))
+            .execute(&*conn)
+            .expect("Failed to delete project from database");
+        Ok(Redirect::to("/projects"))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 #[get("/projects?<s>")]
@@ -400,7 +410,9 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
     repos = repos
         .iter()
         .filter(|s| re.is_match(&s))
-        .map(|s| String::from(re.replace(s, "https://api.github.com/repos/$2/commits?per_page=100")))
+        .map(|s| {
+            String::from(re.replace(s, "https://api.github.com/repos/$2/commits?per_page=100"))
+        })
         .collect();
 
     // If no GitHub repos
