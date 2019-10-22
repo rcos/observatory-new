@@ -166,7 +166,6 @@ pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redire
         delete(relation_project_user.filter(project_id.eq(h)))
             .execute(&*conn)
             .expect("Failed to delete relations from database");
-        use crate::schema::projects::dsl::*;
         delete(projects.find(h))
             .execute(&*conn)
             .expect("Failed to delete project from database");
