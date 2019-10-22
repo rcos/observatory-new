@@ -188,9 +188,11 @@ impl Fairing for ConfigWrite {
         // If in production mode generate and set a secret key
         let s = if rocket.config().environment.is_prod() {
             // Check if there was an environment variable one
-            let s = if let Some((_, value)) = std::env::vars().find(|(k, _)| k == "ROCKET_SECRET_KEY") {
+            let s = if let Some((_, value)) =
+                std::env::vars().find(|(k, _)| k == "ROCKET_SECRET_KEY")
+            {
                 println!("\tUsing secret key from ROCKET_SECRET_KEY environment variable");
-                value 
+                value
             } else {
                 // Generate a new secret key
                 println!("\tGenerating new secret key");

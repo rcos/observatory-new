@@ -32,7 +32,6 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>
     Json(filter_projects(&*conn, s))
 }
 
-
 /// GET handler for `/projects/id`
 /// Gets an indivual project from the data base by its ID and returns its template
 
@@ -79,7 +78,7 @@ pub fn project_new(l: UserGuard) -> NewProjectTemplate {
     }
 }
 
-/// POST `/project/new` 
+/// POST `/project/new`
 /// Accepts the data from the new project template form and creates the project in the data base
 
 #[post("/projects/new", data = "<newproject>")]
@@ -91,7 +90,7 @@ pub fn project_new_post(
     let mut newproject = newproject.into_inner();
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
 
-	// handles the fact that projects can have multiple repos
+    // handles the fact that projects can have multiple repos
     newproject.repos = serde_json::to_string(
         &serde_json::from_str::<Vec<String>>(&newproject.repos)
             .unwrap()
@@ -100,7 +99,7 @@ pub fn project_new_post(
             .collect::<Vec<&String>>(),
     )
     .unwrap();
-	
+
     // inserts the project into the data base
     use crate::schema::projects::dsl::*;
     insert_into(projects)
@@ -108,13 +107,13 @@ pub fn project_new_post(
         .execute(&*conn)
         .expect("Failed to insert project into database");
 
-	// retrieves the object from the database after creating it
+    // retrieves the object from the database after creating it
     let p: Project = projects
         .filter(name.eq(newproject.name)) // CHANGEME switch to id
         .first(&*conn)
         .expect("Failed to get project from database");
-		
-	//creates the relation for the project owner
+
+    //creates the relation for the project owner
     use crate::schema::relation_project_user::dsl::*;
     insert_into(relation_project_user)
         .values(&NewRelationProjectUser {
@@ -143,7 +142,7 @@ pub fn project_edit(
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
-		
+
     //checks to see what tier logged in user is or if there the owner
     if l.0.tier > 1 || p.owner_id == l.0.id {
         Ok(EditProjectTemplate {
@@ -185,7 +184,7 @@ pub fn project_edit_put(
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
-		
+
     //checks to see what tier logged in user is or if there the owner so no one outside the project messes with it
     if l.0.tier > 1 || p.owner_id == l.0.id {
         update(projects.find(h))
@@ -203,20 +202,19 @@ pub fn project_edit_put(
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
-	//first part deletes user relation from the project 
+    //first part deletes user relation from the project
     use crate::schema::relation_project_user::dsl::*;
     delete(relation_project_user.filter(project_id.eq(h)))
         .execute(&*conn)
         .expect("Failed to delete relations from database");
-	// this section deletes the project
+    // this section deletes the project
     use crate::schema::projects::dsl::*;
     delete(projects.find(h))
         .execute(&*conn)
         .expect("Failed to delete project from database");
-		
+
     Redirect::to("/projects")
 }
-
 
 /// GET handler for `/projects/h/members`
 /// Redirects to the projects page
@@ -260,14 +258,14 @@ pub fn project_member_add(
     let pu = project_users(&*conn, &p);
 
     use crate::schema::users::dsl::*;
-	
-	//checks to see what tier your logged into
+
+    //checks to see what tier your logged into
     if l.0.tier > 0 || l.0.id == p.owner_id {
         Ok(AddUserTemplate {
             logged_in: Some(l.0),
             project: p,
             all_users: {
-				// gets a list of users not in the project
+                // gets a list of users not in the project
                 users
                     .load(&*conn)
                     .expect("Failed to get users from database")
@@ -306,8 +304,8 @@ pub fn project_member_add_post(
             .first(&*conn)
             .expect("Failed to get project from database")
     };
-	
-	//checks to see if your the right tier so you cant jsut send what you want
+
+    //checks to see if your the right tier so you cant jsut send what you want
     if l.0.tier > 0 || l.0.id == p.owner_id {
         use crate::schema::relation_project_user::dsl::*;
         insert_into(relation_project_user)
@@ -396,7 +394,6 @@ pub fn project_join_post(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Red
     }
 }
 
-
 //# Helper Functions
 
 pub fn project_repos(p: &Project) -> Vec<String> {
@@ -468,7 +465,9 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
     repos = repos
         .iter()
         .filter(|s| re.is_match(&s))
-        .map(|s| String::from(re.replace(s, "https://api.github.com/repos/$2/commits?per_page=100")))
+        .map(|s| {
+            String::from(re.replace(s, "https://api.github.com/repos/$2/commits?per_page=100"))
+        })
         .collect();
 
     // If no GitHub repos

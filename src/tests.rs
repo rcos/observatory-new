@@ -3,12 +3,12 @@ use crate::auth::crypto::*;
 use crate::models::*;
 use diesel::insert_into;
 use diesel::prelude::*;
+use rocket::config::{Config, Environment, LoggingLevel, Value};
 use rocket::http::Status;
 use rocket::local::Client;
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
-use std::collections::HashMap;
-use rocket::config::{Config, Environment, Value, LoggingLevel};
 
 #[derive(RustEmbed)]
 #[folder = "static/"]
@@ -28,21 +28,23 @@ embed_migrations!("migrations/sqlite");
 
 // Static connection variable
 
-fn create_connection_url(client : &rocket::local::Client) -> String {
-    return String::from(client
-        .rocket()
-        .config()
-        .get_table("databases")
-        .unwrap()
-        .get("sqlite_observ")
-        .unwrap()
-        .get("url")
-        .unwrap()
-        .as_str()
-        .unwrap());
+fn create_connection_url(client: &rocket::local::Client) -> String {
+    return String::from(
+        client
+            .rocket()
+            .config()
+            .get_table("databases")
+            .unwrap()
+            .get("sqlite_observ")
+            .unwrap()
+            .get("url")
+            .unwrap()
+            .as_str()
+            .unwrap(),
+    );
 }
 
-fn setup(test_name : String) -> Option<rocket::Config> {
+fn setup(test_name: String) -> Option<rocket::Config> {
     let mut db_path = String::from("./");
     db_path.push_str(test_name.as_str());
     db_path.push_str("/");
@@ -55,13 +57,12 @@ fn setup(test_name : String) -> Option<rocket::Config> {
             .expect("Dir Creation Error");
     }
 
-
     let mut db_file_path = String::from(db_path.as_str());
     db_file_path.push_str(test_name.as_str());
     db_file_path.push_str(".sqlite");
 
     let db_file_exists = Path::new(db_file_path.as_str()).is_file();
-    
+
     if !db_file_exists {
         fs::File::create(db_file_path.as_str())
             .ok()
@@ -85,7 +86,7 @@ fn setup(test_name : String) -> Option<rocket::Config> {
     Some(config)
 }
 
-fn cleanup(test_name : String) {
+fn cleanup(test_name: String) {
     let mut db_path_string = String::from("./");
     db_path_string.push_str(test_name.as_str());
     db_path_string.push_str("/");
@@ -97,7 +98,7 @@ fn cleanup(test_name : String) {
     fs::remove_file(db_file_string)
         .ok()
         .expect("File Deletion Error");
-    
+
     fs::remove_dir(db_path_string)
         .ok()
         .expect("Dir Deletion Error");
