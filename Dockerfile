@@ -9,37 +9,36 @@
 # --- Docker Build Stage 1 ---
 
 # Pulls from the MUSL builder since we are going to target Alpine Linux
-FROM ekidd/rust-musl-builder:nightly as builder
+FROM rustlang/rust:nightly as builder
 
 # Copy in all the source files and switch to it
 COPY . /build/
 WORKDIR /build/
 
-# Fix permissions on source code.
-RUN sudo chown -R rust:rust /build/
-
 # Build the project in release mode
 RUN cargo build --release
 
 # Strip debug symbols out of binary
-RUN strip /build/target/x86_64-unknown-linux-musl/release/observatory
+RUN strip /build/target/release/observatory
 
 # --- Docker Build Stage 2 ---
 
 # Use Alpine Linux for it's small footprint.
-FROM alpine
+FROM debian:stable-slim
 
 # Set the workdir
 WORKDIR /
 
 USER root
 
-# Create the user's home folder and move to it
-RUN mkdir -p /home/observatory
-WORKDIR /home/observatory
+# Install OpenSSL
+RUN apt-get -qq update && apt-get -qq install openssl -y 
 
 # Create a new user
-RUN adduser -h /home/observatory -S observatory
+RUN useradd -md /home/observatory -r observatory
+
+# Create the user's home folder and move to it
+WORKDIR /home/observatory
 
 # Create the folder that the database will be in
 RUN mkdir -p /var/lib/observatory
@@ -51,7 +50,7 @@ RUN chown -R observatory /var/lib/observatory/
 USER observatory
 
 # Copy in the binary from the builder
-COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory .
+COPY --from=builder /build/target/release/observatory .
 
 # Expose the HTTP port
 EXPOSE 8000
