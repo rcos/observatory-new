@@ -111,6 +111,8 @@ impl Fairing for AdminCheck {
                 tier: admin.tier,
                 active: admin.active,
                 mmost: admin.mmost,
+                former: admin.former,
+                extrn: admin.extrn,
             };
 
             use diesel::update;

@@ -61,6 +61,7 @@ table! {
         owner_id -> Integer,
         active -> Bool,
         repos -> Text,
+        extrn -> Bool,
     }
 }
 
@@ -93,6 +94,8 @@ table! {
         joined_on -> Timestamp,
         tier -> Integer,
         mmost -> Text,
+        former -> Bool,
+        extrn -> Bool,
     }
 }
 

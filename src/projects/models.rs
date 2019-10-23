@@ -21,6 +21,7 @@ pub struct Project {
     pub active: bool,
     /// Link the Project repository
     pub repos: String,
+    pub extrn: bool,
 }
 
 /// New Project Template
@@ -39,6 +40,7 @@ pub struct NewProject {
     pub owner_id: i32,
     /// Link to the Project Repository
     pub repos: String,
+    pub extrn: bool,
 }
 
 /// Student Relation to the Project
