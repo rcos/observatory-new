@@ -8,7 +8,7 @@
 
 # --- Docker Build Stage 1 ---
 
-# Pulls from the MUSL builder since we are going to target Alpine Linux
+# Uses the official rust nightly builder
 FROM rustlang/rust:nightly as builder
 
 # Copy in all the source files and switch to it
@@ -23,13 +23,11 @@ RUN strip /build/target/release/observatory
 
 # --- Docker Build Stage 2 ---
 
-# Use Alpine Linux for it's small footprint.
+# Use Debian Slim for it's small footprint.
 FROM debian:stable-slim
 
 # Set the workdir
 WORKDIR /
-
-USER root
 
 # Install OpenSSL
 RUN apt-get -qq update && apt-get -qq install openssl -y 
