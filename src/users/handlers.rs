@@ -234,14 +234,12 @@ pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize>
             .first()?
             .as_array()?
             .iter()
-            .filter(|c| {
-                c.get("author")
-                    .expect("Failed to get author from JSON")
-                    .get("login")
-                    .expect("Failed to get login from JSON")
-                    .as_str()
-                    .expect("Failed to convert to a string")
-                    == user.handle
+            .filter_map(|c| {
+                if c.get("author")?.get("login")?.as_str()? == user.handle {
+                    Some(c)
+                } else {
+                    None
+                }
             })
             .count(),
     )
