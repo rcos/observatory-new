@@ -1,3 +1,4 @@
+use crate::auth::crypto::UnsafeBinaryString;
 use crate::schema::*;
 use chrono::NaiveDateTime;
 
@@ -8,9 +9,9 @@ pub struct User {
     pub handle: String,
     pub email: String,
     #[serde(skip)]
-    pub password_hash: String,
+    pub password_hash: UnsafeBinaryString,
     #[serde(skip)]
-    pub salt: String,
+    pub salt: UnsafeBinaryString,
     pub bio: String,
     pub active: bool,
     pub joined_on: NaiveDateTime,
@@ -25,8 +26,8 @@ pub struct User {
 pub struct NewUser {
     pub real_name: String,
     pub handle: String,
-    pub password_hash: String,
-    pub salt: String,
+    pub password_hash: UnsafeBinaryString,
+    pub salt: UnsafeBinaryString,
     pub bio: String,
     pub email: String,
     pub tier: i32,

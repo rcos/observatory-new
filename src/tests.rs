@@ -156,8 +156,8 @@ fn add_user() {
 
     use crate::schema::users::dsl::*;
     let pass = String::from("thisisapassword");
-    let psalt = gen_salt();
-    let phash = hash_password(pass, &psalt);
+
+    let (phash, psalt) = hash_password(pass).both();
 
     let nu = NewUser {
         real_name: String::from("John Doe"),

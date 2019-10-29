@@ -84,8 +84,9 @@ pub fn user_edit_put(
             edituser.salt = esalt;
             edituser.password_hash = phash;
         } else {
-            edituser.salt = gen_salt();
-            edituser.password_hash = hash_password(edituser.password_hash, &edituser.salt);
+            let (phash, psalt) = hash_password(edituser.password_hash).both();
+            edituser.password_hash = phash;
+            edituser.salt = psalt;
         }
 
         // if the logged in user can't change tiers
