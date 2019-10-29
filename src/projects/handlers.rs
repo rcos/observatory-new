@@ -201,19 +201,25 @@ pub fn project_edit_put(
 /// Deletes relation from all users tied to the project then deletes the project
 
 #[delete("/projects/<h>")]
-pub fn project_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
-    //first part deletes user relation from the project
-    use crate::schema::relation_project_user::dsl::*;
-    delete(relation_project_user.filter(project_id.eq(h)))
-        .execute(&*conn)
-        .expect("Failed to delete relations from database");
-    // this section deletes the project
+pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
     use crate::schema::projects::dsl::*;
-    delete(projects.find(h))
-        .execute(&*conn)
-        .expect("Failed to delete project from database");
+    let p: Project = projects
+        .find(h)
+        .first(&*conn)
+        .expect("Failed to get project from database");
 
-    Redirect::to("/projects")
+    if l.0.tier > 1 || p.owner_id == l.0.id {
+        use crate::schema::relation_project_user::dsl::*;
+        delete(relation_project_user.filter(project_id.eq(h)))
+            .execute(&*conn)
+            .expect("Failed to delete relations from database");
+        delete(projects.find(h))
+            .execute(&*conn)
+            .expect("Failed to delete project from database");
+        Ok(Redirect::to("/projects"))
+    } else {
+        Err(Status::Unauthorized)
+    }
 }
 
 /// GET handler for `/projects/h/members`
@@ -352,7 +358,7 @@ pub fn project_member_delete(
 }
 
 ///GET handler for `projects/h/members/join`
-/// Returns the join page for a patricular project
+/// Returns the join page for a particular project
 
 #[get("/projects/<h>/members/join")]
 pub fn project_join(conn: ObservDbConn, l: UserGuard, h: i32) -> JoinTemplate {
@@ -475,15 +481,24 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
         return None;
     }
 
-    // Get the commits and return them
+    // Get the commits and return them, filtering out errors
     Some(
         repos
             .iter()
-            .map(|s| {
-                reqwest::get(s)
-                    .expect("Failed to get response from GitHub")
-                    .json::<serde_json::Value>()
-                    .expect("Failed to parse from JSON")
+            .filter_map(|s| {
+                let res = reqwest::get(s);
+                if res.is_ok() {
+                    if let Ok(json) = res
+                        .expect("Failed to get response from GitHub")
+                        .json::<serde_json::Value>()
+                    {
+                        Some(json)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
             })
             .collect(),
     )
