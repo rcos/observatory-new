@@ -1,4 +1,7 @@
+//! Models for groups
 //!
+//! Groups are stored in the `groups` table where each row is a group member
+//! or a meeting 
 
 use chrono::NaiveDateTime;
 
@@ -6,6 +9,7 @@ use crate::models::Attendable;
 use crate::models::User;
 use crate::schema::*;
 
+/// Models a group in the database
 #[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Serialize)]
 pub struct Group {
     pub id: i32,
@@ -14,6 +18,7 @@ pub struct Group {
     pub location: Option<String>,
 }
 
+/// Used to create a new group in the database
 #[derive(Debug, Default, Clone, FromForm, Insertable, AsChangeset)]
 #[table_name = "groups"]
 pub struct NewGroup {
@@ -22,6 +27,7 @@ pub struct NewGroup {
     pub location: Option<String>,
 }
 
+/// Models a meeting in the database
 #[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Associations, Serialize)]
 #[belongs_to(Group)]
 pub struct Meeting {
@@ -63,6 +69,7 @@ impl Attendable for Meeting {
     }
 }
 
+/// Used to create a new meeting in the database
 #[derive(Debug, Default, Clone, FromForm, Insertable)]
 #[table_name = "meetings"]
 pub struct NewMeeting {
@@ -70,6 +77,7 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
+/// Models the identification info of a group member
 #[derive(Debug, PartialEq, Clone, Queryable, Associations, Identifiable)]
 #[belongs_to(Group)]
 #[belongs_to(User)]
@@ -80,6 +88,7 @@ pub struct RelationGroupUser {
     pub user_id: i32,
 }
 
+/// Used to create a new ID number for a group member
 #[derive(Debug, Default, Clone, Insertable)]
 #[table_name = "relation_group_user"]
 pub struct NewRelationGroupUser {
