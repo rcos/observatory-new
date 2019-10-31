@@ -46,7 +46,7 @@ impl From<SignUpForm> for NewUser {
         newuser.handle = f.handle;
         newuser.mmost = f.mmost;
 
-        let (pass, salt) = hash_password(f.password).both();
+        let (pass, salt) = hash_password(f.password);
         newuser.salt = salt;
         newuser.password_hash = pass;
 

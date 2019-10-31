@@ -84,7 +84,7 @@ pub fn user_edit_put(
             edituser.salt = esalt;
             edituser.password_hash = phash;
         } else {
-            let (phash, psalt) = hash_password(edituser.password_hash).both();
+            let (phash, psalt) = hash_password(edituser.password_hash);
             edituser.password_hash = phash;
             edituser.salt = psalt;
         }

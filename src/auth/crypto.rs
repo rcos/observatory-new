@@ -5,60 +5,62 @@
 
 use ring::rand::{SecureRandom, SystemRandom};
 use ring::{digest, pbkdf2};
+use rocket::http::RawStr;
+use rocket::request::FromFormValue;
 
 const N_ITER: u32 = 100000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
 
-/// This is a simple type around String to alert
-/// other developers that this is an unsafe string.
-/// Do not attempt to parse or otherwise do anything with this string.
-/// It is exclusively used by the cryptography systems for database
-/// compatability within `HashedPassword` and the `User` struct.
-pub type UnsafeBinaryString = String;
+/// A newtype struct wrapping around a `String`
+/// that is used by a number of cryptography functions
+/// in order to be compatible with SQLite.
+/// The type itself exists so that it is not possible to accidentally
+/// use it as if it were a string, providing far more safety.
+#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, DieselNewType)]
+pub struct UnsafeBinaryString(String);
 
-/// Structure containing the result of a cryptographically hashed password.
-/// This allows us to handle them more safely and avoid using unsafe
-/// strings as much as possible.
-/// This also makes the resulting API more elegant and easier to use.
-///
-/// The methods on this struct are unsafe code
-/// (currently the only in the project)
-/// due to Diesel requiring that the password hash and salt to be strings.
-pub struct HashedPassword {
-    pass: Vec<u8>,
-    salt: Vec<u8>,
+impl UnsafeBinaryString {
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
 
-impl HashedPassword {
-    /// Returns the hashed password as an `UnsafeBinaryString`
-    ///
-    /// This function returns an **invalid string** of bytes.
-    /// Do not attempt to parse or otherwise do anything with this string.
-    pub fn pass(&self) -> UnsafeBinaryString {
-        unsafe { String::from_utf8_unchecked(self.pass.clone()) }
+impl Default for UnsafeBinaryString {
+    fn default() -> Self {
+        Self(String::new())
     }
+}
 
-    /// Returns the password's salt as an `UnsafeBinaryString`
-    ///
-    /// This function returns an **invalid string** of bytes.
-    /// Do not attempt to parse or otherwise do anything with this string.
-    pub fn salt(&self) -> UnsafeBinaryString {
-        unsafe { String::from_utf8_unchecked(self.salt.clone()) }
+impl<T> From<T> for UnsafeBinaryString
+where
+    T: AsRef<[u8]>,
+{
+    fn from(f: T) -> Self {
+        unsafe { Self(String::from_utf8_unchecked(f.as_ref().to_vec())) }
     }
+}
 
-    /// Returns the a tuple containing both the password hash and the salt,
-    /// in that order. Useful for pattern matching.
-    ///
-    /// This function returns an **invalid string** of bytes.
-    /// Do not attempt to parse or otherwise do anything with this string.
-    pub fn both(&self) -> (UnsafeBinaryString, UnsafeBinaryString) {
-        (self.pass(), self.salt())
+impl<'v> FromFormValue<'v> for UnsafeBinaryString {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<Self, &'v RawStr> {
+        Ok(Self(form_value.to_string()))
+    }
+}
+
+impl AsRef<str> for UnsafeBinaryString {
+    fn as_ref(&self) -> &str {
+        &*self.0
     }
 }
 
 /// Encrypt a password and return a `HashedPassword` struct
 /// which can be used to get the hash and salt directly.
-pub fn hash_password(pass: String) -> HashedPassword {
+pub fn hash_password<T: AsRef<str>>(pass: T) -> (UnsafeBinaryString, UnsafeBinaryString) {
     // Generate the password salt
     let rng = SystemRandom::new();
     let mut salt = [0u8; CRE_LEN];
@@ -70,15 +72,15 @@ pub fn hash_password(pass: String) -> HashedPassword {
         &digest::SHA512,
         N_ITER,
         &salt as &[u8],
-        pass.as_bytes(),
+        pass.as_ref().as_bytes(),
         &mut out,
     );
 
     // Return a HashedPassword struct
-    HashedPassword {
-        pass: out.to_vec(),
-        salt: salt.to_vec(),
-    }
+    (
+        UnsafeBinaryString::from(out),
+        UnsafeBinaryString::from(salt),
+    )
 }
 
 /// Verify that a password is correct
