@@ -58,6 +58,7 @@ table! {
         name -> Text,
         description -> Text,
         homepage -> Nullable<Text>,
+        proposal -> Nullable<Text>,
         owner_id -> Integer,
         active -> Bool,
         repos -> Text,
