@@ -481,15 +481,24 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
         return None;
     }
 
-    // Get the commits and return them
+    // Get the commits and return them, filtering out errors
     Some(
         repos
             .iter()
-            .map(|s| {
-                reqwest::get(s)
-                    .expect("Failed to get response from GitHub")
-                    .json::<serde_json::Value>()
-                    .expect("Failed to parse from JSON")
+            .filter_map(|s| {
+                let res = reqwest::get(s);
+                if res.is_ok() {
+                    if let Ok(json) = res
+                        .expect("Failed to get response from GitHub")
+                        .json::<serde_json::Value>()
+                    {
+                        Some(json)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
             })
             .collect(),
     )

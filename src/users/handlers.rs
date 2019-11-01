@@ -133,9 +133,10 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>) -> Vec<User> 
 
     if let Some(term) = term {
         let sterm = format!("%{}%", term);
+        let email_term = format!("%{}@", term);
         let filter = real_name
             .like(&sterm)
-            .or(email.like(&sterm))
+            .or(email.like(&email_term))
             .or(handle.like(&sterm));
         users.filter(filter).load(conn)
     } else {
@@ -234,14 +235,12 @@ pub fn user_commits_count(conn: &SqliteConnection, user: &User) -> Option<usize>
             .first()?
             .as_array()?
             .iter()
-            .filter(|c| {
-                c.get("author")
-                    .expect("Failed to get author from JSON")
-                    .get("login")
-                    .expect("Failed to get login from JSON")
-                    .as_str()
-                    .expect("Failed to convert to a string")
-                    == user.handle
+            .filter_map(|c| {
+                if c.get("author")?.get("login")?.as_str()? == user.handle {
+                    Some(c)
+                } else {
+                    None
+                }
             })
             .count(),
     )
