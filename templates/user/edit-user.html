@@ -38,6 +38,17 @@
             {% endif %}>
         <label class="custom-control-label" for="active">Active User</label>
     </div>
+    <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="former" name="former" {% if user.former %} checked
+            {% endif %}>
+        <label class="custom-control-label" for="former">Former Member</label>
+    </div>
+    <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="extrn" name="extrn" {% if user.extrn %} checked
+            {% endif %}>
+        <label class="custom-control-label" for="extrn">External Member</label>
+    </div>
+    <br>
     {% match logged_in %}
     {% when Some with (u) %}
     {% if u.tier > 1 && user.id != 0 %}

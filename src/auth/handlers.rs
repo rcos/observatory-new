@@ -53,6 +53,9 @@ impl From<SignUpForm> for NewUser {
         newuser.tier = 0;
         newuser.active = true;
 
+        newuser.former = false;
+        newuser.extrn = false;
+
         return newuser;
     }
 }
