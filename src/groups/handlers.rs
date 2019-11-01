@@ -78,7 +78,7 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
 
     use crate::schema::groups::dsl::id;
     let gid = groups
-        .filter(name.eq(newgroup.name).and(owner_id.eq(newgroup.owner_id)))
+        .filter(name.eq(&*newgroup.name).and(owner_id.eq(newgroup.owner_id)))
         .select(id)
         .first(&*conn)
         .expect("Failed to get group from database");
@@ -91,6 +91,19 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
         })
         .execute(&*conn)
         .expect("Failed to insert relation into database");
+
+    let mut group_new_post_audit = String::from("User ");
+    group_new_post_audit.push_str(&*_l.0.id.to_string());
+    group_new_post_audit.push_str(" [");
+    group_new_post_audit.push_str(_l.0.email.as_str());
+    group_new_post_audit.push_str("] has created Group ");
+    group_new_post_audit.push_str(&*gid.to_string());
+    group_new_post_audit.push_str(" [");
+    group_new_post_audit.push_str(&*newgroup.name);
+    group_new_post_audit.push_str("]");
+
+    audit_logger!("{}", group_new_post_audit);
+
     Redirect::to("/groups")
 }
 
@@ -210,8 +223,9 @@ pub fn group_user_add_post(
             group_user_add_audit.push_str(uid.to_string().as_str());
             group_user_add_audit.push_str(" to Group ");
             group_user_add_audit.push_str(g.id.to_string().as_str());
+
             audit_logger!("{}", group_user_add_audit);
-            
+
             Ok(Redirect::to(format!("/groups/{}", gid)))
         } else {
             Ok(Redirect::to("/"))

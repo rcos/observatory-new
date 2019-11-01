@@ -64,8 +64,8 @@ mod news;
 mod projects;
 mod users;
 
+use flexi_logger::{opt_format, writers::FileLogWriter, LogTarget, Logger};
 use log::*;
-use flexi_logger::{Logger, LogTarget, writers::FileLogWriter, opt_format};
 
 /// The database connection
 ///
@@ -74,20 +74,27 @@ use flexi_logger::{Logger, LogTarget, writers::FileLogWriter, opt_format};
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
 
-pub fn audit_writer() -> Box<FileLogWriter> {
-    Box::new(FileLogWriter::builder()
-        .discriminant("audit")
-        .suffix("log")
-        .format(opt_format)
-        .suppress_timestamp()
-        .directory("logs")
-        .append()
-        .print_message()
-        .try_build()
-        .unwrap())
+fn audit_writer() -> Box<FileLogWriter> {
+    Box::new(
+        FileLogWriter::builder()
+            .discriminant("audit")
+            .suffix("log")
+            .format(opt_format)
+            .suppress_timestamp()
+            .directory("logs")
+            .append()
+            .print_message()
+            .try_build()
+            .unwrap(),
+    )
 }
 
-pub fn rocket(test_config : Option<rocket::Config>) -> rocket::Rocket {
+/*pub fn audit(action: &str, uid1: Option<i32>, uid2: Option<i32>, gid: Option<i32>, eid: Option<i32>) {
+    let mut test_str = ["abc ", 1.to_string().as_str(), " def"].concat();
+    audit_logger!("{}", test_str);
+}*/
+
+pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
     // Load all the handlers
     use handlers::*;
 
@@ -99,7 +106,7 @@ pub fn rocket(test_config : Option<rocket::Config>) -> rocket::Rocket {
     } else {
         rocket::ignite()
     };
-    
+
     // Prepare webserver
     app.attach(ConfigWrite)
         // Attach fairings
@@ -203,7 +210,9 @@ fn main() {
         .add_writer("Audit", audit_writer())
         .start()
         .unwrap_or_else(|e| panic!("Logger initialization failed with {}", e));
-    
+
+    // audit("Look at me", Some(1), Some(2), Some(3));
+
     audit_logger!("Audit Logger Initialized!");
 
     // Liftoff! Starts the webserver
