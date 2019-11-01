@@ -29,7 +29,15 @@
     <div>Member since: {{ user.joined_on }}</div>
     <div>Former Member?: {{ user.former }}</div>
     <div>RCOS Member?: {{ !user.extrn }}</div>
-
+	
+	{% if user.tier == 1 %}
+	<div> User Status: Mentor </div>
+	{% else if user.tier == 2 %}
+	<div> User Status: Coordinator </div>
+	{% else if user.tier == 3 %}
+	<div> User Status: Administrator </div>
+	{% endif %}
+	
     <h2>Bio</h2>
     <p>{{ user.bio|e|md|safe }}</p>
 
