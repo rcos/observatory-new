@@ -32,6 +32,8 @@ extern crate rust_embed;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel_migrations;
+#[macro_use]
+extern crate diesel_derive_newtype;
 
 // Module files
 mod fairings;

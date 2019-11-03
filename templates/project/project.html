@@ -29,9 +29,18 @@
 {% endblock %}
 
 {% block content %}
+
 {% match project.homepage %}
 {% when Some with (val) %}
 <a href="{{ val }}">Homepage</a>
+{% when None %}
+{% endmatch %}
+
+<br>
+
+{% match project.proposal %}
+{% when Some with (val) %}
+<a href="{{ val }}">Proposal Document</a>
 {% when None %}
 {% endmatch %}
 

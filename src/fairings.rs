@@ -97,8 +97,7 @@ impl Fairing for AdminCheck {
                 pass
             );
 
-            let psalt = gen_salt();
-            let phash = hash_password(pass, &psalt);
+            let (phash, psalt) = hash_password(pass);
 
             // Needs to be a NewUser for set() so create it
             let nu = NewUser {
