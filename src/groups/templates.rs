@@ -51,7 +51,7 @@ pub struct EditGroupTemplate {
     pub logged_in: OptUser,
     /// Group that uses this template
     pub group: Group,
-    List of all users in group
+    /// List of all users in group
     pub all_users: Vec<User>,
 }
 
