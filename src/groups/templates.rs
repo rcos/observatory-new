@@ -14,9 +14,13 @@ use crate::models::User;
 #[derive(Template)]
 #[template(path = "group/group.html")]
 pub struct GroupTemplate {
+    /// Login information for the group
     pub logged_in: OptUser,
+    /// Group that uses this template
     pub group: Group,
+    /// Users this template is for
     pub users: Vec<User>,
+    /// Meetings this group has had
     pub meetings: Vec<Meeting>,
 }
 
@@ -29,7 +33,9 @@ pub struct GroupTemplate {
 #[derive(Template)]
 #[template(path = "group/new-group.html")]
 pub struct NewGroupTemplate {
+    /// Login information for the group
     pub logged_in: OptUser,
+    /// List of all users in group
     pub all_users: Vec<User>,
 }
 
@@ -41,8 +47,11 @@ pub struct NewGroupTemplate {
 #[derive(Template)]
 #[template(path = "group/edit-group.html")]
 pub struct EditGroupTemplate {
+    /// Login information for the group
     pub logged_in: OptUser,
+    /// Group that uses this template
     pub group: Group,
+    List of all users in group
     pub all_users: Vec<User>,
 }
 
@@ -55,6 +64,7 @@ pub struct EditGroupTemplate {
 #[template(path = "group/groups-list.html")]
 pub struct GroupsListTemplate {
     pub logged_in: OptUser,
+    /// LOgin information for the group
     pub groups: Vec<Group>,
 }
 
