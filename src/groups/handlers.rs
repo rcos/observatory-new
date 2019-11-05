@@ -1,3 +1,5 @@
+//! HTTP handlers for the calendar
+
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update};
 use rocket::http::Status;
@@ -12,6 +14,7 @@ use crate::ObservDbConn;
 use super::models::*;
 use super::templates::*;
 
+/// GET handler for `/groups/<gid>`
 #[get("/groups/<gid>")]
 pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> Option<GroupTemplate> {
     use crate::schema::groups::dsl::*;
@@ -34,6 +37,9 @@ pub fn group(conn: ObservDbConn, l: UserGuard, gid: i32) -> Option<GroupTemplate
     })
 }
 
+/// GET handler for `/groups`
+///
+/// Returns a list of groups
 #[get("/groups")]
 pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
     use crate::schema::groups::dsl::*;
@@ -45,6 +51,9 @@ pub fn groups(conn: ObservDbConn, l: MentorGuard) -> GroupsListTemplate {
     }
 }
 
+/// GET handler for `/groups.json`
+///
+/// JSON endpoint that returns the list of groups as a single JSON array
 #[get("/groups.json")]
 pub fn groups_json(conn: ObservDbConn, _l: MentorGuard) -> Json<Vec<Group>> {
     use crate::schema::groups::dsl::*;
@@ -55,6 +64,9 @@ pub fn groups_json(conn: ObservDbConn, _l: MentorGuard) -> Json<Vec<Group>> {
     )
 }
 
+/// GET handler for `/groups/new`
+///
+/// Creates a new group list and populates it with users
 #[get("/groups/new")]
 pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
     use crate::schema::users::dsl::*;
@@ -66,6 +78,11 @@ pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
     }
 }
 
+/// POST handler for `/groups/new`
+///
+/// Creates a new group list. For use with `newgroup`.
+///
+/// Restricted to Admins
 #[post("/groups/new", data = "<newgroup>")]
 pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
     let newgroup = newgroup.into_inner();
@@ -94,11 +111,13 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
     Redirect::to("/groups")
 }
 
+/// GET handler for `/groups/<gid>/meetings`
 #[get("/groups/<gid>/meetings")]
 pub fn meetings(gid: i32) -> Redirect {
     Redirect::to(format!("/groups/{}", gid))
 }
 
+/// GET handler for `/groups/<gid>/meetings.json`
 #[get("/groups/<gid>/meetings.json")]
 pub fn meetings_json(conn: ObservDbConn, _l: MentorGuard, gid: i32) -> Json<Vec<Meeting>> {
     use crate::schema::meetings::dsl::*;
@@ -110,6 +129,9 @@ pub fn meetings_json(conn: ObservDbConn, _l: MentorGuard, gid: i32) -> Json<Vec<
     )
 }
 
+/// POST handler for `/groups/<gid>/meetings/new`
+///
+/// Records a new meeting
 #[post("/groups/<gid>/meetings/new", data = "<newmeeting>")]
 pub fn meeting_new_post(
     conn: ObservDbConn,
@@ -138,6 +160,9 @@ pub fn meeting_new_post(
     Redirect::to(format!("/groups/{}", gid))
 }
 
+/// GET handler for `/groups/<gid>/members/add`
+///
+/// Returns a list of users for a given group in order to add a member
 #[get("/groups/<gid>/members/add")]
 pub fn group_user_add(
     conn: ObservDbConn,
@@ -171,11 +196,15 @@ pub fn group_user_add(
     }
 }
 
+///
 #[derive(FromForm)]
 pub struct AddUserForm {
     uid: Option<i32>,
 }
 
+/// POST handler `/groups/<gid>/members/add`
+///
+/// Adds a user to a group  
 #[post("/groups/<gid>/members/add", data = "<form>")]
 pub fn group_user_add_post(
     conn: ObservDbConn,
@@ -210,6 +239,9 @@ pub fn group_user_add_post(
     }
 }
 
+/// DELETE handler for `/groups/<gid>/members/<uid>`
+///
+/// Deletes a member from a group
 #[delete("/groups/<gid>/members/<uid>")]
 pub fn group_user_delete(
     conn: ObservDbConn,
@@ -235,6 +267,9 @@ pub fn group_user_delete(
     }
 }
 
+/// GET handler for `/groups/<gid>/edit`
+///
+/// Returns a list of group members for the mentor
 #[get("/groups/<gid>/edit")]
 pub fn group_edit(
     conn: ObservDbConn,
@@ -262,6 +297,9 @@ pub fn group_edit(
     }
 }
 
+/// PUT handler for `/groups/<gid>`
+///
+/// Updates the group owner
 #[put("/groups/<gid>", data = "<editgroup>")]
 pub fn group_edit_put(
     conn: ObservDbConn,
@@ -292,6 +330,9 @@ pub fn group_edit_put(
     }
 }
 
+/// DELETE handler for `/groups/<gid>`
+///
+/// Deletes a group from the database
 #[delete("/groups/<gid>")]
 pub fn group_delete(conn: ObservDbConn, _l: AdminGuard, gid: i32) -> Redirect {
     use crate::schema::relation_group_user::dsl::*;
@@ -305,6 +346,7 @@ pub fn group_delete(conn: ObservDbConn, _l: AdminGuard, gid: i32) -> Redirect {
     Redirect::to("/groups")
 }
 
+/// Returns a list of users in a given group
 use crate::models::User;
 fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
     RelationGroupUser::belonging_to(group)
