@@ -113,22 +113,29 @@ pub fn meetings_json(conn: ObservDbConn, _l: MentorGuard, gid: i32) -> Json<Vec<
 #[post("/groups/<gid>/meetings/new", data = "<newmeeting>")]
 pub fn meeting_new_post(
     conn: ObservDbConn,
-    _l: MentorGuard,
+    l: MentorGuard,
     gid: i32,
     newmeeting: Form<NewMeeting>,
 ) -> Redirect {
-    use crate::schema::meetings::dsl::*;
+    use crate::schema::groups::dsl::*;
 
-    let mut newmeeting = newmeeting.into_inner();
-    newmeeting.group_id = gid;
-    newmeeting.code = attendance_code(&*conn);
+    let g: Group = groups
+        .find(gid)
+        .first(&*conn)
+        .expect("Failed to get group from database");
 
-    insert_into(meetings)
-        .values(&newmeeting)
-        .execute(&*conn)
-        .expect("Failed to insert meeting into database");
+	if l.0.tier > 1 || l.0.id == g.owner_id || (l.0.id > 0 && group_users(&*conn, &g).contains(&l.0) && g.id > 0) {
+		use crate::schema::meetings::dsl::*;
+		let mut newmeeting = newmeeting.into_inner();
+		newmeeting.group_id = gid;
+		newmeeting.code = attendance_code(&*conn);
 
-    Redirect::to(format!("/groups/{}", newmeeting.group_id))
+		insert_into(meetings)
+			.values(&newmeeting)
+			.execute(&*conn)
+			.expect("Failed to insert meeting into database");
+	}
+    Redirect::to(format!("/groups/{}", gid))
 }
 
 #[get("/groups/<gid>/members/add")]
