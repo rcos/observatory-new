@@ -146,17 +146,20 @@ pub fn meeting_new_post(
         .first(&*conn)
         .expect("Failed to get group from database");
 
-	if l.0.tier > 1 || l.0.id == g.owner_id || (l.0.id > 0 && group_users(&*conn, &g).contains(&l.0) && g.id > 0) {
-		use crate::schema::meetings::dsl::*;
-		let mut newmeeting = newmeeting.into_inner();
-		newmeeting.group_id = gid;
-		newmeeting.code = attendance_code(&*conn);
+    if l.0.tier > 1
+        || l.0.id == g.owner_id
+        || (l.0.id > 0 && group_users(&*conn, &g).contains(&l.0) && g.id > 0)
+    {
+        use crate::schema::meetings::dsl::*;
+        let mut newmeeting = newmeeting.into_inner();
+        newmeeting.group_id = gid;
+        newmeeting.code = attendance_code(&*conn);
 
-		insert_into(meetings)
-			.values(&newmeeting)
-			.execute(&*conn)
-			.expect("Failed to insert meeting into database");
-	}
+        insert_into(meetings)
+            .values(&newmeeting)
+            .execute(&*conn)
+            .expect("Failed to insert meeting into database");
+    }
     Redirect::to(format!("/groups/{}", gid))
 }
 

@@ -1,7 +1,7 @@
 //! Models for groups
 //!
 //! Groups are stored in the `groups` table where each row is a group member
-//! or a meeting 
+//! or a meeting
 
 use chrono::NaiveDateTime;
 
@@ -91,7 +91,7 @@ pub struct NewMeeting {
     pub group_id: i32,
 }
 
-/// Models the relationship of a user between different groups 
+/// Models the relationship of a user between different groups
 #[derive(Debug, PartialEq, Clone, Queryable, Associations, Identifiable)]
 #[belongs_to(Group)]
 #[belongs_to(User)]

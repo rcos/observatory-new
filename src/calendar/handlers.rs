@@ -128,7 +128,7 @@ pub fn event_edit_put(
 
     use crate::schema::events::dsl::*;
     let mut editevent = editevent.into_inner();
-    if editevent.check_times().is_err() {
+    if editevent.fix_times().is_none() {
         return Ok(Redirect::to(format!(
             "/calendar/{}/edit?e={}",
             eid,
@@ -199,7 +199,7 @@ pub fn event_new_post(
     use crate::schema::events::dsl::*;
 
     let mut newevent = newevent.into_inner();
-    if newevent.check_times().is_err() {
+    if newevent.fix_times().is_none() {
         return Redirect::to(format!("/calendar/new?e={}", FormError::InvalidDate));
     }
     newevent.code = attendance_code(&*conn);
