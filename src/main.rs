@@ -207,8 +207,6 @@ fn main() {
         .start()
         .unwrap_or_else(|e| panic!("Logger initialization failed with {}", e));
 
-    // audit("Look at me", Some(1), Some(2), Some(3));
-
     audit_logger!("Audit Logger Initialized!");
 
     // Liftoff! Starts the webserver
