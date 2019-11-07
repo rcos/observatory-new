@@ -46,9 +46,9 @@ impl From<SignUpForm> for NewUser {
         newuser.handle = f.handle;
         newuser.mmost = f.mmost;
 
-        let newsalt = gen_salt();
-        newuser.salt = newsalt.clone();
-        newuser.password_hash = hash_password(f.password, &newsalt);
+        let (pass, salt) = hash_password(f.password);
+        newuser.salt = salt;
+        newuser.password_hash = pass;
 
         newuser.tier = 0;
         newuser.active = true;
@@ -182,7 +182,7 @@ pub fn login_post(
         .expect("Failed to get user from database")
     {
         // Verify the password
-        if verify_password(creds.password, user.password_hash, &user.salt) {
+        if verify_password(creds.password, user.password_hash, user.salt) {
             cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
             Redirect::to(to)
         } else {

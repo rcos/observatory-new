@@ -5,37 +5,82 @@
 
 use ring::rand::{SecureRandom, SystemRandom};
 use ring::{digest, pbkdf2};
+use rocket::http::RawStr;
+use rocket::request::FromFormValue;
 
 const N_ITER: u32 = 100000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
 
-/// Generate password salt
-///
-/// This function generates **an invalid string** of bytes that is a salt
-/// to be used when hashing a password.
-/// Do not attempt to parse or otherwise do anything with this string.
-pub fn gen_salt() -> String {
+/// A newtype struct wrapping around a `String`
+/// that is used by a number of cryptography functions
+/// in order to be compatible with SQLite.
+/// The type itself exists so that it is not possible to accidentally
+/// use it as if it were a string, providing far more safety.
+#[derive(Debug, Clone, PartialOrd, Ord, PartialEq, Eq, DieselNewType)]
+pub struct UnsafeBinaryString(String);
+
+impl UnsafeBinaryString {
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0.as_bytes()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+}
+
+impl Default for UnsafeBinaryString {
+    fn default() -> Self {
+        Self(String::new())
+    }
+}
+
+impl<T> From<T> for UnsafeBinaryString
+where
+    T: AsRef<[u8]>,
+{
+    fn from(f: T) -> Self {
+        unsafe { Self(String::from_utf8_unchecked(f.as_ref().to_vec())) }
+    }
+}
+
+impl<'v> FromFormValue<'v> for UnsafeBinaryString {
+    type Error = &'v RawStr;
+
+    fn from_form_value(form_value: &'v RawStr) -> Result<Self, &'v RawStr> {
+        Ok(Self(form_value.to_string()))
+    }
+}
+
+impl AsRef<str> for UnsafeBinaryString {
+    fn as_ref(&self) -> &str {
+        &*self.0
+    }
+}
+
+/// Encrypt a password and return a `HashedPassword` struct
+/// which can be used to get the hash and salt directly.
+pub fn hash_password<T: AsRef<str>>(pass: T) -> (UnsafeBinaryString, UnsafeBinaryString) {
+    // Generate the password salt
     let rng = SystemRandom::new();
     let mut salt = [0u8; CRE_LEN];
     rng.fill(&mut salt).unwrap();
-    unsafe { String::from_utf8_unchecked(salt.to_vec()) }
-}
 
-/// Encrypt a password using a salt
-///
-/// Using a salt generate by `gen_salt` this function encrypts a password.
-/// This function **returns an invalid string** of bytes.
-/// Do not attempt to parse or otherwise do anything with this string.
-pub fn hash_password(pass: String, salt: &String) -> String {
+    // Derive the password hash
     let mut out = [0u8; CRE_LEN];
     pbkdf2::derive(
         &digest::SHA512,
         N_ITER,
-        salt.as_bytes(),
-        pass.as_bytes(),
+        &salt as &[u8],
+        pass.as_ref().as_bytes(),
         &mut out,
     );
-    unsafe { String::from_utf8_unchecked(out.to_vec()) }
+
+    // Return a HashedPassword struct
+    (
+        UnsafeBinaryString::from(out),
+        UnsafeBinaryString::from(salt),
+    )
 }
 
 /// Verify that a password is correct
@@ -44,7 +89,11 @@ pub fn hash_password(pass: String, salt: &String) -> String {
 /// verifies that the password is correct.
 ///
 /// You should never directly compare two hashed passwords.
-pub fn verify_password(pass: String, compare_to: String, salt: &String) -> bool {
+pub fn verify_password(
+    pass: String,
+    compare_to: UnsafeBinaryString,
+    salt: UnsafeBinaryString,
+) -> bool {
     pbkdf2::verify(
         &digest::SHA512,
         N_ITER,

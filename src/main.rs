@@ -34,6 +34,8 @@ extern crate serde_derive;
 extern crate diesel_migrations;
 extern crate log;
 extern crate flexi_logger;
+#[macro_use]
+extern crate diesel_derive_newtype;
 
 #[macro_use]
 mod macros {

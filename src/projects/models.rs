@@ -13,14 +13,17 @@ pub struct Project {
     pub name: String,
     /// Description of the Project
     pub description: String,
-    /// Link if the project has their own website
+    /// Link if the project has its own website
     pub homepage: Option<String>,
+    /// Link if the project has a proposal document
+    pub proposal: Option<String>,
     /// ID of the student that owns the project
     pub owner_id: i32,
     /// Checks if this is a project that is currently being worked on this semester
     pub active: bool,
     /// Link the Project repository
     pub repos: String,
+    /// External (Non-RCOS) Project Flag
     pub extrn: bool,
 }
 
@@ -34,12 +37,15 @@ pub struct NewProject {
     pub name: String,
     /// Description of the Project
     pub description: String,
-    /// Puts in URL for the projects website if it has one
+    /// Puts in URL for the project's website if it has one
     pub homepage: Option<String>,
+    /// Puts in URL for the project's proposal if it has one
+    pub proposal: Option<String>,
     /// The ID of the student who creates and owns the new project
     pub owner_id: i32,
     /// Link to the Project Repository
     pub repos: String,
+    /// External (Non-RCOS) Project Flag
     pub extrn: bool,
 }
 

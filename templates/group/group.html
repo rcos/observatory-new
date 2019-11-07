@@ -16,7 +16,7 @@
     <button type="delete" class="btn btn-danger">Delete</button>
 </div>
 {% endif %}
-{% if u.tier > 1 || u.id == group.owner_id %}
+{% if u.tier > 1 || u.id == group.owner_id || (u.id > 0 && users.contains(u) && group.id > 0) %}
 <div class="btn-group mr-2">
     <a class="btn btn-primary" href="/groups/{{ group.id }}/members/add">Add User</a>
     <form method="POST" action="/groups/{{ group.id }}/meetings/new">

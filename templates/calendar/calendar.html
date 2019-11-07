@@ -5,9 +5,12 @@
 {% block head %}
 <link href='https://unpkg.com/@fullcalendar/core/main.min.css' rel='stylesheet' />
 <link href='https://unpkg.com/@fullcalendar/daygrid/main.min.css' rel='stylesheet' />
+<link href='https://unpkg.com/@fullcalendar/list/main.min.css' rel='stylesheet' />
 
 <script src='https://unpkg.com/@fullcalendar/core/main.min.js'></script>
 <script src='https://unpkg.com/@fullcalendar/daygrid/main.min.js'></script>
+<script src='https://unpkg.com/@fullcalendar/list/main.min.js'></script>
+
 <style>
 </style>
 {% endblock %}
@@ -26,28 +29,7 @@
 
 {% block content %}
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
-
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['dayGrid'],
-            defaultView: 'dayGridMonth',
-            themeSystem: 'bootstrap',
-            events: {
-                url: "/calendar.json",
-                editable: false
-            },
-            eventDataTransform: (data) => ({
-                ...data,
-                url: "/calendar/" + data.id
-            })
-
-        });
-
-        calendar.render();
-    });
-</script>
+<script src="/static/js/calendar.js"></script>
 
 <div id="calendar"></div>
 
