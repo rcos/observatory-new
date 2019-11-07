@@ -92,17 +92,7 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
         .execute(&*conn)
         .expect("Failed to insert relation into database");
 
-    let mut group_new_post_audit = String::from("User ");
-    group_new_post_audit.push_str(&*_l.0.id.to_string());
-    group_new_post_audit.push_str(" [");
-    group_new_post_audit.push_str(_l.0.email.as_str());
-    group_new_post_audit.push_str("] has created Group ");
-    group_new_post_audit.push_str(&*gid.to_string());
-    group_new_post_audit.push_str(" [");
-    group_new_post_audit.push_str(&*newgroup.name);
-    group_new_post_audit.push_str("]");
-
-    audit_logger!("{}", group_new_post_audit);
+    audit_logger!("User {} [{}] has created Group {} \'{}\'", _l.0.id, _l.0.email, gid, newgroup.name);
 
     Redirect::to("/groups")
 }
@@ -136,14 +126,7 @@ pub fn meeting_new_post(
     newmeeting.group_id = gid;
     newmeeting.code = attendance_code(&*conn);
 
-    let mut meeting_new_post_audit = String::from("User ");
-    meeting_new_post_audit.push_str(&*_l.0.id.to_string());
-    meeting_new_post_audit.push_str(" [");
-    meeting_new_post_audit.push_str(&_l.0.email);
-    meeting_new_post_audit.push_str("] has generated an attendance code for Group ");
-    meeting_new_post_audit.push_str(&*gid.to_string());
-
-    audit_logger!("{}", meeting_new_post_audit);
+    audit_logger!("User {} [{}] has generated an attendance code for Group {}", _l.0.id, _l.0.email, gid);
 
     insert_into(meetings)
         .values(&newmeeting)
@@ -217,14 +200,7 @@ pub fn group_user_add_post(
                 .execute(&*conn)
                 .expect("Failed to insert new relation into database");
 
-            let mut group_user_add_audit = String::from("User ");
-            group_user_add_audit.push_str(l.0.id.to_string().as_str());
-            group_user_add_audit.push_str(" has added User ");
-            group_user_add_audit.push_str(uid.to_string().as_str());
-            group_user_add_audit.push_str(" to Group ");
-            group_user_add_audit.push_str(g.id.to_string().as_str());
-
-            audit_logger!("{}", group_user_add_audit);
+            audit_logger!("User {} [{}] has added User {} to Group {}", l.0.id, l.0.email, uid, g.id);
 
             Ok(Redirect::to(format!("/groups/{}", gid)))
         } else {

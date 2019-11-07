@@ -134,13 +134,7 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
-    let mut signup_post_audit = String::from("User ");
-    signup_post_audit.push_str(&*user.id.to_string());
-    signup_post_audit.push_str(" [");
-    signup_post_audit.push_str(user.email.as_str());
-    signup_post_audit.push_str("] has registered for an account");
-    
-    audit_logger!("{}", signup_post_audit);
+    audit_logger!("User {} [{}] has registered for an account", user.id, user.email);
 
     Redirect::to(format!("/users/{}", user.id))
 }

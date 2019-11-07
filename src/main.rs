@@ -32,7 +32,6 @@ extern crate rust_embed;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel_migrations;
-#[macro_use]
 extern crate log;
 extern crate flexi_logger;
 
@@ -41,7 +40,7 @@ mod macros {
     #[macro_export]
     macro_rules! audit_logger {
         ($($arg:tt)*) => (
-            info!(target: "{Audit}", $($arg)*);
+            $crate::info!(target: "{Audit}", "{}", format_args!($($arg)*));
         )
     }
 }
@@ -88,11 +87,6 @@ fn audit_writer() -> Box<FileLogWriter> {
             .unwrap(),
     )
 }
-
-/*pub fn audit(action: &str, uid1: Option<i32>, uid2: Option<i32>, gid: Option<i32>, eid: Option<i32>) {
-    let mut test_str = ["abc ", 1.to_string().as_str(), " def"].concat();
-    audit_logger!("{}", test_str);
-}*/
 
 pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
     // Load all the handlers
