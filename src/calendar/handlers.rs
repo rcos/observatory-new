@@ -204,7 +204,12 @@ pub fn event_new_post(
     }
     newevent.code = attendance_code(&*conn);
 
-    audit_logger!("User {} [{}] has generated an attendance code for Event \'{}\'", _admin.0.id, _admin.0.email, newevent.title);
+    audit_logger!(
+        "User {} [{}] has generated an attendance code for Event \'{}\'",
+        _admin.0.id,
+        _admin.0.email,
+        newevent.title
+    );
 
     insert_into(events)
         .values(&newevent)

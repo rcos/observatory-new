@@ -32,8 +32,8 @@ extern crate rust_embed;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel_migrations;
-extern crate log;
 extern crate flexi_logger;
+extern crate log;
 #[macro_use]
 extern crate diesel_derive_newtype;
 
