@@ -23,11 +23,11 @@
     </div>
     <div class="form-group">
         <label for="handle">GitHub Handle</label>
-        <input type="text" name="handle" class="form-control" value="{{ user.handle }}" required>
+        <input type="text" name="handle" class="form-control" value="{{ user.handle }}" maxlength = "39" required>
     </div>
     <div class="form-group">
         <label for="mmost">Mattermost Handle</label>
-        <input type="text" name="mmost" class="form-control" value="{{ user.mmost }}" required>
+        <input type="text" name="mmost" class="form-control" value="{{ user.mmost }}" maxlength = "22" required>
     </div>
     <div class="form-group">
         <label for="bio">Your Bio</label>
