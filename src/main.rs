@@ -32,8 +32,20 @@ extern crate rust_embed;
 extern crate serde_derive;
 #[macro_use]
 extern crate diesel_migrations;
+extern crate flexi_logger;
+extern crate log;
 #[macro_use]
 extern crate diesel_derive_newtype;
+
+#[macro_use]
+mod macros {
+    #[macro_export]
+    macro_rules! audit_logger {
+        ($($arg:tt)*) => (
+            $crate::info!(target: "{Audit}", "{}", format_args!($($arg)*));
+        )
+    }
+}
 
 // Module files
 mod fairings;
@@ -53,12 +65,30 @@ mod news;
 mod projects;
 mod users;
 
+use flexi_logger::{opt_format, writers::FileLogWriter, LogTarget, Logger};
+use log::*;
+
 /// The database connection
 ///
 /// This struct is the wrapper for the database connection which
 /// is mounted as a fairing and can be accessed as a request guard.
 #[database("sqlite_observ")]
 pub struct ObservDbConn(diesel::SqliteConnection);
+
+fn audit_writer() -> Box<FileLogWriter> {
+    Box::new(
+        FileLogWriter::builder()
+            .discriminant("audit")
+            .suffix("log")
+            .format(opt_format)
+            .suppress_timestamp()
+            .directory("logs")
+            .append()
+            .print_message()
+            .try_build()
+            .unwrap(),
+    )
+}
 
 pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
     // Load all the handlers
@@ -170,6 +200,15 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
 /// Here it loads Rocket, sets it up with the fairings and handlers,
 /// then launches the server.
 fn main() {
+    Logger::with_env_or_str("info")
+        .print_message()
+        .log_target(LogTarget::StdOut)
+        .add_writer("Audit", audit_writer())
+        .start()
+        .unwrap_or_else(|e| panic!("Logger initialization failed with {}", e));
+
+    audit_logger!("Audit Logger Initialized!");
+
     // Liftoff! Starts the webserver
     rocket(None).launch();
 }

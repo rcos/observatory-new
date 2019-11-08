@@ -136,6 +136,12 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
 
     cookies.add_private(Cookie::new("user_id", format!("{}", user.id)));
 
+    audit_logger!(
+        "User {} [{}] has registered for an account",
+        user.id,
+        user.email
+    );
+
     Redirect::to(format!("/users/{}", user.id))
 }
 

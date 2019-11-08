@@ -113,6 +113,7 @@ pub fn user_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
     delete(users.find(h))
         .execute(&*conn)
         .expect("Failed to delete user from database");
+
     Redirect::to("/users")
 }
 

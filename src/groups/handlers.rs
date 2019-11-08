@@ -95,7 +95,7 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
 
     use crate::schema::groups::dsl::id;
     let gid = groups
-        .filter(name.eq(newgroup.name).and(owner_id.eq(newgroup.owner_id)))
+        .filter(name.eq(&*newgroup.name).and(owner_id.eq(newgroup.owner_id)))
         .select(id)
         .first(&*conn)
         .expect("Failed to get group from database");
@@ -108,6 +108,15 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
         })
         .execute(&*conn)
         .expect("Failed to insert relation into database");
+
+    audit_logger!(
+        "User {} [{}] has created Group {} \'{}\'",
+        _l.0.id,
+        _l.0.email,
+        gid,
+        newgroup.name
+    );
+
     Redirect::to("/groups")
 }
 
@@ -140,6 +149,13 @@ pub fn meeting_new_post(
     newmeeting: Form<NewMeeting>,
 ) -> Redirect {
     use crate::schema::groups::dsl::*;
+
+    audit_logger!(
+        "User {} [{}] has generated an attendance code for Group {}",
+        l.0.id,
+        l.0.email,
+        gid
+    );
 
     let g: Group = groups
         .find(gid)
@@ -233,6 +249,15 @@ pub fn group_user_add_post(
                 })
                 .execute(&*conn)
                 .expect("Failed to insert new relation into database");
+
+            audit_logger!(
+                "User {} [{}] has added User {} to Group {}",
+                l.0.id,
+                l.0.email,
+                uid,
+                g.id
+            );
+
             Ok(Redirect::to(format!("/groups/{}", gid)))
         } else {
             Ok(Redirect::to("/"))
