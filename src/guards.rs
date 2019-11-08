@@ -53,7 +53,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserGuard {
 
 impl UserThroughOption for Option<UserGuard> {
     fn user(self) -> Option<User> {
-        self.and_then(|u| Some(u.0))
+        self.map(|u| u.0)
     }
 }
 
@@ -79,7 +79,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for MentorGuard {
 
 impl UserThroughOption for Option<MentorGuard> {
     fn user(self) -> Option<User> {
-        self.and_then(|u| Some(u.0))
+        self.map(|u| u.0)
     }
 }
 
@@ -105,7 +105,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for AdminGuard {
 
 impl UserThroughOption for Option<AdminGuard> {
     fn user(self) -> Option<User> {
-        self.and_then(|u| Some(u.0))
+        self.map(|u| u.0)
     }
 }
 

@@ -320,7 +320,7 @@ pub fn group_edit_put(
         .expect("Failed to get group from database");
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
-        if !(l.0.tier > 1) {
+        if l.0.tier <= 1 {
             editgroup.owner_id = l.0.id;
         }
         update(groups.find(gid))

@@ -8,7 +8,7 @@ use ring::{digest, pbkdf2};
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
 
-const N_ITER: u32 = 100000;
+const N_ITER: u32 = 100_000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
 
 /// A newtype struct wrapping around a `String`

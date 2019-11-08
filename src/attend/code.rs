@@ -12,7 +12,7 @@ use crate::models::Meeting;
 ///
 /// Takes a reference to the database connection and the code you want
 /// to verify and returns the event that the code corresponds to if it exists.
-pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn Attendable>> {
+pub fn verify_code(conn: &SqliteConnection, vcode: &str) -> Option<Box<dyn Attendable>> {
     if let Some(e) = {
         use crate::schema::events::dsl::*;
         events
@@ -22,19 +22,17 @@ pub fn verify_code(conn: &SqliteConnection, vcode: &String) -> Option<Box<dyn At
             .expect("Failed to get events from database")
     } {
         Some(Box::new(e))
+    } else if let Some(m) = {
+        use crate::schema::meetings::dsl::*;
+        meetings
+            .filter(code.eq(vcode.to_lowercase()))
+            .first::<Meeting>(conn)
+            .optional()
+            .expect("Failed to get meetings from database")
+    } {
+        Some(Box::new(m))
     } else {
-        if let Some(m) = {
-            use crate::schema::meetings::dsl::*;
-            meetings
-                .filter(code.eq(vcode.to_lowercase()))
-                .first::<Meeting>(conn)
-                .optional()
-                .expect("Failed to get meetings from database")
-        } {
-            Some(Box::new(m))
-        } else {
-            None
-        }
+        None
     }
 }
 

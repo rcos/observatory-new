@@ -67,8 +67,8 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
     // Load the fairings
     use fairings::{AdminCheck, ConfigWrite, DatabaseCreate};
 
-    let app = if test_config.is_some() {
-        rocket::custom(test_config.unwrap())
+    let app = if let Some(test_config) = test_config {
+        rocket::custom(test_config)
     } else {
         rocket::ignite()
     };

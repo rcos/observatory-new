@@ -92,7 +92,7 @@ pub fn user_edit_put(
         // if the logged in user can't change tiers
         // of if it's the admin user
         // don't change tiers
-        if !(l.tier > 1) || h == 0 {
+        if l.tier <= 1 || h == 0 {
             edituser.tier = etier;
         }
 

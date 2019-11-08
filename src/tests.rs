@@ -29,7 +29,7 @@ embed_migrations!("migrations/sqlite");
 // Static connection variable
 
 fn create_connection_url(client: &rocket::local::Client) -> String {
-    return String::from(
+    String::from(
         client
             .rocket()
             .config()
@@ -41,7 +41,7 @@ fn create_connection_url(client: &rocket::local::Client) -> String {
             .unwrap()
             .as_str()
             .unwrap(),
-    );
+    )
 }
 
 fn setup(test_name: String) -> Option<rocket::Config> {
@@ -52,9 +52,7 @@ fn setup(test_name: String) -> Option<rocket::Config> {
     let db_path_exists = Path::new(db_path.as_str()).is_dir();
 
     if !db_path_exists {
-        fs::create_dir(db_path.as_str())
-            .ok()
-            .expect("Dir Creation Error");
+        fs::create_dir(db_path.as_str()).expect("Dir Creation Error");
     }
 
     let mut db_file_path = String::from(db_path.as_str());
@@ -64,9 +62,7 @@ fn setup(test_name: String) -> Option<rocket::Config> {
     let db_file_exists = Path::new(db_file_path.as_str()).is_file();
 
     if !db_file_exists {
-        fs::File::create(db_file_path.as_str())
-            .ok()
-            .expect("File Creation Error");
+        fs::File::create(db_file_path.as_str()).expect("File Creation Error");
     }
 
     let mut database_config = HashMap::new();
@@ -95,13 +91,9 @@ fn cleanup(test_name: String) {
     db_file_string.push_str(test_name.as_str());
     db_file_string.push_str(".sqlite");
 
-    fs::remove_file(db_file_string)
-        .ok()
-        .expect("File Deletion Error");
+    fs::remove_file(db_file_string).expect("File Deletion Error");
 
-    fs::remove_dir(db_path_string)
-        .ok()
-        .expect("Dir Deletion Error");
+    fs::remove_dir(db_path_string).expect("Dir Deletion Error");
 }
 
 #[test]

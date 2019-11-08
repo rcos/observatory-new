@@ -56,7 +56,7 @@ impl From<SignUpForm> for NewUser {
         newuser.former = false;
         newuser.extrn = false;
 
-        return newuser;
+        newuser
     }
 }
 
@@ -170,7 +170,7 @@ pub fn login_post(
 
     let creds = creds.into_inner();
 
-    let to = to.unwrap_or(String::from("/"));
+    let to = to.unwrap_or_else(|| String::from("/"));
 
     // If we find the user
     if let Some(user) = users

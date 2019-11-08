@@ -227,7 +227,7 @@ fn gen_secret() -> String {
 }
 
 /// Writes the config to a file in the same folder as the binary
-fn write_config(conf: &rocket::Config, secret: &String) -> std::io::Result<()> {
+fn write_config(conf: &rocket::Config, secret: &str) -> std::io::Result<()> {
     use std::fs::File;
     use std::io::Write;
 
