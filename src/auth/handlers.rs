@@ -68,7 +68,9 @@ impl From<SignUpForm> for NewUser {
 /// If all goes well then it redirects to `/` otherwise back to the same page.
 #[post("/signup", data = "<form>")]
 pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpForm>) -> Redirect {
-    let form = form.into_inner();
+    let mut form = form.into_inner();
+	form.handle.truncate(39);
+	form.mmost.truncate(22);
     // Make sure the password is properly repeated
     if form.password != form.password_repeat {
         return Redirect::to(format!("/signup?e={}", FormError::PasswordMismatch));

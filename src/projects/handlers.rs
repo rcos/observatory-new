@@ -88,6 +88,7 @@ pub fn project_new_post(
     newproject: Form<NewProject>,
 ) -> Redirect {
     let mut newproject = newproject.into_inner();
+	newproject.name.truncate(50); //set a character limit to a project
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
 
     // handles the fact that projects can have multiple repos
@@ -171,6 +172,8 @@ pub fn project_edit_put(
     use crate::schema::projects::dsl::*;
 
     let mut editproject = editproject.into_inner();
+	editproject.name.truncate(50);
+	
     editproject.repos = serde_json::to_string(
         &serde_json::from_str::<Vec<String>>(&editproject.repos)
             .unwrap()
