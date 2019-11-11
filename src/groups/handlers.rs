@@ -9,6 +9,7 @@ use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
 use crate::guards::*;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 use super::models::*;
@@ -67,14 +68,15 @@ pub fn groups_json(conn: ObservDbConn, _l: MentorGuard) -> Json<Vec<Group>> {
 /// GET handler for `/groups/new`
 ///
 /// Creates a new group list and populates it with users
-#[get("/groups/new")]
-pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
+#[get("/groups/new?<e>")]
+pub fn group_new(conn: ObservDbConn, l: AdminGuard, e: Option<FormError>) -> NewGroupTemplate {
     use crate::schema::users::dsl::*;
     NewGroupTemplate {
         logged_in: Some(l.0),
         all_users: users
             .load(&*conn)
             .expect("Failed to get users from database"),
+        error: e,
     }
 }
 
@@ -86,6 +88,10 @@ pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
 #[post("/groups/new", data = "<newgroup>")]
 pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
     let newgroup = newgroup.into_inner();
+
+    if let Err(e) = is_reserved(&newgroup.name) {
+        return Redirect::to(format!("/groups/new?e={}", e));
+    }
 
     use crate::schema::groups::dsl::*;
     insert_into(groups)
@@ -298,11 +304,12 @@ pub fn group_user_delete(
 /// GET handler for `/groups/<gid>/edit`
 ///
 /// Returns a list of group members for the mentor
-#[get("/groups/<gid>/edit")]
+#[get("/groups/<gid>/edit?<e>")]
 pub fn group_edit(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
+    e: Option<FormError>,
 ) -> Result<EditGroupTemplate, Status> {
     use crate::schema::groups::dsl::*;
     use crate::schema::users::dsl::*;
@@ -319,6 +326,7 @@ pub fn group_edit(
             all_users: users
                 .load(&*conn)
                 .expect("Failed to get users from database"),
+            error: e,
         })
     } else {
         Err(Status::Unauthorized)
@@ -345,6 +353,10 @@ pub fn group_edit_put(
         .expect("Failed to get group from database");
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
+        if let Err(e) = is_reserved(&editgroup.name) {
+            return Ok(Redirect::to(format!("/groups/{}/edit?e={}", gid, e)));
+        }
+
         if l.0.tier <= 1 {
             editgroup.owner_id = l.0.id;
         }

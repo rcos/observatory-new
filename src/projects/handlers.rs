@@ -12,6 +12,7 @@ use crate::ObservDbConn;
 
 use super::models::*;
 use super::templates::*;
+use crate::templates::{is_reserved, FormError};
 
 /// GET handler for `/projects?s`
 /// Project list page with an optional search string,
@@ -71,10 +72,11 @@ pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Op
 /// GET handler for `/projects/new`
 /// Returns the new project template
 
-#[get("/projects/new")]
-pub fn project_new(l: UserGuard) -> NewProjectTemplate {
+#[get("/projects/new?<e>")]
+pub fn project_new(l: UserGuard, e: Option<FormError>) -> NewProjectTemplate {
     NewProjectTemplate {
         logged_in: Some(l.0),
+        error: e,
     }
 }
 
@@ -90,6 +92,10 @@ pub fn project_new_post(
     let mut newproject = newproject.into_inner();
     newproject.name.truncate(50); //set a character limit to a project
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
+
+    if let Err(e) = is_reserved(&newproject.name) {
+        return Redirect::to(format!("/projects/new?e={}", e));
+    }
 
     // handles the fact that projects can have multiple repos
     newproject.repos = serde_json::to_string(
@@ -130,11 +136,12 @@ pub fn project_new_post(
 /// GET handler for `/projects/edit`
 /// Get the project template for editing
 
-#[get("/projects/<h>/edit")]
+#[get("/projects/<h>/edit?<e>")]
 pub fn project_edit(
     conn: ObservDbConn,
     l: UserGuard,
     h: i32,
+    e: Option<FormError>,
 ) -> Result<EditProjectTemplate, Status> {
     use crate::schema::projects::dsl::*;
     use crate::schema::users::dsl::*;
@@ -153,6 +160,7 @@ pub fn project_edit(
             all_users: users
                 .load(&*conn)
                 .expect("Failed to get users from database"),
+            error: e,
         })
     } else {
         Err(Status::Unauthorized)
@@ -190,6 +198,10 @@ pub fn project_edit_put(
 
     //checks to see what tier logged in user is or if there the owner so no one outside the project messes with it
     if l.0.tier > 1 || p.owner_id == l.0.id {
+        if let Err(e) = is_reserved(&editproject.name) {
+            return Ok(Redirect::to(format!("/projects/{}/edit?e={}", h, e)));
+        }
+
         update(projects.find(h))
             .set(&editproject)
             .execute(&*conn)

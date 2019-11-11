@@ -1,6 +1,7 @@
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::filters;
+use crate::templates::{FormError, OptUser};
 
 use crate::models::User;
 
@@ -29,6 +30,7 @@ pub struct ProjectTemplate {
 #[template(path = "project/new-project.html")]
 pub struct NewProjectTemplate {
     pub logged_in: OptUser,
+    pub error: Option<FormError>,
 }
 
 /// Project page template
@@ -43,6 +45,7 @@ pub struct EditProjectTemplate {
     pub project: Project,
     pub repos: Vec<String>,
     pub all_users: Vec<User>,
+    pub error: Option<FormError>,
 }
 
 /// List of the Projects

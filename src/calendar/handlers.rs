@@ -13,7 +13,7 @@ use crate::guards::*;
 
 use super::models::*;
 use super::templates::*;
-use crate::templates::FormError;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 /// GET handler for `/calendar`
@@ -135,6 +135,9 @@ pub fn event_edit_put(
             FormError::InvalidDate
         )));
     }
+    if let Err(e) = is_reserved(&editevent.title) {
+        return Ok(Redirect::to(format!("/calendar/{}/edit?e={}", eid, e)));
+    }
     let (atcode, host_id): (String, i32) = events
         .find(eid)
         .select((code, hosted_by))
@@ -201,6 +204,9 @@ pub fn event_new_post(
     let mut newevent = newevent.into_inner();
     if newevent.fix_times().is_none() {
         return Redirect::to(format!("/calendar/new?e={}", FormError::InvalidDate));
+    }
+    if let Err(e) = is_reserved(&newevent.title) {
+        return Redirect::to(format!("/calendar/new?e={}", e));
     }
     newevent.code = attendance_code(&*conn);
 

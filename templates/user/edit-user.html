@@ -8,6 +8,9 @@
 {% endblock %}
 
 {% block content %}
+
+{% include "../form-error.html" %}
+
 <form method="PUT" action="/users/{{ user.id }}">
     <div class="form-group">
         <label for="email">Email</label>

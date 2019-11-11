@@ -9,7 +9,7 @@ use rocket::response::Redirect;
 use crate::guards::*;
 use crate::models::NewRelationGroupUser;
 use crate::models::{NewUser, User};
-use crate::templates::FormError;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 use super::crypto::*;
@@ -79,6 +79,10 @@ pub fn signup_post(conn: ObservDbConn, mut cookies: Cookies, form: Form<SignUpFo
     let newuser = NewUser::from(form);
 
     use crate::schema::users::dsl::*;
+
+    if let Err(e) = is_reserved(&*newuser.handle) {
+        return Redirect::to(format!("/signup?e={}", e));
+    }
 
     // Check if user's email is already signed up
     if users

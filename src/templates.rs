@@ -123,6 +123,8 @@ pub enum FormError {
     InvalidCode,
     /// A date field was the wrong format invalid
     InvalidDate,
+    /// You used a name that is reserved and can't be used
+    ReservedName,
     /// Some other unknown error
     Other,
 }
@@ -145,6 +147,7 @@ impl fmt::Display for FormError {
                 FormError::MmostExists => "mmostExists",
                 FormError::InvalidCode => "code",
                 FormError::InvalidDate => "date",
+                FormError::ReservedName => "reserved",
                 FormError::Other => "other",
             }
         )
@@ -164,6 +167,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "mmostExists" => FormError::MmostExists,
             "code" => FormError::InvalidCode,
             "date" => FormError::InvalidDate,
+            "reserved" => FormError::ReservedName,
             "other" => FormError::Other,
             _ => FormError::Other,
         }
@@ -179,5 +183,15 @@ impl<'v> FromFormValue<'v> for FormError {
 
     fn from_form_value(form_value: &'v RawStr) -> Result<FormError, &'v RawStr> {
         Ok(FormError::from(form_value))
+    }
+}
+
+pub const RESERVED_WORDS: &[&str] = &["new", "start", "rcos", "edit"];
+
+pub fn is_reserved(word: &str) -> Result<&str, FormError> {
+    if RESERVED_WORDS.contains(&&*word.to_lowercase()) {
+        Err(FormError::ReservedName)
+    } else {
+        Ok(word)
     }
 }
