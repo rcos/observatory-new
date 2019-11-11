@@ -16,20 +16,22 @@ use super::templates::*;
 /// GET handler for `/projects?s`
 /// Project list page with an optional search string,
 
-#[get("/projects?<s>")]
-pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+#[get("/projects?<s>&<a>")]
+pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>, a: Option<bool>) -> ProjectsListTemplate {
     ProjectsListTemplate {
         logged_in: l.user(),
-        projects: filter_projects(&*conn, s),
+        search_term: s.clone().unwrap_or_else(String::new),
+        projects: filter_projects(&*conn, s, a),
+        inactive: a.unwrap_or(false)
     }
 }
 
 /// GET handler for `/projects?s`
 /// Return JSON object of the project with an optional search string
 
-#[get("/projects.json?<s>")]
-pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
-    Json(filter_projects(&*conn, s))
+#[get("/projects.json?<s>&<a>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> Json<Vec<Project>> {
+    Json(filter_projects(&*conn, s, a))
 }
 
 /// GET handler for `/projects/id`
@@ -90,6 +92,7 @@ pub fn project_new_post(
     let mut newproject = newproject.into_inner();
     newproject.name.truncate(50); //set a character limit to a project
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
+    newproject.active = true;
 
     // handles the fact that projects can have multiple repos
     newproject.repos = serde_json::to_string(
@@ -409,15 +412,30 @@ pub fn project_repos(p: &Project) -> Vec<String> {
     serde_json::from_str(&p.repos).unwrap()
 }
 
-pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
+pub fn filter_projects(conn: &SqliteConnection, term: Option<String>, inact: Option<bool>) -> Vec<Project> {
     use crate::schema::projects::dsl::*;
 
     if let Some(term) = term {
         let sterm = format!("%{}%", term);
         let filter = name.like(&sterm);
-        projects.filter(filter).load(conn)
+
+        match inact {
+            Some(true) => {
+                projects.filter(filter).load(conn)
+            },
+            Some(false) | None => {
+                projects.filter(filter.and(active.eq(true))).load(conn)
+            }
+        }
     } else {
-        projects.load(conn)
+        match inact {
+            Some(true) => {
+                projects.load(conn)
+            },
+            Some(false) | None => {
+                projects.filter(active.eq(true)).load(conn)
+            }
+        }
     }
     .expect("Failed to get projects")
 }

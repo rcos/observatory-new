@@ -8,6 +8,18 @@
 {% endblock %}
 
 {% block tools %}
+<form method="GET" class="form-inline">
+    <div class="input-group mb-3">
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="a" name="a" {% if inactive %}checked{% endif %}>
+            <label class="custom-control-label" for="a">Show Inactive</label>
+        </div>
+        <input type="text" name="s" placeholder="Search">
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-outline-secondary">Search</button>
+        </div>
+    </div>
+</form>
 {% match logged_in%}
 {% when Some with (u) %}
 <div class="btn-group">
@@ -15,14 +27,6 @@
 </div>
 {% when None %}
 {% endmatch %}
-<form method="GET" class="form-inline">
-    <div class="input-group mb-3">
-        <input type="text" name="s" placeholder="Search">
-        <div class="input-group-append">
-            <button type="submit" class="btn btn-outline-secondary">Search</button>
-        </div>
-    </div>
-</form>
 {% endblock %}
 
 {% block content %}
