@@ -126,6 +126,29 @@ pub fn meetings(gid: i32) -> Redirect {
     Redirect::to(format!("/groups/{}", gid))
 }
 
+/// GET handler for `/groups/<gid>/meetings/<mid>`
+#[get("/groups/<gid>/meetings/<mid>")]
+pub fn individual_meetings(conn: ObservDbConn, l: MentorGuard, gid: i32, mid: i32) -> Option<MeetingTemplate> {
+    use crate::schema::groups::dsl::*;
+    let g: Group = groups
+        .find(gid)
+        .first(&*conn)
+        .expect("Failed to get groups from database");
+
+    use crate::schema::meetings::dsl::*;
+    let m: Meeting = meetings
+        .find(mid)
+        .first(&*conn)
+        .expect("Failed to get meetings from database");
+
+    Some(MeetingTemplate {
+        logged_in: Some(l.0),
+        users: group_users(&*conn, &g),
+        group: g,
+        meeting: m,
+    })
+}
+
 /// GET handler for `/groups/<gid>/meetings.json`
 #[get("/groups/<gid>/meetings.json")]
 pub fn meetings_json(conn: ObservDbConn, _l: MentorGuard, gid: i32) -> Json<Vec<Meeting>> {

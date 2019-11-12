@@ -80,3 +80,21 @@ pub struct AddUserTemplate {
     pub group: Group,
     pub all_users: Vec<User>,
 }
+
+/// Add Meeting page template
+///
+/// HTML file: `group/meeting.html`
+///
+/// The page that shows the attedance code and attendees for a meeting
+#[derive(Template)]
+#[template(path = "group/meeting.html")]
+pub struct MeetingTemplate {
+    /// Login information for the group
+    pub logged_in: OptUser,
+    /// Group that contains this meeting
+    pub group: Group,
+    /// Users this template is for
+    pub users: Vec<User>,
+    /// Meeting that uses this template
+    pub meeting: Meeting
+}
