@@ -47,7 +47,7 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
             (Some(m.id()), None, m.group_id())
         };
 
-        let user_in_group = {
+        let user_in_group = if !m.is_event() {
             use crate::schema::relation_group_user::dsl::*;
             relation_group_user
                 .filter(group_id.eq(gid.unwrap()).and(user_id.eq(l.0.id)))
@@ -55,6 +55,8 @@ pub fn attend_post(conn: ObservDbConn, l: UserGuard, code: Form<AttendCode>) -> 
                 .optional()
                 .expect("Failed to get relations from database")
                 .is_some()
+        } else {
+            false
         };
 
         use crate::schema::attendances::dsl::*;
