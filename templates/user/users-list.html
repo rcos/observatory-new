@@ -10,7 +10,11 @@
 {% block tools %}
 <form method="GET" class="mr-2">
     <div class="input-group mb-3">
-        <input type="text" name="s" placeholder="Search">
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="a" name="a" {% if inactive %}checked{% endif %}>
+            <label class="custom-control-label" for="a">Show Inactive</label>
+        </div>
+        <input type="text" name="s" placeholder="Search" value="{{ search_term }}">
         <div class="input-group-append">
             <button type="submit" class="btn btn-outline-secondary">Search</button>
         </div>
