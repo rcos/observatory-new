@@ -13,7 +13,7 @@
     {% when Some with (u) %}
     {% if u.tier > 1 %}
     <a class="btn btn-secondary" href="/calendar/{{ event.id }}/edit">Edit</a>
-    <button typ="delete" class="btn btn-danger">Delete</button>
+    <button type="delete" class="btn btn-danger">Delete</button>
     {% endif %}
     {% when None %}
     {% endmatch %}

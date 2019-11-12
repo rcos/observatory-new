@@ -204,21 +204,27 @@ pub fn project_edit_put(
 }
 
 /// DELETE handler for `/projects/h`
+///
 /// Deletes relation from all users tied to the project then deletes the project
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
     use crate::schema::projects::dsl::*;
+    // Find the project
     let p: Project = projects
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
 
+    // If they are an admin or the project owner
     if l.0.tier > 1 || p.owner_id == l.0.id {
+        // Delete the relations
         use crate::schema::relation_project_user::dsl::*;
         delete(relation_project_user.filter(project_id.eq(h)))
             .execute(&*conn)
             .expect("Failed to delete relations from database");
+
+        // Delete the project
         delete(projects.find(h))
             .execute(&*conn)
             .expect("Failed to delete project from database");

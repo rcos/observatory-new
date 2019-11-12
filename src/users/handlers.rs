@@ -109,10 +109,27 @@ pub fn user_edit_put(
 
 #[delete("/users/<h>")]
 pub fn user_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
+    // Delete the user
     use crate::schema::users::dsl::*;
     delete(users.find(h))
         .execute(&*conn)
         .expect("Failed to delete user from database");
+
+    // Delete the relations to projects
+    {
+        use crate::schema::relation_project_user::dsl::*;
+        delete(relation_project_user.filter(user_id.eq(h)))
+            .execute(&*conn)
+            .expect("Failed to delete relation from database");
+    }
+
+    // Delete the relations to groups
+    {
+        use crate::schema::relation_group_user::dsl::*;
+        delete(relation_group_user.filter(user_id.eq(h)))
+            .execute(&*conn)
+            .expect("Failed to delete relation from database");
+    }
 
     Redirect::to("/users")
 }
