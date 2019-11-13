@@ -1,4 +1,5 @@
 # Observatory-new
+
 [![CircleCI](https://circleci.com/gh/rcos/observatory-new.svg?style=svg)](https://circleci.com/gh/rcos/observatory-new)
 
 <img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
@@ -16,6 +17,7 @@ as the database backend.
 If you would like to help out please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Major Dependencies
+
 - [Diesel](https://diesel.rs): Database ORM
 - [Rocket](https://rocket.rs): Web framework
 - [Askama](https://github.com/djc/askama): Templating engine
@@ -23,6 +25,7 @@ If you would like to help out please read [CONTRIBUTING.md](./CONTRIBUTING.md).
 - [Bootstrap](https://getbootstrap.com): CSS framework
 
 ## Building
+
 Before anything else make sure that you have the development tools for your
 system. On Ubuntu/Debian you can install these with:
 
@@ -56,14 +59,11 @@ And to run do
 $ cargo run
 ```
 
-## Deploying
-
-**This is for deploying to a server, not a developer machine**
-
-Please read [the Deploying instructions](./DEPLOYING.md) for information on how to setup
-and deploy observatory-new.
-
 ## Documentation
+
+Documentation for the project as a whole can be found within the
+[docs folder](./docs) and contains a variety of useful information.
+
 The code is primarily documented using in-code doc comments.
 This can be viewed either by browsing the source or in a web browser with.
 ```

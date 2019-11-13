@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+    traefik:
+        image: traefik
+        restart: always
+        command: --api.insecure=true --providers.docker
+        ports:
+            - 80:80
+            - 443:443
+            - 8000:8000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    oroborous:
+        image: pyouroboros/ouroboros
+        restart: always
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+    observatory:
+        image: rcos/observatory-new
+        restart: always
+        volumes:
+            - /persist/observatory:/var/lib/observatory
+        labels:
+            - "traefik.http.routers.observatory.rule=Host(`rcos-observatory.cs.rpi.edu`)"
+
+    dokuwiki:
+        image: bitnami/dokuwiki
+        restart: always
+        volumes:
+            - /persist/dokuwiki:/bitnami
+        environment:
+            - "DOKUWIKI_USERNAME=admin"
+            - "DOKUWIKI_PASSWORD=adminpassword" # Make sure to change this in the UI
+            - "DOKUWIKI_EMAIL=admin@rcos.io"
+            - "DOKUWIKI_WIKI_NAME=RCOS Wiki"
+        labels:
+            - "traefik.http.routers.dokuwiki.rule=Host(`rcos-wiki.cs.rpi.edu`)"

@@ -4,15 +4,6 @@ Thank you for your interest in contributing to the RCOS Observatory!
 Please read the following guidelines before opening an issue or
 pull request.
 
-## Hooks
-
-There are 2 git hooks as part of this project:
-
-1. Before every commit `cargo fmt` is run to clean up code.
-2. Before every push `cargo check` is run to verify that the code compiles correctly.
-
-These are to ensure that the project maintains code quality.
-
 ## Conduct
 
 Please conduct yourself in a respectful and professional manner.
@@ -32,9 +23,12 @@ would be a good choice.
 
 ## Documentation
 
+Project-level documentation can be found in the [docs folder](./docs).
+
 Any contributions to Observatory should be properly documented using the
 in-code RustDoc format. More information about how to do this can be
-found in the [Rust Book here](https://doc.rust-lang.org/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments).
+found in the
+[Rust Book here](https://doc.rust-lang.org/book/ch14-02-publishing-to-crates-io.html#making-useful-documentation-comments).
 
 Please be descriptive in your documentation, it helps both you and us to
 understand your code better and really adds to maintainability.
