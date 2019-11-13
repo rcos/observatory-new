@@ -189,7 +189,7 @@ impl<'v> FromFormValue<'v> for FormError {
 pub const RESERVED_WORDS: &[&str] = &["new", "start", "rcos", "edit"];
 
 pub fn is_reserved(word: &str) -> Result<&str, FormError> {
-    if RESERVED_WORDS.contains(&&*word.to_lowercase()) {
+    if RESERVED_WORDS.contains(&&*word.to_lowercase()) || word.parse::<usize>().is_ok() {
         Err(FormError::ReservedName)
     } else {
         Ok(word)
