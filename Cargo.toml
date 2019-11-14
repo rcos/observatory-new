@@ -3,6 +3,7 @@ name = "observatory"
 version = "0.1.0"
 authors = ["Steven vanZyl <rushsteve1@rushsteve1.us>"]
 edition = "2018"
+license = "MIT AND CC-BY-4.0"
 
 [dependencies]
 askama = { version = "^0.8.0", features = ["with-rocket"] }

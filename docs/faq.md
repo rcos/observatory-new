@@ -106,9 +106,24 @@ some important features like the calendar.
 
 But with the server-side architecture we don't really need JavaScript that much.
 In the project as a whole I would say we use less than 200 lines of JavaScript
-that we wrote and only one external library, [FullCalendar](https://fullcalendar.io).
+that we wrote and only one external library,
+[FullCalendar](https://fullcalendar.io).
+
+### Why Docker?
+
+Docker makes deploying applications trivially simple, and we can version the
+whole project very easily.
+Though I will admit for this project we don't actually need Docker that much.
+When building the project you just get a single binary, so there isn't much in
+the way of dependencies.
+
+But I like Docker (or Podman) and find it to be a good way of deploying
+applications, so I set it up. If you don't want to use it you don't have to
+(try Podman instead).
 
 ## How-To Questions
+
+Make sure you read the [README](../README.md) and the [intro](./intro.md)!
 
 ### How do I get started?
 

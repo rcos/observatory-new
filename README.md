@@ -1,6 +1,6 @@
 # Observatory-new
 
-<img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
+<img src="./logo.svg" alt="RCOS Observatory logo" width="300px" style="width:300px;display:block;margin:auto;"/>
 
 Rewrite of the RCOS observatory in a way that hopefully makes a bit more sense.
 Since we have kinda lost track of what number we're on at this point I am
@@ -52,10 +52,12 @@ After that it's as simple as
 $ cargo build
 ```
 
-And to run do
+And to run the project do
 ```
 $ cargo run
 ```
+
+then open your browser to `http://localhost:8000`
 
 ## Documentation
 
@@ -67,3 +69,15 @@ This can be viewed either by browsing the source or in a web browser with.
 ```
 $ cargo doc --no-deps --document-private-items --all-features --open
 ```
+
+## Acknowledgements and License
+
+A big shoutout to the RCOS community as well as the professors who guided us!
+
+Source Code in this repository is subject to the terms of the
+[MIT license](https://choosealicense.com/licenses/mit/)
+provided in the [LICENSE file](./LICENSE) unless otherwise specified.
+
+Images and other artistic assets in this repository are under the terms of the
+[CC-BY-4.0](https://choosealicense.com/licenses/cc-by-4.0/)
+license provided in the [COPYING](./COPYING) unless otherwise specified.
