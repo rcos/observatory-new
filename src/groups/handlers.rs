@@ -8,6 +8,7 @@ use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
+use crate::attend::models::*;
 use crate::guards::*;
 use crate::ObservDbConn;
 
@@ -143,7 +144,7 @@ pub fn individual_meetings(conn: ObservDbConn, l: MentorGuard, gid: i32, mid: i3
 
     Some(MeetingTemplate {
         logged_in: Some(l.0),
-        users: group_users(&*conn, &g),
+        users: meeting_users(&*conn, &m),
         group: g,
         meeting: m,
     })
@@ -402,6 +403,22 @@ use crate::models::User;
 fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
     RelationGroupUser::belonging_to(group)
         .load::<RelationGroupUser>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
+        })
+        .collect()
+}
+
+/// Returns a list of users who attended a given meeting
+fn meeting_users(conn: &SqliteConnection, meeting: &Meeting) -> Vec<User> {
+    Attendance::belonging_to(meeting)
+        .load::<Attendance>(conn)
         .expect("Failed to get relations from database")
         .iter()
         .map(|r| {

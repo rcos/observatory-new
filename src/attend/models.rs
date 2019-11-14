@@ -3,11 +3,13 @@
 //! Attendance is stored in the `attendance` table where each
 //! row is a time someone attended something.
 
+use crate::models::Meeting;
 use crate::models::User;
 use crate::schema::*;
 
 /// Models an attendance in the database
 #[derive(Debug, PartialEq, Clone, Queryable, Identifiable, Associations, Serialize)]
+#[belongs_to(Meeting)]
 #[belongs_to(User)]
 pub struct Attendance {
     /// ID of the attendance
