@@ -1,5 +1,4 @@
 # Observatory-new
-[![CircleCI](https://circleci.com/gh/rcos/observatory-new.svg?style=svg)](https://circleci.com/gh/rcos/observatory-new)
 
 <img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
