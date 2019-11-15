@@ -164,6 +164,16 @@ pub fn event_edit_put(
 /// Restricted to Admins.
 #[delete("/calendar/<eid>")]
 pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
+
+    // Delete the attendances relations
+    {
+        use crate::schema::attendances::dsl::*;
+        delete(attendances.filter(is_event.eq(true).and(event_id.eq(eid))))
+            .execute(&*conn)
+            .expect("Failed to delete attendances from database");
+    }
+
+    // Delete the event
     use crate::schema::events::dsl::*;
     delete(events.find(eid))
         .execute(&*conn)

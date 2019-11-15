@@ -375,14 +375,21 @@ pub fn group_edit_put(
 /// Deletes a group from the database
 #[delete("/groups/<gid>")]
 pub fn group_delete(conn: ObservDbConn, _l: AdminGuard, gid: i32) -> Redirect {
+    // Delete the user relations
     use crate::schema::relation_group_user::dsl::*;
     delete(relation_group_user.filter(group_id.eq(gid)))
         .execute(&*conn)
         .expect("Failed to delete relations from database");
+
+    // Delete the meetings
+    delete_meetings_for(&*conn, gid);
+
+    // Delete the group
     use crate::schema::groups::dsl::*;
     delete(groups.find(gid))
         .execute(&*conn)
         .expect("Failed to delete group from database");
+
     Redirect::to("/groups")
 }
 
@@ -401,4 +408,29 @@ fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
                 .expect("Failed to get user from database")
         })
         .collect()
+}
+
+fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
+    use crate::schema::meetings::dsl::*;
+
+    // Get all the meetings
+    let meeting_ids: Vec<i32> = meetings
+        .select(id)
+        .filter(group_id.eq(gid))
+        .load(conn)
+        .expect("Failed to get the meetings from the database");
+
+    for meeting in meeting_ids {
+        // Delete their attendances
+        {
+            use crate::schema::attendances::dsl::*;
+            delete(attendances.filter(is_event.eq(false).and(meeting_id.eq(meeting))))
+                .execute(conn)
+                .expect("Failed to delete attendance from database");
+        }
+        // Delete the meetings
+        delete(meetings.find(meeting))
+            .execute(conn)
+            .expect("Failed to delete meeting from database");
+    }
 }

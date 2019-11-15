@@ -43,6 +43,8 @@ pub struct NewProject {
     pub proposal: Option<String>,
     /// The ID of the student who creates and owns the new project
     pub owner_id: i32,
+    /// Checks if this is a project that is currently being worked on this semester
+    pub active: bool,
     /// Link to the Project Repository
     pub repos: String,
     /// External (Non-RCOS) Project Flag

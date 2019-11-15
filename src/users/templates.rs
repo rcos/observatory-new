@@ -33,4 +33,6 @@ pub struct EditUserTemplate {
 pub struct UsersListTemplate {
     pub logged_in: OptUser,
     pub users: Vec<User>,
+    pub search_term: String,
+    pub inactive: bool
 }

@@ -54,6 +54,12 @@
     </div>
 
     <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="active" name="active" {% if project.active %} checked
+            {% endif %}>
+        <label class="custom-control-label" for="active">Active</label>
+    </div>
+
+    <div class="custom-control custom-switch">
         <input type="checkbox" class="custom-control-input" id="extrn" name="extrn" {% if project.extrn %} checked
             {% endif %}>
         <label class="custom-control-label" for="extrn">External Project</label>
