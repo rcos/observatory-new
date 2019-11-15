@@ -1,7 +1,8 @@
 //! HTML templates for login and signup
 
 #[allow(unused_imports)]
-use crate::templates::{filters, FormError, OptUser};
+use crate::templates::filters;
+use crate::templates::{FormError, OptUser};
 
 /// Sign Up page template
 ///

@@ -2,7 +2,8 @@
 
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::filters;
+use crate::templates::{FormError, OptUser};
 
 use crate::models::User;
 
@@ -37,6 +38,8 @@ pub struct NewGroupTemplate {
     pub logged_in: OptUser,
     /// List of all users in group
     pub all_users: Vec<User>,
+    /// The user gave invalid input so we tell them
+    pub error: Option<FormError>,
 }
 
 /// Edit Group page template
@@ -53,6 +56,8 @@ pub struct EditGroupTemplate {
     pub group: Group,
     /// List of all users in group
     pub all_users: Vec<User>,
+    /// The user gave invalid input so we tell them
+    pub error: Option<FormError>,
 }
 
 /// Groups List page template

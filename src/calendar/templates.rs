@@ -2,7 +2,8 @@
 
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, FormError, OptUser};
+use crate::templates::filters;
+use crate::templates::{FormError, OptUser};
 
 use crate::models::User;
 

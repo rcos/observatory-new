@@ -14,6 +14,7 @@ use crate::ObservDbConn;
 
 use super::models::*;
 use super::templates::*;
+use crate::templates::{is_reserved, FormError};
 
 #[get("/users/<h>")]
 pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate> {
@@ -47,8 +48,13 @@ pub fn user_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, h: String) -> Optio
     Some(Redirect::to(format!("/users/{}", u.id)))
 }
 
-#[get("/users/<h>/edit")]
-pub fn user_edit(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemplate> {
+#[get("/users/<h>/edit?<e>")]
+pub fn user_edit(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    e: Option<FormError>,
+) -> Option<EditUserTemplate> {
     use crate::schema::users::dsl::*;
 
     Some(EditUserTemplate {
@@ -58,6 +64,7 @@ pub fn user_edit(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTem
             .first(&*conn)
             .optional()
             .expect("Failed to get user from database")?,
+        error: e,
     })
 }
 
@@ -80,6 +87,55 @@ pub fn user_edit_put(
         .expect("Failed to get user from database");
 
     if l.tier > 1 || l.id == h {
+        if let Err(e) = is_reserved(&*edituser.handle) {
+            return Ok(Redirect::to(format!("/users/{}/edit?e={}", h, e)));
+        }
+
+        // Check if user's email is already signed up
+        if users
+            .filter(&email.eq(&edituser.email).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::EmailExists
+            )));
+        }
+
+        // Check if user's github is already signed up
+        if users
+            .filter(&handle.eq(&edituser.handle).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::GitExists
+            )));
+        }
+
+        // Check if user's mattermost is already signed up
+        if users
+            .filter(&mmost.eq(&edituser.mmost).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::MmostExists
+            )));
+        }
+
         if edituser.password_hash.is_empty() {
             edituser.salt = esalt;
             edituser.password_hash = phash;
