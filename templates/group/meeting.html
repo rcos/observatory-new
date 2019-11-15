@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ group.name }} Meeting at {{ meeting.happened_at }} {% endblock %}
+{% block title %}{{ group.name }} Meeting on {{ meeting.happened_at }} {% endblock %}
 
 {% block head %}
 <style>
@@ -14,11 +14,8 @@
 Room: {{ val }}
 {% when None %}
 {% endmatch %}
-
-<h2>Code</h2>
-<code>
-    {{ meeting.code }}
-</code>
+<br>
+Code: <code> {{ meeting.code }} </code>
 
 <h2>Attendees</h2>
 <ul>

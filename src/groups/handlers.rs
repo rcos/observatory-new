@@ -142,12 +142,17 @@ pub fn individual_meetings(conn: ObservDbConn, l: MentorGuard, gid: i32, mid: i3
         .first(&*conn)
         .expect("Failed to get meetings from database");
 
-    Some(MeetingTemplate {
-        logged_in: Some(l.0),
-        users: meeting_users(&*conn, &m),
-        group: g,
-        meeting: m,
-    })
+    if m.group_id != gid {
+        return None
+    }
+    else {
+        Some(MeetingTemplate {
+            logged_in: Some(l.0),
+            users: meeting_users(&*conn, &m),
+            group: g,
+            meeting: m,
+        })
+    }
 }
 
 /// GET handler for `/groups/<gid>/meetings.json`
