@@ -104,5 +104,5 @@ pub struct MeetingTemplate {
     /// Users this template is for
     pub users: Vec<User>,
     /// Meeting that uses this template
-    pub meeting: Meeting
+    pub meeting: Meeting,
 }

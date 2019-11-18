@@ -59,7 +59,7 @@ pub struct ProjectsListTemplate {
     pub logged_in: OptUser,
     pub projects: Vec<Project>,
     pub search_term: String,
-    pub inactive: bool
+    pub inactive: bool,
 }
 
 /// Template shown when a student wants to join a project

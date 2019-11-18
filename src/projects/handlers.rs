@@ -18,12 +18,17 @@ use crate::templates::{is_reserved, FormError};
 /// Project list page with an optional search string,
 
 #[get("/projects?<s>&<a>")]
-pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>, a: Option<bool>) -> ProjectsListTemplate {
+pub fn projects(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    s: Option<String>,
+    a: Option<bool>,
+) -> ProjectsListTemplate {
     ProjectsListTemplate {
         logged_in: l.user(),
         search_term: s.clone().unwrap_or_else(String::new),
         projects: filter_projects(&*conn, s, a),
-        inactive: a.unwrap_or(false)
+        inactive: a.unwrap_or(false),
     }
 }
 
@@ -430,7 +435,11 @@ pub fn project_repos(p: &Project) -> Vec<String> {
     serde_json::from_str(&p.repos).unwrap()
 }
 
-pub fn filter_projects(conn: &SqliteConnection, term: Option<String>, inact: Option<bool>) -> Vec<Project> {
+pub fn filter_projects(
+    conn: &SqliteConnection,
+    term: Option<String>,
+    inact: Option<bool>,
+) -> Vec<Project> {
     use crate::schema::projects::dsl::*;
 
     if let Some(term) = term {
@@ -438,21 +447,13 @@ pub fn filter_projects(conn: &SqliteConnection, term: Option<String>, inact: Opt
         let filter = name.like(&sterm);
 
         match inact {
-            Some(true) => {
-                projects.filter(filter).load(conn)
-            },
-            Some(false) | None => {
-                projects.filter(filter.and(active.eq(true))).load(conn)
-            }
+            Some(true) => projects.filter(filter).load(conn),
+            Some(false) | None => projects.filter(filter.and(active.eq(true))).load(conn),
         }
     } else {
         match inact {
-            Some(true) => {
-                projects.load(conn)
-            },
-            Some(false) | None => {
-                projects.filter(active.eq(true)).load(conn)
-            }
+            Some(true) => projects.load(conn),
+            Some(false) | None => projects.filter(active.eq(true)).load(conn),
         }
     }
     .expect("Failed to get projects")
