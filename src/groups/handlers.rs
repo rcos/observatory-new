@@ -312,7 +312,7 @@ pub fn group_user_add_post(
 
 /// DELETE handler for `/groups/<gid>/members/<uid>`
 ///
-/// Deletes a member from a group
+/// Deletes a member from a group as well as removing all the attendances for that user
 #[delete("/groups/<gid>/members/<uid>")]
 pub fn group_user_delete(
     conn: ObservDbConn,
@@ -328,10 +328,35 @@ pub fn group_user_delete(
         .expect("Failed to get group from database");
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
-        use crate::schema::relation_group_user::dsl::*;
-        delete(relation_group_user.filter(group_id.eq(g.id).and(user_id.eq(uid))))
-            .execute(&*conn)
-            .expect("Failed to removed user from group in database");
+        // Just return if this was the Large Group which users cannot be removed from
+        if g.id == 0 {
+            return Ok(Redirect::to(format!("/groups/{}", gid)))
+        }
+
+        // Delete attendances for the user and the meethings for this group
+        {
+            use crate::schema::attendances::dsl::*;
+            for meeting in group_meetings(&*conn, g.id) {
+                delete(
+                    attendances.filter(
+                        is_event
+                            .eq(false)
+                            .and(meeting_id.eq(meeting.id).and(user_id.eq(uid))),
+                    ),
+                )
+                .execute(&*conn)
+                .expect("Failed to removed ");
+            }
+        }
+
+        // Delete user from group
+        {
+            use crate::schema::relation_group_user::dsl::*;
+            delete(relation_group_user.filter(group_id.eq(g.id).and(user_id.eq(uid))))
+                .execute(&*conn)
+                .expect("Failed to removed user from group in database");
+        }
+
         Ok(Redirect::to(format!("/groups/{}", gid)))
     } else {
         Err(Status::Unauthorized)
@@ -447,28 +472,29 @@ fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
         .collect()
 }
 
+/// Returns a list of meetings for a given group if any
+fn group_meetings(conn: &SqliteConnection, gid: i32) -> Vec<Meeting> {
+    use crate::schema::meetings::dsl::*;
+    meetings
+        .filter(group_id.eq(gid))
+        .load(conn)
+        .expect("Failed to get the meetings from the database")
+}
+
 /// Deletes all the meetings for a group.
 /// Used only when a group is being deleted.
 fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
     use crate::schema::meetings::dsl::*;
-
-    // Get all the meetings
-    let meeting_ids: Vec<i32> = meetings
-        .select(id)
-        .filter(group_id.eq(gid))
-        .load(conn)
-        .expect("Failed to get the meetings from the database");
-
-    for meeting in meeting_ids {
+    for meeting in group_meetings(conn, gid) {
         // Delete their attendances
         {
             use crate::schema::attendances::dsl::*;
-            delete(attendances.filter(is_event.eq(false).and(meeting_id.eq(meeting))))
+            delete(attendances.filter(is_event.eq(false).and(meeting_id.eq(meeting.id))))
                 .execute(conn)
                 .expect("Failed to delete attendance from database");
         }
         // Delete the meetings
-        delete(meetings.find(meeting))
+        delete(meetings.find(meeting.id))
             .execute(conn)
             .expect("Failed to delete meeting from database");
     }
