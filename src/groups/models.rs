@@ -77,7 +77,7 @@ impl Attendable for Meeting {
         false
     }
     fn url(&self) -> String {
-        format!("/h/{}", self.group_id)
+        format!("/groups/{}/meetings/{}", self.group_id, self.id)
     }
 }
 

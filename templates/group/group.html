@@ -61,11 +61,11 @@ Room: {{ val }}
     {% match logged_in %}
     {% when Some with (u) %}
     <li>
-        Meeting at {{ meeting.happened_at }}
+        <a href="/groups/{{ group.id }}/meetings/{{ meeting.id }}">Meeting</a> at {{ meeting.happened_at }}
         {% if u.tier > 0 %}
             code:
             <code>{{ meeting.code }}</code>
-            <a href="/big?text={{ meeting.code }}">View</a>
+            <a href="/big?text={{ meeting.code }}">View Code</a>
         {% endif %}
     </li>
     {% when None %}

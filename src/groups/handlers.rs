@@ -8,6 +8,7 @@ use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
+use crate::attend::models::*;
 use crate::guards::*;
 use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
@@ -130,6 +131,34 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
 #[get("/groups/<gid>/meetings")]
 pub fn meetings(gid: i32) -> Redirect {
     Redirect::to(format!("/groups/{}", gid))
+}
+
+/// GET handler for `/groups/<gid>/meetings/<mid>`
+#[get("/groups/<gid>/meetings/<mid>")]
+pub fn individual_meetings(conn: ObservDbConn, l: MentorGuard, gid: i32, mid: i32) -> Option<MeetingTemplate> {
+    use crate::schema::groups::dsl::*;
+    let g: Group = groups
+        .find(gid)
+        .first(&*conn)
+        .expect("Failed to get groups from database");
+
+    use crate::schema::meetings::dsl::*;
+    let m: Meeting = meetings
+        .find(mid)
+        .first(&*conn)
+        .expect("Failed to get meetings from database");
+
+    if m.group_id != gid {
+        return None
+    }
+    else {
+        Some(MeetingTemplate {
+            logged_in: Some(l.0),
+            users: meeting_users(&*conn, &m),
+            group: g,
+            meeting: m,
+        })
+    }
 }
 
 /// GET handler for `/groups/<gid>/meetings.json`
@@ -410,6 +439,8 @@ fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
         .collect()
 }
 
+/// Deletes all the meetings for a group.
+/// Used only when a group is being deleted.
 fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
     use crate::schema::meetings::dsl::*;
 
@@ -433,4 +464,19 @@ fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
             .execute(conn)
             .expect("Failed to delete meeting from database");
     }
+
+/// Returns a list of users who attended a given meeting
+fn meeting_users(conn: &SqliteConnection, meeting: &Meeting) -> Vec<User> {
+    Attendance::belonging_to(meeting)
+        .load::<Attendance>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
+        })
+        .collect()
 }
