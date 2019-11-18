@@ -5,6 +5,9 @@ use super::models::*;
 use crate::templates::filters;
 use crate::templates::{FormError, OptUser};
 
+#[allow(unused_imports)]
+use crate::models::Attendable;
+
 use crate::models::User;
 
 /// Attendance page template

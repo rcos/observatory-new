@@ -135,23 +135,31 @@ pub fn meetings(gid: i32) -> Redirect {
 
 /// GET handler for `/groups/<gid>/meetings/<mid>`
 #[get("/groups/<gid>/meetings/<mid>")]
-pub fn individual_meetings(conn: ObservDbConn, l: MentorGuard, gid: i32, mid: i32) -> Option<MeetingTemplate> {
-    use crate::schema::groups::dsl::*;
-    let g: Group = groups
-        .find(gid)
-        .first(&*conn)
-        .expect("Failed to get groups from database");
+pub fn individual_meetings(
+    conn: ObservDbConn,
+    l: MentorGuard,
+    gid: i32,
+    mid: i32,
+) -> Option<MeetingTemplate> {
+    let g: Group = {
+        use crate::schema::groups::dsl::*;
+        groups
+            .find(gid)
+            .first(&*conn)
+            .expect("Failed to get groups from database")
+    };
 
-    use crate::schema::meetings::dsl::*;
-    let m: Meeting = meetings
-        .find(mid)
-        .first(&*conn)
-        .expect("Failed to get meetings from database");
+    let m: Meeting = {
+        use crate::schema::meetings::dsl::*;
+        meetings
+            .find(mid)
+            .first(&*conn)
+            .expect("Failed to get meetings from database")
+    };
 
     if m.group_id != gid {
-        return None
-    }
-    else {
+        return None;
+    } else {
         Some(MeetingTemplate {
             logged_in: Some(l.0),
             users: meeting_users(&*conn, &m),
@@ -464,6 +472,7 @@ fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
             .execute(conn)
             .expect("Failed to delete meeting from database");
     }
+}
 
 /// Returns a list of users who attended a given meeting
 fn meeting_users(conn: &SqliteConnection, meeting: &Meeting) -> Vec<User> {

@@ -61,7 +61,7 @@ Room: {{ val }}
     {% match logged_in %}
     {% when Some with (u) %}
     <li>
-        <a href="/groups/{{ group.id }}/meetings/{{ meeting.id }}">Meeting</a> at {{ meeting.happened_at }}
+        <a href="{{ meeting.url() }}">{{ meeting.name() }}</a>
         {% if u.tier > 0 %}
             code:
             <code>{{ meeting.code }}</code>
