@@ -134,8 +134,10 @@ pub fn meetings(gid: i32) -> Redirect {
 }
 
 /// GET handler for `/groups/<gid>/meetings/<mid>`
+///
+/// Shows the page for a meeting with the attendees
 #[get("/groups/<gid>/meetings/<mid>")]
-pub fn individual_meetings(
+pub fn meeting_get(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
@@ -146,7 +148,8 @@ pub fn individual_meetings(
         groups
             .find(gid)
             .first(&*conn)
-            .expect("Failed to get groups from database")
+            .optional()
+            .expect("Failed to get groups from database")?
     };
 
     let m: Meeting = {
@@ -154,7 +157,8 @@ pub fn individual_meetings(
         meetings
             .find(mid)
             .first(&*conn)
-            .expect("Failed to get meetings from database")
+            .optional()
+            .expect("Failed to get meetings from database")?
     };
 
     if m.group_id != gid {
