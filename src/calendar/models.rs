@@ -53,7 +53,7 @@ impl Attendable for Event {
         true
     }
     fn url(&self) -> String {
-        format!("/e/{}", self.id)
+        format!("/calendar/{}", self.id)
     }
 }
 
