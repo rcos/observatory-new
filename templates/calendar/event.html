@@ -45,7 +45,7 @@
 <h2>Attendees</h2>
 <ul>
     {% for user in users %}
-    <li><a href="/users/{{ user.id }}">{{ user.real_name }}</a>
+    <li><a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
     {% endfor %}
 </ul>
 {% endif %}
