@@ -191,12 +191,17 @@ pub fn user_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
 }
 
 #[get("/users?<s>&<a>")]
-pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>, a: Option<bool>) -> UsersListTemplate {
+pub fn users(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    s: Option<String>,
+    a: Option<bool>,
+) -> UsersListTemplate {
     UsersListTemplate {
         logged_in: l.user(),
         search_term: s.clone().unwrap_or_else(String::new),
         users: filter_users(&*conn, s, a),
-        inactive: a.unwrap_or(false)
+        inactive: a.unwrap_or(false),
     }
 }
 
@@ -205,7 +210,11 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> Jso
     Json(filter_users(&*conn, s, a))
 }
 
-pub fn filter_users(conn: &SqliteConnection, term: Option<String>, inact: Option<bool>) -> Vec<User> {
+pub fn filter_users(
+    conn: &SqliteConnection,
+    term: Option<String>,
+    inact: Option<bool>,
+) -> Vec<User> {
     use crate::schema::users::dsl::*;
 
     let afilter = active.eq(true).and(former.eq(false));
@@ -220,21 +229,13 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>, inact: Option
             .or(handle.like(&sterm));
 
         match inact {
-            Some(true) => {
-                users.filter(filter).load(conn)
-            },
-            Some(false) | None => {
-                users.filter(filter.and(afilter)).load(conn)
-            }
+            Some(true) => users.filter(filter).load(conn),
+            Some(false) | None => users.filter(filter.and(afilter)).load(conn),
         }
     } else {
         match inact {
-            Some(true) => {
-                users.load(conn)
-            },
-            Some(false) | None => {
-                users.filter(afilter).load(conn)
-            }
+            Some(true) => users.load(conn),
+            Some(false) | None => users.filter(afilter).load(conn),
         }
     }
     .expect("Failed to get users")

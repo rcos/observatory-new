@@ -75,4 +75,13 @@
         {% endfor %}
     </ul>
 </div>
+
+<div id="commits">
+    <li>
+    {% for commit in commits %}
+        <ul>{{ commit.to_string() }}</ul>
+    {% endfor %}
+    </li>
+</div>
+
 {% endblock %}
