@@ -175,6 +175,7 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
                 group_user_delete,
                 group_delete,
                 meetings,
+                meeting_get,
                 meetings_json,
                 meeting_new_post,
                 group_edit,

@@ -6,7 +6,9 @@ use crate::models::{Group, Project};
 #[allow(unused_imports)]
 use crate::models::Attendable;
 #[allow(unused_imports)]
-use crate::templates::{filters, OptUser};
+use crate::templates::filters;
+
+use crate::templates::{FormError, OptUser};
 
 #[derive(Template)]
 #[template(path = "user/user.html")]
@@ -23,6 +25,7 @@ pub struct UserTemplate {
 pub struct EditUserTemplate {
     pub logged_in: OptUser,
     pub user: User,
+    pub error: Option<FormError>,
 }
 
 #[derive(Template)]
@@ -31,5 +34,5 @@ pub struct UsersListTemplate {
     pub logged_in: OptUser,
     pub users: Vec<User>,
     pub search_term: String,
-    pub inactive: bool
+    pub inactive: bool,
 }

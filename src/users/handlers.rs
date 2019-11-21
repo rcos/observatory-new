@@ -14,6 +14,7 @@ use crate::ObservDbConn;
 
 use super::models::*;
 use super::templates::*;
+use crate::templates::{is_reserved, FormError};
 
 #[get("/users/<h>")]
 pub fn user(conn: ObservDbConn, l: MaybeLoggedIn, h: i32) -> Option<UserTemplate> {
@@ -47,8 +48,13 @@ pub fn user_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, h: String) -> Optio
     Some(Redirect::to(format!("/users/{}", u.id)))
 }
 
-#[get("/users/<h>/edit")]
-pub fn user_edit(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTemplate> {
+#[get("/users/<h>/edit?<e>")]
+pub fn user_edit(
+    conn: ObservDbConn,
+    l: UserGuard,
+    h: i32,
+    e: Option<FormError>,
+) -> Option<EditUserTemplate> {
     use crate::schema::users::dsl::*;
 
     Some(EditUserTemplate {
@@ -58,6 +64,7 @@ pub fn user_edit(conn: ObservDbConn, l: UserGuard, h: i32) -> Option<EditUserTem
             .first(&*conn)
             .optional()
             .expect("Failed to get user from database")?,
+        error: e,
     })
 }
 
@@ -80,6 +87,55 @@ pub fn user_edit_put(
         .expect("Failed to get user from database");
 
     if l.tier > 1 || l.id == h {
+        if let Err(e) = is_reserved(&*edituser.handle) {
+            return Ok(Redirect::to(format!("/users/{}/edit?e={}", h, e)));
+        }
+
+        // Check if user's email is already signed up
+        if users
+            .filter(&email.eq(&edituser.email).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::EmailExists
+            )));
+        }
+
+        // Check if user's github is already signed up
+        if users
+            .filter(&handle.eq(&edituser.handle).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::GitExists
+            )));
+        }
+
+        // Check if user's mattermost is already signed up
+        if users
+            .filter(&mmost.eq(&edituser.mmost).and(id.ne(h)))
+            .first::<User>(&*conn)
+            .optional()
+            .expect("Failed to get user from database")
+            .is_some()
+        {
+            return Ok(Redirect::to(format!(
+                "/users/{}/edit?e={}",
+                h,
+                FormError::MmostExists
+            )));
+        }
+
         if edituser.password_hash.is_empty() {
             edituser.salt = esalt;
             edituser.password_hash = phash;
@@ -135,12 +191,17 @@ pub fn user_delete(conn: ObservDbConn, _l: AdminGuard, h: i32) -> Redirect {
 }
 
 #[get("/users?<s>&<a>")]
-pub fn users(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>, a: Option<bool>) -> UsersListTemplate {
+pub fn users(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    s: Option<String>,
+    a: Option<bool>,
+) -> UsersListTemplate {
     UsersListTemplate {
         logged_in: l.user(),
         search_term: s.clone().unwrap_or_else(String::new),
         users: filter_users(&*conn, s, a),
-        inactive: a.unwrap_or(false)
+        inactive: a.unwrap_or(false),
     }
 }
 
@@ -149,7 +210,11 @@ pub fn users_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> Jso
     Json(filter_users(&*conn, s, a))
 }
 
-pub fn filter_users(conn: &SqliteConnection, term: Option<String>, inact: Option<bool>) -> Vec<User> {
+pub fn filter_users(
+    conn: &SqliteConnection,
+    term: Option<String>,
+    inact: Option<bool>,
+) -> Vec<User> {
     use crate::schema::users::dsl::*;
 
     let afilter = active.eq(true).and(former.eq(false));
@@ -164,21 +229,13 @@ pub fn filter_users(conn: &SqliteConnection, term: Option<String>, inact: Option
             .or(handle.like(&sterm));
 
         match inact {
-            Some(true) => {
-                users.filter(filter).load(conn)
-            },
-            Some(false) | None => {
-                users.filter(filter.and(afilter)).load(conn)
-            }
+            Some(true) => users.filter(filter).load(conn),
+            Some(false) | None => users.filter(filter.and(afilter)).load(conn),
         }
     } else {
         match inact {
-            Some(true) => {
-                users.load(conn)
-            },
-            Some(false) | None => {
-                users.filter(afilter).load(conn)
-            }
+            Some(true) => users.load(conn),
+            Some(false) | None => users.filter(afilter).load(conn),
         }
     }
     .expect("Failed to get users")

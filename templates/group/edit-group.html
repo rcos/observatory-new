@@ -8,6 +8,8 @@
 {% endblock %}
 
 {% block content %}
+{% include "../form-error.html" %}
+
 <form method="PUT" action="/groups/{{ group.id }}">
     <div class="form-group">
         <label for="name">Group Name</label>

@@ -10,7 +10,7 @@
     <summary>Show all Attendance</summary>
     <ul>
         {% for at in summary.attendances %}
-        <li><a href="{{ at.url() }}">{{ at.name() }} {{ at.time() }}</a></li>
+        <li><a href="{{ at.url() }}">{{ at.name() }} </a></li>
         {% endfor %}
     </ul>
 </details>

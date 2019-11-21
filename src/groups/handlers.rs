@@ -8,7 +8,9 @@ use rocket::response::Redirect;
 use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
+use crate::attend::models::*;
 use crate::guards::*;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 use super::models::*;
@@ -67,14 +69,15 @@ pub fn groups_json(conn: ObservDbConn, _l: MentorGuard) -> Json<Vec<Group>> {
 /// GET handler for `/groups/new`
 ///
 /// Creates a new group list and populates it with users
-#[get("/groups/new")]
-pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
+#[get("/groups/new?<e>")]
+pub fn group_new(conn: ObservDbConn, l: AdminGuard, e: Option<FormError>) -> NewGroupTemplate {
     use crate::schema::users::dsl::*;
     NewGroupTemplate {
         logged_in: Some(l.0),
         all_users: users
             .load(&*conn)
             .expect("Failed to get users from database"),
+        error: e,
     }
 }
 
@@ -86,6 +89,10 @@ pub fn group_new(conn: ObservDbConn, l: AdminGuard) -> NewGroupTemplate {
 #[post("/groups/new", data = "<newgroup>")]
 pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGroup>) -> Redirect {
     let newgroup = newgroup.into_inner();
+
+    if let Err(e) = is_reserved(&newgroup.name) {
+        return Redirect::to(format!("/groups/new?e={}", e));
+    }
 
     use crate::schema::groups::dsl::*;
     insert_into(groups)
@@ -124,6 +131,46 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
 #[get("/groups/<gid>/meetings")]
 pub fn meetings(gid: i32) -> Redirect {
     Redirect::to(format!("/groups/{}", gid))
+}
+
+/// GET handler for `/groups/<gid>/meetings/<mid>`
+///
+/// Shows the page for a meeting with the attendees
+#[get("/groups/<gid>/meetings/<mid>")]
+pub fn meeting_get(
+    conn: ObservDbConn,
+    l: MentorGuard,
+    gid: i32,
+    mid: i32,
+) -> Option<MeetingTemplate> {
+    let g: Group = {
+        use crate::schema::groups::dsl::*;
+        groups
+            .find(gid)
+            .first(&*conn)
+            .optional()
+            .expect("Failed to get groups from database")?
+    };
+
+    let m: Meeting = {
+        use crate::schema::meetings::dsl::*;
+        meetings
+            .find(mid)
+            .first(&*conn)
+            .optional()
+            .expect("Failed to get meetings from database")?
+    };
+
+    if m.group_id != gid {
+        return None;
+    } else {
+        Some(MeetingTemplate {
+            logged_in: Some(l.0),
+            users: meeting_users(&*conn, &m),
+            group: g,
+            meeting: m,
+        })
+    }
 }
 
 /// GET handler for `/groups/<gid>/meetings.json`
@@ -269,7 +316,7 @@ pub fn group_user_add_post(
 
 /// DELETE handler for `/groups/<gid>/members/<uid>`
 ///
-/// Deletes a member from a group
+/// Deletes a member from a group as well as removing all the attendances for that user
 #[delete("/groups/<gid>/members/<uid>")]
 pub fn group_user_delete(
     conn: ObservDbConn,
@@ -285,10 +332,35 @@ pub fn group_user_delete(
         .expect("Failed to get group from database");
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
-        use crate::schema::relation_group_user::dsl::*;
-        delete(relation_group_user.filter(group_id.eq(g.id).and(user_id.eq(uid))))
-            .execute(&*conn)
-            .expect("Failed to removed user from group in database");
+        // Just return if this was the Large Group which users cannot be removed from
+        if g.id == 0 {
+            return Ok(Redirect::to(format!("/groups/{}", gid)))
+        }
+
+        // Delete attendances for the user and the meethings for this group
+        {
+            use crate::schema::attendances::dsl::*;
+            for meeting in group_meetings(&*conn, g.id) {
+                delete(
+                    attendances.filter(
+                        is_event
+                            .eq(false)
+                            .and(meeting_id.eq(meeting.id).and(user_id.eq(uid))),
+                    ),
+                )
+                .execute(&*conn)
+                .expect("Failed to removed ");
+            }
+        }
+
+        // Delete user from group
+        {
+            use crate::schema::relation_group_user::dsl::*;
+            delete(relation_group_user.filter(group_id.eq(g.id).and(user_id.eq(uid))))
+                .execute(&*conn)
+                .expect("Failed to removed user from group in database");
+        }
+
         Ok(Redirect::to(format!("/groups/{}", gid)))
     } else {
         Err(Status::Unauthorized)
@@ -298,11 +370,12 @@ pub fn group_user_delete(
 /// GET handler for `/groups/<gid>/edit`
 ///
 /// Returns a list of group members for the mentor
-#[get("/groups/<gid>/edit")]
+#[get("/groups/<gid>/edit?<e>")]
 pub fn group_edit(
     conn: ObservDbConn,
     l: MentorGuard,
     gid: i32,
+    e: Option<FormError>,
 ) -> Result<EditGroupTemplate, Status> {
     use crate::schema::groups::dsl::*;
     use crate::schema::users::dsl::*;
@@ -319,6 +392,7 @@ pub fn group_edit(
             all_users: users
                 .load(&*conn)
                 .expect("Failed to get users from database"),
+            error: e,
         })
     } else {
         Err(Status::Unauthorized)
@@ -345,6 +419,10 @@ pub fn group_edit_put(
         .expect("Failed to get group from database");
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
+        if let Err(e) = is_reserved(&editgroup.name) {
+            return Ok(Redirect::to(format!("/groups/{}/edit?e={}", gid, e)));
+        }
+
         if l.0.tier <= 1 {
             editgroup.owner_id = l.0.id;
         }
@@ -398,27 +476,46 @@ fn group_users(conn: &SqliteConnection, group: &Group) -> Vec<User> {
         .collect()
 }
 
-fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
+/// Returns a list of meetings for a given group if any
+fn group_meetings(conn: &SqliteConnection, gid: i32) -> Vec<Meeting> {
     use crate::schema::meetings::dsl::*;
-
-    // Get all the meetings
-    let meeting_ids: Vec<i32> = meetings
-        .select(id)
+    meetings
         .filter(group_id.eq(gid))
         .load(conn)
-        .expect("Failed to get the meetings from the database");
+        .expect("Failed to get the meetings from the database")
+}
 
-    for meeting in meeting_ids {
+/// Deletes all the meetings for a group.
+/// Used only when a group is being deleted.
+fn delete_meetings_for(conn: &SqliteConnection, gid: i32) {
+    use crate::schema::meetings::dsl::*;
+    for meeting in group_meetings(conn, gid) {
         // Delete their attendances
         {
             use crate::schema::attendances::dsl::*;
-            delete(attendances.filter(is_event.eq(false).and(meeting_id.eq(meeting))))
+            delete(attendances.filter(is_event.eq(false).and(meeting_id.eq(meeting.id))))
                 .execute(conn)
                 .expect("Failed to delete attendance from database");
         }
         // Delete the meetings
-        delete(meetings.find(meeting))
+        delete(meetings.find(meeting.id))
             .execute(conn)
             .expect("Failed to delete meeting from database");
     }
+}
+
+/// Returns a list of users who attended a given meeting
+fn meeting_users(conn: &SqliteConnection, meeting: &Meeting) -> Vec<User> {
+    Attendance::belonging_to(meeting)
+        .load::<Attendance>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
+        })
+        .collect()
 }

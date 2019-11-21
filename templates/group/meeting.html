@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ group.name }} Meeting on {{ meeting.happened_at }} {% endblock %}
+
+{% block head %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% match group.location %}
+{% when Some with (val) %}
+Room: {{ val }}
+{% when None %}
+{% endmatch %}
+<br>
+Code: <code> {{ meeting.code }} </code> <a href="/big?text={{ meeting.code }}">View Code</a>
+
+<h2>Attendees</h2>
+<ul>
+    {% for user in users %}
+    <li>
+        <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
+    </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}

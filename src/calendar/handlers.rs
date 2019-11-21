@@ -13,7 +13,7 @@ use crate::guards::*;
 
 use super::models::*;
 use super::templates::*;
-use crate::templates::FormError;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 /// GET handler for `/calendar`
@@ -55,13 +55,16 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
 pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemplate> {
     use crate::schema::events::dsl::*;
 
-    Some(EventTemplate {
-        logged_in: l.user(),
-        event: events
+    let evt = events
             .find(eid)
             .first(&*conn)
             .optional()
-            .expect("Failed to get event")?,
+            .expect("Failed to get event")?;
+
+    Some(EventTemplate {
+        logged_in: l.user(),
+        users: event_users(&*conn, &evt),
+        event: evt,
     })
 }
 
@@ -135,6 +138,9 @@ pub fn event_edit_put(
             FormError::InvalidDate
         )));
     }
+    if let Err(e) = is_reserved(&editevent.title) {
+        return Ok(Redirect::to(format!("/calendar/{}/edit?e={}", eid, e)));
+    }
     let (atcode, host_id): (String, i32) = events
         .find(eid)
         .select((code, hosted_by))
@@ -161,7 +167,6 @@ pub fn event_edit_put(
 /// Restricted to Admins.
 #[delete("/calendar/<eid>")]
 pub fn event_delete(conn: ObservDbConn, _l: AdminGuard, eid: i32) -> Redirect {
-
     // Delete the attendances relations
     {
         use crate::schema::attendances::dsl::*;
@@ -212,6 +217,9 @@ pub fn event_new_post(
     if newevent.fix_times().is_none() {
         return Redirect::to(format!("/calendar/new?e={}", FormError::InvalidDate));
     }
+    if let Err(e) = is_reserved(&newevent.title) {
+        return Redirect::to(format!("/calendar/new?e={}", e));
+    }
     newevent.code = attendance_code(&*conn);
 
     audit_logger!(
@@ -227,4 +235,21 @@ pub fn event_new_post(
         .expect("Failed to add event to database");
 
     Redirect::to("/calendar")
+}
+
+use crate::models::{Attendance, User};
+/// Returns a list of users who attended a given event
+fn event_users(conn: &SqliteConnection, event: &Event) -> Vec<User> {
+    Attendance::belonging_to(event)
+        .load::<Attendance>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
+        })
+        .collect()
 }
