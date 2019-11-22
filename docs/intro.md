@@ -1,8 +1,6 @@
 # Introduction
 
-This document attempts to explain the layout and structure of the project, as
-well as some guides on how to do common tasks (some are more complicated than
-they seem).
+This document attempts to explain the layout and structure of the project.
 
 To begin with make sure that you have read the [../README.md]. That contains the
 instructions for how to get setup to work on this project, as well as links to
@@ -79,9 +77,3 @@ import some data from that to the new Observatory.
 
 Contains a variety of documentation files in the Markdown format. No code or
 anything in here, just *knowledge*.
-
-## How To...
-
-### Add a new Page
-
-### Add a field to the Database

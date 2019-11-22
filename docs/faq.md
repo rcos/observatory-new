@@ -57,10 +57,14 @@ use Rust for this project.
    may seem trivial, but RCOS is a small non-profit student organization. Every
    cent we don't spend on servers is one we can spend on something more important.
 
-There are about half a million other reasons to like Rust, but these are the
+There are a number of other reasons to like Rust, but these are the
 ones that I think matter for this project.
 In a nutshell Rust provides a level of strictness and safety, while also holding
-your hand, that I believe overall raises the quality of the code.
+your hand, that I believe overall raises the quality of the code. It makes
+long-term maintainability easier, since the compiler will reject code that does
+not conform.
+And code that doesn't compile is code that doesn't crash and corrupt the
+database.
 
 ### Why Rocket as the Web Framework?
 
@@ -68,7 +72,7 @@ Despite the maturity concerns that [Rocket](https://rocket.rs) has due to being
 only available on Rust Nightly, it is still the easiest to use and arguably most
 robust web framework available for Rust.
 
-And it's approaching aviaility on Rust Stable very quickly, so that concern may
+And it is approaching aviaility on Rust Stable very quickly, so that concern may
 soon be gone.
 
 ### Why SQLite?
@@ -123,14 +127,18 @@ applications, so I set it up. If you don't want to use it you don't have to
 
 ## How-To Questions
 
-Make sure you read the [README](../README.md) and the [intro](./intro.md)!
+Make sure you read the [README](../README.md) and the [howto.md](./howto.md)!
 
 ### How do I get started?
 
 Check out the [README](../README.md), the
 [contributing guide](../CONTRIBUTING.md) and the
-[intro documantion](./intro.md).
+[intro documention](./intro.md).
 
 ### How do I deploy it to a server?
 
 Read the [deploying documentation](./deploying.md).
+
+### How do I <add basic feature>?
+
+Check the [how to](./howto.md) document. It has guides for some basic tasks.
