@@ -4,6 +4,13 @@
 
 {% block head %}
 <style>
+    section {
+        margin: 3rem 0;
+    }
+    .card {
+        padding: 16px;
+        background-color: #EEEEEE;
+    }
 </style>
 {% endblock %}
 
@@ -31,46 +38,56 @@
 {% endblock %}
 
 {% block content %}
+<div class="container profile ng-scope">
+    <div class="row">
+        <section class="col-sm-6">
+            <div class="card border-0">
+                {% match group.location %}
+                {% when Some with (val) %}
+                Room: {{ val }}
+                {% when None %}
+                {% endmatch %}
 
-{% match group.location %}
-{% when Some with (val) %}
-Room: {{ val }}
-{% when None %}
-{% endmatch %}
-
-<h2>Members</h2>
-<ul>
-    {% for user in users %}
-    <li>
-        <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
-        {% match logged_in %}
-        {% when Some with (u) %}
-        {% if group.id > 0 && ((u.tier > 1 || u.id == group.owner_id) && user.id != group.owner_id) %}
-        <button type="delete" action="/groups/{{ group.id }}/members/{{ user.id }}"
-            class="btn btn-danger btn-sm">Remove</button>
-        {% endif %}
-        {% when None %}
-        {% endmatch %}
-    </li>
-    {% endfor %}
-</ul>
-
-<h2>Meetings</h2>
-<ul>
-    {% for meeting in meetings %}
-    {% match logged_in %}
-    {% when Some with (u) %}
-    <li>
-        <a href="{{ meeting.url() }}">{{ meeting.name() }}</a>
-        {% if u.tier > 0 %}
-            code:
-            <code>{{ meeting.code }}</code>
-            <a href="/big?text={{ meeting.code }}">View Code</a>
-        {% endif %}
-    </li>
-    {% when None %}
-    {% endmatch %}
-    {% endfor %}
-</ul>
-
+                <h2>Members</h2>
+                <ul>
+                    {% for user in users %}
+                    <li>
+                        <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
+                        {% match logged_in %}
+                        {% when Some with (u) %}
+                        {% if group.id > 0 && ((u.tier > 1 || u.id == group.owner_id) && user.id != group.owner_id) %}
+                        <button type="delete" action="/groups/{{ group.id }}/members/{{ user.id }}"
+                            class="btn btn-danger btn-sm">Remove</button>
+                        {% endif %}
+                        {% when None %}
+                        {% endmatch %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        <section class="col-sm-6">
+            <div class="card border-0">
+                <h2>Meetings</h2>
+                <ul>
+                    {% for meeting in meetings %}
+                    {% match logged_in %}
+                    {% when Some with (u) %}
+                    <li>
+                        <a href="{{ meeting.url() }}">{{ meeting.name() }}</a>
+                        {% if u.tier > 0 %}
+                            code:
+                            <code>{{ meeting.code }}</code>
+                            <a href="/big?text={{ meeting.code }}">View Code</a>
+                        {% endif %}
+                    </li>
+                    {% when None %}
+                    {% endmatch %}
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+    </div>
+</div>
 {% endblock %}
+

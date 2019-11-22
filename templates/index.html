@@ -5,13 +5,20 @@
 <style>
     .jumbotron img {
         display: block;
-        margin: 0 auto;
+        margin: 0 auto; 
     }
 
     section {
         margin: 5rem 0;
     }
 </style>
+<style>
+    .card {
+        padding: 16px;
+        background-color: #EEEEEE;
+    }
+</style>
+
 {% endblock %}
 
 {% block content %}
@@ -43,17 +50,19 @@
 </section>
 
 <section class="card-deck">
-    <div class="card">
+    <div class="card border-0">
         <div class="card-body">
             <h5 class="card-title">Mattermost</h5>
             <p class="card-text">
                 Come talk with us and keep up with important announcements
                 in the official RCOS Mattermost.
             </p>
-            <a class="card-link stretched-link" href="https://chat.rcos.io">chat.rcos.io</a>
+            <a class="btn btn-primary" ng-href="https://chat.rcos.io" role="button" href="https://chat.rcos.io">Talk with us!</a>
+            <!-- <a class="card-link stretched-link" href="https://chat.rcos.io">chat.rcos.io</a>-->
         </div>
     </div>
-    <div class="card">
+
+    <div class="card border-0">
         <div class="card-body">
             <h5 class="card-title">Wiki</h5>
             <p class="card-text">
@@ -61,7 +70,8 @@
                 Add what you know to help others!
             </p>
 	    <!-- This URL needs to be updated when the wiki moves -->
-            <a class="card-link stretched-link" href="https://rcos-wiki.cs.rpi.edu">rcos-wiki.cs.rpi.edu</a>
+            <a class="btn btn-primary" ng-href="https://rcos-wiki.cs.rpi.edu" role="button" href="https://rcos-wiki.cs.rpi.edu">View Wiki</a>
+            <!-- <a class="card-link stretched-link" href="https://rcos-wiki.cs.rpi.edu">rcos-wiki.cs.rpi.edu</a> -->
         </div>
     </div>
 </section>
@@ -70,7 +80,7 @@
     <h2>Sponsors</h2>
     <!-- The sponsor blurbs probably need to be updated -->
     <div class="card-columns">
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/red-hat.svg" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">RedHat</h4>
@@ -81,7 +91,7 @@
                 <a href="https://redhat.com/about" target="_blank" class="card-link stretched-link">About</a>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/mozilla.svg" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">Mozilla</h4>
@@ -91,7 +101,7 @@
                 <a href="https://mozilla.org" target="_blank" class="card-link stretched-link">About</a>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/google.svg" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">Google</h4>
@@ -101,7 +111,7 @@
                 <a href="https://about.google" target="_blank" class="card-link stretched-link">About</a>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/osi.webp" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">Open Source Initiative</h4>
@@ -111,7 +121,7 @@
                 <a href="https://opensource.org" target="_blank" class="card-link stretched-link">About</a>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/hfoss.webp" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">NSF HFOSS</h4>
@@ -121,7 +131,7 @@
                 <a href="http://hfoss.org" target="_blank" class="card-link stretched-link">About</a>
             </div>
         </div>
-        <div class="card">
+        <div class="card border-0">
             <img src="/static/img/sponsors/microsoft.svg" class="card-img-top">
             <div class="card-body">
                 <h4 class="card-title">Microsoft</h4>

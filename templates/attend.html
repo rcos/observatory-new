@@ -4,6 +4,11 @@
 
 {% block head %}
 <style>
+    input {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 150px;
+    }
 </style>
 {% endblock %}
 
@@ -12,7 +17,8 @@
 {% include "form-error.html" %}
 
 <form method="POST">
-    <input type="text" name="code" class="form-control">
+    <input type="text" name="code" class="form-control" maxlength = "6">
+    <br>
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}
