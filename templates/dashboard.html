@@ -4,6 +4,13 @@
 
 {% block head %}
 <style>
+    section {
+        margin: 3rem 0;
+    }
+    .card {
+        padding: 16px;
+        background-color: #EEEEEE;
+    }
 </style>
 {% endblock %}
 
@@ -18,21 +25,34 @@
 {% endblock %}
 
 {% block content %}
-<h2>Projects</h2>
-{% for project in projects %}
-<div>
-    <a href="/projects/{{ project.id }}">
-        <h4>{{ project.name }}</h4>
-    </a>
+
+
+<div class="container profile ng-scope">
+    <div class="row">
+        <section class="col-sm-6">
+            <div class="card border-0">
+				<h2>Projects</h2>
+				{% for project in projects %}
+				<div>
+				    <a href="/projects/{{ project.id }}">
+				        <h4>{{ project.name }}</h4>
+				    </a>
+				</div>
+				{% endfor %}
+
+				<h2>Groups</h2>
+				<ul>
+				    {% for group in groups %}
+				    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
+				    {% endfor %}
+				</ul>
+			</div>
+		</section>
+		<section class="col-sm-6">
+            <div class="card border-0">
+				{% include "grade-summary.html" %}
+			</div>
+		</section>
+	</div>
 </div>
-{% endfor %}
-
-<h2>Groups</h2>
-<ul>
-    {% for group in groups %}
-    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
-    {% endfor %}
-</ul>
-
-{% include "grade-summary.html" %}
 {% endblock %}

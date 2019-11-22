@@ -11,40 +11,44 @@
 {% block content %}
 {% include "../form-error.html" %}
 
-<form method="POST">
-    <div class="form-group">
-        <label for="name">Project Name</label>
-        <input type="text" name="name" class="form-control" maxlength = "50" required autofocus>
+<form method="POST" class="container">
+    <div class="row justify-content-center">
+        <div class="col col-4">
+            <div class="form-group">
+                <label for="name">Project Name</label>
+                <input type="text" name="name" class="form-control" maxlength = "50" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="homepage">Project Website</label>
+                <input type="url" name="homepage" class="form-control" maxlength = "100">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description" class="form-control" maxlength = "500" required></textarea>
+            </div>
+
+            <noscript>This form requires JavaScript to work, please enable it.</noscript>
+            <div class="form-group">
+                <label for="repo-list">Repository URLs</label>
+                <input type="url" class="repo-list form-control" maxlength = "100" required>
+                <div id="more-repos"></div>
+                <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">Add Repo</button>
+            </div>
+
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="extrn" name="extrn">
+                <label class="custom-control-label" for="extrn">External Project</label>
+            </div>
+
+            <br>
+
+            <input type="hidden" name="owner_id" value="0">
+            <input type="hidden" name="repos" value="[]">
+            <input type="hidden" name="active" value="true">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="homepage">Project Website</label>
-        <input type="url" name="homepage" class="form-control">
-    </div>
-
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea name="description" class="form-control" required></textarea>
-    </div>
-
-    <noscript>This form requires JavaScript to work, please enable it.</noscript>
-    <div class="form-group">
-        <label for="repo-list">Repository URLs</label>
-        <input type="url" class="repo-list form-control" required>
-        <div id="more-repos"></div>
-        <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">Add Repo</button>
-    </div>
-
-    <div class="custom-control custom-switch">
-        <input type="checkbox" class="custom-control-input" id="extrn" name="extrn">
-        <label class="custom-control-label" for="extrn">External Project</label>
-    </div>
-
-    <br>
-
-    <input type="hidden" name="owner_id" value="0">
-    <input type="hidden" name="repos" value="[]">
-    <input type="hidden" name="active" value="true">
-    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

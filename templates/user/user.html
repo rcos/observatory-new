@@ -6,7 +6,16 @@
     img {
         max-width: 10em;
     }
+    section {
+        margin: 3rem 0;
+    }
+    .card {
+        padding: 16px;
+        background-color: #EEEEEE;
+    }
+
 </style>
+
 {% endblock %}
 
 {% block tools %}
@@ -22,50 +31,70 @@
 {% endblock %}
 
 {% block content %}
-<img src="https://github.com/{{ user.handle }}.png" class="rounded" />
-<div class="container">
-    <div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>
-    <div>Mattermost: {{ user.mmost }}</div>
-    <div>Member since: {{ user.joined_on }}</div>
-    <div>Former Member?: {{ user.former }}</div>
-    <div>RCOS Member?: {{ !user.extrn }}</div>
-	
-	{% if user.tier == 1 %}
-	<div> User Status: Mentor </div>
-	{% else if user.tier == 2 %}
-	<div> User Status: Coordinator </div>
-	{% else if user.tier == 3 %}
-	<div> User Status: Administrator </div>
-	{% endif %}
-	
-    <h2>Bio</h2>
-    <p>{{ user.bio|e|md|safe }}</p>
+<div class="container profile ng-scope">
+    <div class="row">
+        <section class="col-sm-4">
+            <div class="card border-0">
+                <img src="https://github.com/{{ user.handle }}.png" class="rounded" />
+                <div>Mattermost: {{ user.mmost }}</div>
+                <div>Member since: {{ user.joined_on }}</div>
+                <div>Former Member?: {{ user.former }}</div>
+                <div>RCOS Member?: {{ !user.extrn }}</div>
+                {% if user.tier == 1 %}
+                <div> User Status: Mentor </div>
+                {% else if user.tier == 2 %}
+                <div> User Status: Coordinator </div>
+                {% else if user.tier == 3 %}
+                <div> User Status: Administrator </div>
+                {% endif %}
+            </div>
+        </section>
+        <section class="col-sm-8">
+            <div class="card border-0">
+                <h2>Bio</h2>
+                <p>{{ user.bio|e|md|safe }}</p> 
+            </div>         
+        </section>
+        <section class="col-sm-6">
+            <div class="card border-0">
+                <h2>Projects</h2>
+                {% for project in projects %}
+                <div>
+                    <a href="/projects/{{ project.id }}">
+                        <h4>{{ project.name }}</h4>
+                    </a>
+                </div>
+                {% endfor %}
 
-    <h2>Projects</h2>
-    {% for project in projects %}
-    <div>
-        <a href="/projects/{{ project.id }}">
-            <h4>{{ project.name }}</h4>
-        </a>
+                {% match logged_in %}
+                {% when Some with (u) %}
+
+                {% if u.tier > 0 %}
+                <h2>Groups</h2>
+                <ul>
+                    {% for group in groups %}
+                    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                {% when None %}
+                {% endmatch %}
+            </div>
+        </section>
+        <section class="col-sm-6">  
+            {% match logged_in %}
+            {% when Some with (u) %}
+
+            {% if u.tier > 0 %}
+            <div class="card border-0">
+                {% include "grade-summary.html" %}
+            </div>
+            {% endif %}
+
+            {% when None %}
+            {% endmatch %}
+        </section>
     </div>
-    {% endfor %}
-
-    {% match logged_in %}
-    {% when Some with (u) %}
-
-    {% if u.tier > 0 %}
-    <h2>Groups</h2>
-    <ul>
-        {% for group in groups %}
-        <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
-        {% endfor %}
-    </ul>
-
-    <hr />
-    {% include "grade-summary.html" %}
-    {% endif %}
-
-    {% when None %}
-    {% endmatch %}
 </div>
 {% endblock %}
