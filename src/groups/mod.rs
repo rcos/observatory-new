@@ -14,6 +14,7 @@
 //! - `/groups/<gid>/meetings
 //! - `/groups/<gid>/meetings.json
 //! - `/groups/<gid>/meetings/new
+//! - '/groups/<gid>/meetings/<mid>
 
 pub mod handlers;
 pub mod models;

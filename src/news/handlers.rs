@@ -9,7 +9,7 @@ use rocket::response::{Redirect, Response};
 use rocket_contrib::json::Json;
 
 use crate::guards::*;
-use crate::templates::FormError;
+use crate::templates::{is_reserved, FormError};
 use crate::ObservDbConn;
 
 use super::models::*;
@@ -112,6 +112,9 @@ pub fn story_new_post(
     if newnewsstory.check_times().is_err() {
         return Redirect::to(format!("/news/new?e={}", FormError::InvalidDate));
     }
+    if let Err(e) = is_reserved(&newnewsstory.title) {
+        return Redirect::to(format!("/news/new?e={}", e));
+    }
 
     insert_into(news)
         .values(&newnewsstory)
@@ -151,6 +154,9 @@ pub fn story_edit_put(
     let editnewsstory = editnewsstory.into_inner();
     if editnewsstory.check_times().is_err() {
         return Redirect::to(format!("/news/{}/edit?e={}", nid, FormError::InvalidDate));
+    }
+    if let Err(e) = is_reserved(&editnewsstory.title) {
+        return Redirect::to(format!("/news/{}/edit?e={}", nid, e));
     }
 
     update(news.find(nid))

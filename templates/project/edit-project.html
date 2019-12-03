@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block content %}
+{% include "../form-error.html" %}
+
 <form method="PUT" action="/projects/{{ project.id }}">
     <div class="form-group">
         <label for="name">Project Name</label>
@@ -49,6 +51,12 @@
         {% endfor %}
         <div id="more-repos"></div>
         <button type="button" class="btn btn-secondary" onclick="add_repo(); void(0)">Add Repo</button>
+    </div>
+
+    <div class="custom-control custom-switch">
+        <input type="checkbox" class="custom-control-input" id="active" name="active" {% if project.active %} checked
+            {% endif %}>
+        <label class="custom-control-label" for="active">Active</label>
     </div>
 
     <div class="custom-control custom-switch">

@@ -13,7 +13,7 @@
     {% when Some with (u) %}
     {% if u.tier > 1 %}
     <a class="btn btn-secondary" href="/calendar/{{ event.id }}/edit">Edit</a>
-    <button typ="delete" class="btn btn-danger">Delete</button>
+    <button type="delete" class="btn btn-danger">Delete</button>
     {% endif %}
     {% when None %}
     {% endmatch %}
@@ -29,17 +29,26 @@
 {% when None %}
 {% endmatch %}
 
-{% match logged_in %}
-{% when Some with (u) %}
-{% if u.tier > 0 || u.id == event.hosted_by %}
-<h3>Code <code>{{ event.code }}</code><small><a href="/big?text={{ event.code }}">View Larger</a></small></h3>
-{% endif %}
-{% when None %}
-{% endmatch %}
-
 {% match event.description %}
 {% when Some with (val) %}
 <p>{{ val|e|md|safe }}</p>
+{% when None %}
+{% endmatch %}
+
+{% match logged_in %}
+{% when Some with (u) %}
+{% if u.tier > 0 || u.id == event.hosted_by %}
+<div>
+    Code <code>{{ event.code }}</code>
+    <a href="/big?text={{ event.code }}">View Code</a>
+</div>
+<h2>Attendees</h2>
+<ul>
+    {% for user in users %}
+    <li><a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
+    {% endfor %}
+</ul>
+{% endif %}
 {% when None %}
 {% endmatch %}
 

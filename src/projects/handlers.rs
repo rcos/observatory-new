@@ -12,24 +12,32 @@ use crate::ObservDbConn;
 
 use super::models::*;
 use super::templates::*;
+use crate::templates::{is_reserved, FormError};
 
 /// GET handler for `/projects?s`
 /// Project list page with an optional search string,
 
-#[get("/projects?<s>")]
-pub fn projects(conn: ObservDbConn, l: MaybeLoggedIn, s: Option<String>) -> ProjectsListTemplate {
+#[get("/projects?<s>&<a>")]
+pub fn projects(
+    conn: ObservDbConn,
+    l: MaybeLoggedIn,
+    s: Option<String>,
+    a: Option<bool>,
+) -> ProjectsListTemplate {
     ProjectsListTemplate {
         logged_in: l.user(),
-        projects: filter_projects(&*conn, s),
+        search_term: s.clone().unwrap_or_else(String::new),
+        projects: filter_projects(&*conn, s, a),
+        inactive: a.unwrap_or(false),
     }
 }
 
 /// GET handler for `/projects?s`
 /// Return JSON object of the project with an optional search string
 
-#[get("/projects.json?<s>")]
-pub fn projects_json(conn: ObservDbConn, s: Option<String>) -> Json<Vec<Project>> {
-    Json(filter_projects(&*conn, s))
+#[get("/projects.json?<s>&<a>")]
+pub fn projects_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> Json<Vec<Project>> {
+    Json(filter_projects(&*conn, s, a))
 }
 
 /// GET handler for `/projects/id`
@@ -71,10 +79,11 @@ pub fn project_by_handle(conn: ObservDbConn, _l: MaybeLoggedIn, n: String) -> Op
 /// GET handler for `/projects/new`
 /// Returns the new project template
 
-#[get("/projects/new")]
-pub fn project_new(l: UserGuard) -> NewProjectTemplate {
+#[get("/projects/new?<e>")]
+pub fn project_new(l: UserGuard, e: Option<FormError>) -> NewProjectTemplate {
     NewProjectTemplate {
         logged_in: Some(l.0),
+        error: e,
     }
 }
 
@@ -90,6 +99,11 @@ pub fn project_new_post(
     let mut newproject = newproject.into_inner();
     newproject.name.truncate(50); //set a character limit to a project
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
+    newproject.active = true;
+
+    if let Err(e) = is_reserved(&newproject.name) {
+        return Redirect::to(format!("/projects/new?e={}", e));
+    }
 
     // handles the fact that projects can have multiple repos
     newproject.repos = serde_json::to_string(
@@ -130,11 +144,12 @@ pub fn project_new_post(
 /// GET handler for `/projects/edit`
 /// Get the project template for editing
 
-#[get("/projects/<h>/edit")]
+#[get("/projects/<h>/edit?<e>")]
 pub fn project_edit(
     conn: ObservDbConn,
     l: UserGuard,
     h: i32,
+    e: Option<FormError>,
 ) -> Result<EditProjectTemplate, Status> {
     use crate::schema::projects::dsl::*;
     use crate::schema::users::dsl::*;
@@ -153,6 +168,7 @@ pub fn project_edit(
             all_users: users
                 .load(&*conn)
                 .expect("Failed to get users from database"),
+            error: e,
         })
     } else {
         Err(Status::Unauthorized)
@@ -190,6 +206,10 @@ pub fn project_edit_put(
 
     //checks to see what tier logged in user is or if there the owner so no one outside the project messes with it
     if l.0.tier > 1 || p.owner_id == l.0.id {
+        if let Err(e) = is_reserved(&editproject.name) {
+            return Ok(Redirect::to(format!("/projects/{}/edit?e={}", h, e)));
+        }
+
         update(projects.find(h))
             .set(&editproject)
             .execute(&*conn)
@@ -201,21 +221,27 @@ pub fn project_edit_put(
 }
 
 /// DELETE handler for `/projects/h`
+///
 /// Deletes relation from all users tied to the project then deletes the project
 
 #[delete("/projects/<h>")]
 pub fn project_delete(conn: ObservDbConn, l: UserGuard, h: i32) -> Result<Redirect, Status> {
     use crate::schema::projects::dsl::*;
+    // Find the project
     let p: Project = projects
         .find(h)
         .first(&*conn)
         .expect("Failed to get project from database");
 
+    // If they are an admin or the project owner
     if l.0.tier > 1 || p.owner_id == l.0.id {
+        // Delete the relations
         use crate::schema::relation_project_user::dsl::*;
         delete(relation_project_user.filter(project_id.eq(h)))
             .execute(&*conn)
             .expect("Failed to delete relations from database");
+
+        // Delete the project
         delete(projects.find(h))
             .execute(&*conn)
             .expect("Failed to delete project from database");
@@ -409,15 +435,26 @@ pub fn project_repos(p: &Project) -> Vec<String> {
     serde_json::from_str(&p.repos).unwrap()
 }
 
-pub fn filter_projects(conn: &SqliteConnection, term: Option<String>) -> Vec<Project> {
+pub fn filter_projects(
+    conn: &SqliteConnection,
+    term: Option<String>,
+    inact: Option<bool>,
+) -> Vec<Project> {
     use crate::schema::projects::dsl::*;
 
     if let Some(term) = term {
         let sterm = format!("%{}%", term);
         let filter = name.like(&sterm);
-        projects.filter(filter).load(conn)
+
+        match inact {
+            Some(true) => projects.filter(filter).load(conn),
+            Some(false) | None => projects.filter(filter.and(active.eq(true))).load(conn),
+        }
     } else {
-        projects.load(conn)
+        match inact {
+            Some(true) => projects.load(conn),
+            Some(false) | None => projects.filter(active.eq(true)).load(conn),
+        }
     }
     .expect("Failed to get projects")
 }

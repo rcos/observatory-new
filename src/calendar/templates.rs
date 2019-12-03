@@ -2,7 +2,8 @@
 
 use super::models::*;
 #[allow(unused_imports)]
-use crate::templates::{filters, FormError, OptUser};
+use crate::templates::filters;
+use crate::templates::{FormError, OptUser};
 
 use crate::models::User;
 
@@ -29,6 +30,7 @@ pub struct CalendarTemplate {
 pub struct EventTemplate {
     pub logged_in: OptUser,
     pub event: Event,
+    pub users: Vec<User>
 }
 
 /// Template for creating a new Event
