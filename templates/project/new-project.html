@@ -5,6 +5,9 @@
 {% block head %}
 <script src="/static/js/edit-project.js"></script>
 <style>
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -27,8 +30,9 @@
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea name="description" class="form-control" maxlength = "500" required></textarea>
+                <p> Supports Markdown Text </p>
             </div>
-
+            <br>
             <noscript>This form requires JavaScript to work, please enable it.</noscript>
             <div class="form-group">
                 <label for="repo-list">Repository URLs</label>

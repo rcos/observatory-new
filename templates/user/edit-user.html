@@ -16,6 +16,9 @@
         overflow: hidden;
         max-width: 130px;
     }
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -49,7 +52,9 @@
             <div class="form-group">
                 <label for="bio">Your Bio</label>
                 <textarea name="bio" class="form-control" maxlength = "500">{{ user.bio }} </textarea>
+                <p> Supports Markdown Text </p>
             </div>
+            <br>
             <div class="custom-control custom-switch">
                 <input type="checkbox" class="custom-control-input" id="active" name="active" {% if user.active %} checked
                     {% endif %}>

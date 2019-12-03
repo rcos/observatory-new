@@ -5,6 +5,9 @@
 {% block head %}
 <script src="/static/js/edit-project.js"></script>
 <style>
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -34,8 +37,9 @@
             <div class="form-group">
                 <label for="description">Description</label>
                 <textarea name="description" class="form-control" maxlength = "500" required>{{ project.description }}</textarea>
+                <p> Supports Markdown Text </p>
             </div>
-
+            <br>
             <div class="form-group">
                 <label for="owner_id">Project Owner</label>
                 <select name="owner_id" class="custom-select" value="{{ project.owner_id }}">
