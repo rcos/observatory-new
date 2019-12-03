@@ -1,4 +1,5 @@
-//!
+//! The handler for the user page this code handles the function of searching for users, creating users, deleting users
+//! Checking users relation to a project, number of commits made, return a list of users, and the user's grade summary 
 
 use diesel::prelude::*;
 use diesel::{delete, update};
