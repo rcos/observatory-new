@@ -77,7 +77,7 @@
                     <ul>
                         {% for user in users %}
                         <li>
-                            <a href="/users/{{ user.id }}">{{ user.real_name }}</a>
+                            <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
                             {% match logged_in %}
                             {% when Some with (u) %}
                             {% if (u.tier > 1 || u.id == project.owner_id) && user.id != project.owner_id %}
