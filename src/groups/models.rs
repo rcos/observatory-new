@@ -57,8 +57,8 @@ impl Attendable for Meeting {
     fn name(&self) -> String {
         format!("Meeting on: {}", self.happened_at.format("%b. %-d, at %l:%M %p").to_string())
     }
-    fn time(&self) -> String {
-        self.happened_at.format("%b. %-d, at %l:%M %p").to_string()
+    fn time(&self) -> NaiveDateTime {
+        self.happened_at
     }
     fn code(&self) -> String {
         self.code.clone()

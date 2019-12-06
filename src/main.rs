@@ -219,6 +219,7 @@ fn main() {
 /// This mostly just re-exports the models from their
 /// respective modules to provide an easy way to import.
 pub mod models {
+    use chrono::NaiveDateTime;
     use std::fmt::Debug;
 
     // Import then re-export all models
@@ -237,7 +238,7 @@ pub mod models {
     pub trait Attendable: Debug {
         fn id(&self) -> i32;
         fn name(&self) -> String;
-        fn time(&self) -> String;
+        fn time(&self) -> NaiveDateTime;
         fn code(&self) -> String;
         fn owner_id(&self) -> i32;
         fn group_id(&self) -> Option<i32> {

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}{{ group.name }} Meeting on {{ meeting.time() }} {% endblock %}
+{% block title %}{{ group.name }} Meeting on {{ meeting.time().format("%b. %-d, at %l:%M %p") }} {% endblock %}
 
 {% block head %}
 <style>

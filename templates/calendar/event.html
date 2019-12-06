@@ -21,7 +21,7 @@
 {% endblock %}
 
 {% block content %}
-<h2>At {{ event.start }} until {{ event.end }}</h2>
+<h2>On {{ event.start.format("%b. %-d, from %l:%M %p") }} to {{ event.end.format("%l:%M %p") }}</h2>
 
 {% match event.location %}
 {% when Some with (val) %}

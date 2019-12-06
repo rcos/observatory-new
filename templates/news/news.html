@@ -33,7 +33,7 @@
     {% for story in stories %}
     <tr class="clickable-row" data-href="/news/{{ story.id }}">
         <td><a href="/news/{{ story.id }}">{{ story.title }}</a></td>
-        <td>{{ story.happened_at }}</td>
+        <td>{{ story.happened_at.format("%B %-d, %Y, at %l:%M %p") }}</td>
     </tr>
     {% endfor %}
 </table>
