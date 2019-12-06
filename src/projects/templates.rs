@@ -2,6 +2,7 @@ use super::models::*;
 #[allow(unused_imports)]
 use crate::templates::filters;
 use crate::templates::{FormError, OptUser};
+use std::collections::HashMap;
 
 use crate::models::User;
 
@@ -18,7 +19,7 @@ pub struct ProjectTemplate {
     pub project: Project,
     pub repos: Vec<String>,
     pub users: Vec<User>,
-    pub commits: Vec<serde_json::value::Value>,
+    pub recent_commits: HashMap<String, Vec<(String, String, String, String)>>,
 }
 
 /// Project page template

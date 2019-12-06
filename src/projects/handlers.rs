@@ -46,6 +46,7 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> 
 #[get("/projects/<n>")]
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
+    use std::collections::HashMap;
 
     let p: Project = projects
         .find(n)
@@ -53,14 +54,47 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
         .optional()
         .expect("Failed to get project from database")?;
 
-    let pc = project_commits(&*conn, &p).unwrap();
+    let rc = project_commits(&conn, &p).unwrap().iter().enumerate().map(|(i, repo)| {
+
+        (project_repos(&p)[i].to_owned().replace("https://github.com/", ""),
+            repo.as_array().unwrap()
+            .iter()
+            .take(10)
+            .map(|commit| {
+                let auth_name = serde_json::to_string(&commit["commit"]["author"]["name"])
+                    .unwrap()
+                    .replace("\"", "");
+                let auth_email = serde_json::to_string(&commit["commit"]["author"]["email"])
+                    .unwrap()
+                    .replace("\"", "");
+                let full_msg = serde_json::to_string(&commit["commit"]["message"])
+                    .unwrap()
+                    .replace("\"", "");
+                let auth_url = serde_json::to_string(&commit["html_url"])
+                    .unwrap()
+                    .replace("\"", "");
+
+                let trunc_msg = String::from(
+                    *full_msg
+                        .split("\\n")
+                        .collect::<Vec<&str>>()
+                        .first()
+                        .unwrap(),
+                );
+
+                (auth_name, auth_email, trunc_msg, auth_url)
+            })
+            .collect::<Vec<(String, String, String, String)>>())
+
+    })
+    .collect::<HashMap<_, _>>();
 
     Some(ProjectTemplate {
         logged_in: l.user(),
         repos: project_repos(&p),
         users: project_users(&*conn, &p),
         project: p,
-        commits: pc,
+        recent_commits: rc,
     })
 }
 
