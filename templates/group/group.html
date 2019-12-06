@@ -45,9 +45,9 @@ Room: {{ val }}
         <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
         {% match logged_in %}
         {% when Some with (u) %}
-        {% if (u.tier > 1 || u.id == group.owner_id) && user.id != group.owner_id %}
+        {% if group.id > 0 && ((u.tier > 1 || u.id == group.owner_id) && user.id != group.owner_id) %}
         <button type="delete" action="/groups/{{ group.id }}/members/{{ user.id }}"
-            class="btn btn-danger">Remove</button>
+            class="btn btn-danger btn-sm">Remove</button>
         {% endif %}
         {% when None %}
         {% endmatch %}
@@ -61,11 +61,11 @@ Room: {{ val }}
     {% match logged_in %}
     {% when Some with (u) %}
     <li>
-        Meeting at {{ meeting.happened_at }}
+        <a href="{{ meeting.url() }}">{{ meeting.name() }}</a>
         {% if u.tier > 0 %}
             code:
             <code>{{ meeting.code }}</code>
-            <a href="/big?text={{ meeting.code }}">View</a>
+            <a href="/big?text={{ meeting.code }}">View Code</a>
         {% endif %}
     </li>
     {% when None %}

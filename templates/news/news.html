@@ -3,6 +3,14 @@
 {% block title %}News{% endblock %}
 
 {% block head %}
+<link href='https://unpkg.com/@fullcalendar/core/main.min.css' rel='stylesheet' />
+<link href='https://unpkg.com/@fullcalendar/daygrid/main.min.css' rel='stylesheet' />
+<link href='https://unpkg.com/@fullcalendar/list/main.min.css' rel='stylesheet' />
+
+<script src='https://unpkg.com/@fullcalendar/core/main.min.js'></script>
+<script src='https://unpkg.com/@fullcalendar/daygrid/main.min.js'></script>
+<script src='https://unpkg.com/@fullcalendar/list/main.min.js'></script>
+
 <style>
 </style>
 {% endblock %}
@@ -24,17 +32,22 @@
 {% endblock %}
 
 {% block content %}
-<!-- TODO use FullCalendar for this page too -->
-<table class="table table-hover">
-    <thead>
-        <th>Title</th>
-        <th>Date</th>
-    </thead>
-    {% for story in stories %}
-    <tr class="clickable-row" data-href="/news/{{ story.id }}">
-        <td><a href="/news/{{ story.id }}">{{ story.title }}</a></td>
-        <td>{{ story.happened_at }}</td>
-    </tr>
-    {% endfor %}
-</table>
+
+<script src="/static/js/calendar.js"></script>
+
+<div id="news"></div>
+<noscript>
+    <table class="table table-hover">
+        <thead>
+            <th>Title</th>
+            <th>Date</th>
+        </thead>
+        {% for story in stories %}
+        <tr class="clickable-row" data-href="/news/{{ story.id }}">
+            <td><a href="/news/{{ story.id }}">{{ story.title }}</a></td>
+        <td>{{ story.happened_at.format("%B %-d, %Y, at %l:%M %p") }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</noscript>
 {% endblock %}

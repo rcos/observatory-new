@@ -55,13 +55,16 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
 pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemplate> {
     use crate::schema::events::dsl::*;
 
-    Some(EventTemplate {
-        logged_in: l.user(),
-        event: events
+    let evt = events
             .find(eid)
             .first(&*conn)
             .optional()
-            .expect("Failed to get event")?,
+            .expect("Failed to get event")?;
+
+    Some(EventTemplate {
+        logged_in: l.user(),
+        users: event_users(&*conn, &evt),
+        event: evt,
     })
 }
 
@@ -232,4 +235,21 @@ pub fn event_new_post(
         .expect("Failed to add event to database");
 
     Redirect::to("/calendar")
+}
+
+use crate::models::{Attendance, User};
+/// Returns a list of users who attended a given event
+fn event_users(conn: &SqliteConnection, event: &Event) -> Vec<User> {
+    Attendance::belonging_to(event)
+        .load::<Attendance>(conn)
+        .expect("Failed to get relations from database")
+        .iter()
+        .map(|r| {
+            use crate::schema::users::dsl::*;
+            users
+                .find(r.user_id)
+                .first(conn)
+                .expect("Failed to get user from database")
+        })
+        .collect()
 }

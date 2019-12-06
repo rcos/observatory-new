@@ -38,7 +38,7 @@ impl Attendable for Event {
         self.id
     }
     fn name(&self) -> String {
-        self.title.clone()
+        format!("Event ({}) on: {}", self.title.clone(), self.start.format("%b. %-d, at %l:%M %p").to_string())
     }
     fn time(&self) -> NaiveDateTime {
         self.start
@@ -53,7 +53,7 @@ impl Attendable for Event {
         true
     }
     fn url(&self) -> String {
-        format!("/e/{}", self.id)
+        format!("/calendar/{}", self.id)
     }
 }
 
