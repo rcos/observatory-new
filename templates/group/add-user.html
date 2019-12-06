@@ -7,6 +7,11 @@
 	p {
         font-size: 12px;
     }
+    select {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 500px;
+    }
 </style>
 {% endblock %}
 
@@ -18,7 +23,6 @@
         {% endfor %}
     </select>
     <p> Supports Basic Search </p>
-    <br>
     <button type="submit" class="btn btn-primary">Add</button>
 </form>
 {% endblock %}
