@@ -26,7 +26,7 @@
 <div class="container">
     <div>Github: <a href="https://github.com/{{ user.handle }}" target="_blank">{{ user.handle }}</a></div>
     <div>Mattermost: {{ user.mmost }}</div>
-    <div>Member since: {{ user.joined_on }}</div>
+    <div>Member since: {{ user.joined_on.format("%B %-d, %Y") }}</div>
     <div>Former Member?: {{ user.former }}</div>
     <div>RCOS Member?: {{ !user.extrn }}</div>
 	

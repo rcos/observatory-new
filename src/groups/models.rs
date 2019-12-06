@@ -55,7 +55,7 @@ impl Attendable for Meeting {
         self.id
     }
     fn name(&self) -> String {
-        format!("Meeting at: {}", self.happened_at)
+        format!("Meeting on: {}", self.happened_at.format("%b. %-d, at %l:%M %p").to_string())
     }
     fn time(&self) -> NaiveDateTime {
         self.happened_at

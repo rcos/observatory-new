@@ -38,7 +38,7 @@ impl Attendable for Event {
         self.id
     }
     fn name(&self) -> String {
-        format!("{} Event at: {}", self.title.clone(), self.start.clone())
+        format!("Event ({}) on: {}", self.title.clone(), self.start.format("%b. %-d, at %l:%M %p").to_string())
     }
     fn time(&self) -> NaiveDateTime {
         self.start
