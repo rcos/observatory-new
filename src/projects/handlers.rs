@@ -54,40 +54,48 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
         .optional()
         .expect("Failed to get project from database")?;
 
-    let rc = project_commits(&conn, &p).unwrap().iter().enumerate().map(|(i, repo)| {
-
-        (project_repos(&p)[i].to_owned().replace("https://github.com/", ""),
-            repo.as_array().unwrap()
-            .iter()
-            .take(10)
-            .map(|commit| {
-                let auth_name = serde_json::to_string(&commit["commit"]["author"]["name"])
+    let rc = project_commits(&conn, &p)
+        .unwrap()
+        .iter()
+        .enumerate()
+        .map(|(i, repo)| {
+            (
+                project_repos(&p)[i]
+                    .to_owned()
+                    .replace("https://github.com/", ""),
+                repo.as_array()
                     .unwrap()
-                    .replace("\"", "");
-                let auth_email = serde_json::to_string(&commit["commit"]["author"]["email"])
-                    .unwrap()
-                    .replace("\"", "");
-                let full_msg = serde_json::to_string(&commit["commit"]["message"])
-                    .unwrap()
-                    .replace("\"", "");
-                let auth_url = serde_json::to_string(&commit["html_url"])
-                    .unwrap()
-                    .replace("\"", "");
+                    .iter()
+                    .take(10)
+                    .map(|commit| {
+                        let auth_name = serde_json::to_string(&commit["commit"]["author"]["name"])
+                            .unwrap()
+                            .replace("\"", "");
+                        let auth_email =
+                            serde_json::to_string(&commit["commit"]["author"]["email"])
+                                .unwrap()
+                                .replace("\"", "");
+                        let full_msg = serde_json::to_string(&commit["commit"]["message"])
+                            .unwrap()
+                            .replace("\"", "");
+                        let auth_url = serde_json::to_string(&commit["html_url"])
+                            .unwrap()
+                            .replace("\"", "");
 
-                let trunc_msg = String::from(
-                    *full_msg
-                        .split("\\n")
-                        .collect::<Vec<&str>>()
-                        .first()
-                        .unwrap(),
-                );
+                        let trunc_msg = String::from(
+                            *full_msg
+                                .split("\\n")
+                                .collect::<Vec<&str>>()
+                                .first()
+                                .unwrap(),
+                        );
 
-                (auth_name, auth_email, trunc_msg, auth_url)
-            })
-            .collect::<Vec<(String, String, String, String)>>())
-
-    })
-    .collect::<HashMap<_, _>>();
+                        (auth_name, auth_email, trunc_msg, auth_url)
+                    })
+                    .collect::<Vec<(String, String, String, String)>>(),
+            )
+        })
+        .collect::<HashMap<_, _>>();
 
     Some(ProjectTemplate {
         logged_in: l.user(),
