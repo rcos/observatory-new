@@ -121,7 +121,7 @@ pub enum FormError {
     MmostExists,
     /// An attendance code does not exist or is used by a non-affiliated member
     InvalidCode,
-	/// An valid attendance code does was already used by a user
+    /// An valid attendance code does was already used by a user
     UsedCode,
     /// A date field was the wrong format invalid
     InvalidDate,
@@ -148,7 +148,7 @@ impl fmt::Display for FormError {
                 FormError::GitExists => "gitExists",
                 FormError::MmostExists => "mmostExists",
                 FormError::InvalidCode => "code",
-				FormError::UsedCode => "usedCode",
+                FormError::UsedCode => "usedCode",
                 FormError::InvalidDate => "date",
                 FormError::ReservedName => "reserved",
                 FormError::Other => "other",
@@ -169,7 +169,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "gitExists" => FormError::GitExists,
             "mmostExists" => FormError::MmostExists,
             "code" => FormError::InvalidCode,
-			"usedCode" => FormError::UsedCode,
+            "usedCode" => FormError::UsedCode,
             "date" => FormError::InvalidDate,
             "reserved" => FormError::ReservedName,
             "other" => FormError::Other,
