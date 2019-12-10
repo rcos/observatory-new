@@ -30,7 +30,7 @@ pub struct CalendarTemplate {
 pub struct EventTemplate {
     pub logged_in: OptUser,
     pub event: Event,
-    pub users: Vec<User>
+    pub users: Vec<User>,
 }
 
 /// Template for creating a new Event

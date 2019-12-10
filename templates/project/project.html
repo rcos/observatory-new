@@ -75,4 +75,19 @@
         {% endfor %}
     </ul>
 </div>
+
+<div id="commits">
+    <h3>Recent Commits</h3>
+        {% for (name, repo) in recent_commits %}
+            <h5>{{ name }}</h2>
+            <ul> 
+            {% for (name, email, commit, url) in repo %}
+                <li pre>{{ name }} ({{ email }}):
+                    <a href="{{ url }}"><code>{{ commit }}</code></a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+</div>
+
 {% endblock %}
