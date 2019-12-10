@@ -1,8 +1,8 @@
 use super::*;
 use crate::auth::crypto::*;
 use crate::models::*;
-use diesel::insert_into;
 use diesel::delete;
+use diesel::insert_into;
 use diesel::prelude::*;
 use rocket::config::{Config, Environment, LoggingLevel, Value};
 use rocket::http::Status;
@@ -139,9 +139,6 @@ fn check_static_content() {
 // Tests the addition, editing, and deletion of a user
 #[test]
 fn add_user() {
-
-    // cleanup(String::from("test_add_user"));
-
     let config = setup(String::from("test_add_user"));
 
     let _client = Client::new(rocket(config)).unwrap();
@@ -188,25 +185,26 @@ fn add_user() {
             })
             .execute(&conn)
             .expect("Failed to insert new relation into database");
+
+        // Relation deletion
+        delete(relation_group_user.filter(user_id.eq(user.id)))
+            .execute(&conn)
+            .expect("Failed to insert new relation into database");
     }
 
     assert_eq!("JD1".to_string(), user.handle);
-   // User update: create new instance with updated values and enter into db
-   // or edit values directly somehow?
-     
- 
+    // User update: create new instance with updated values and enter into db
+    // or edit values directly somehow?
+
     // User deletion
-    delete(users.filter(&email.eq(&*nu.email)))
+    delete(users.find(user.id))
         .execute(&conn)
         .expect("Failed to delete user from database");
-   
+
     cleanup(String::from("test_add_user"));
 }
 
-
-
-  
-// Tests the addition, editing, and deletion of a group 
+// Tests the addition, editing, and deletion of a group
 #[test]
 fn add_group() {
     let config = setup(String::from("test_add_group"));
@@ -229,7 +227,6 @@ fn add_group() {
         .expect("Failed to add group to database");
 
     let group: Group = groups
-        //.filter(&email.eq(&*nu.email))
         .first(&conn)
         .expect("Failed to get group from database");
     {
@@ -237,16 +234,23 @@ fn add_group() {
         insert_into(relation_group_user)
             .values(&NewRelationGroupUser {
                 group_id: group.id,
-                user_id: 1,
+                user_id: 0,
             })
             .execute(&conn)
             .expect("Failed to insert new relation into database");
+
+        // Relation deletion
+        delete(relation_group_user.filter(group_id.eq(group.id)))
+            .execute(&conn)
+            .expect("Failed to insert new relation into database");
     }
-    // Update to group name and meeting location  
-    
+    // Update to group name and meeting location
+
     // Group deletion
-    delete(groups.filter(id.eq(1)))
+    delete(groups.find(group.id))
         .execute(&conn)
         .expect("Failed to delete group from database");
+
+    // Cleanup database
     cleanup(String::from("test_add_group"));
-} 
+}
