@@ -334,7 +334,7 @@ pub fn group_user_delete(
     if l.0.tier > 1 || g.owner_id == l.0.id {
         // Just return if this was the Large Group which users cannot be removed from
         if g.id == 0 {
-            return Ok(Redirect::to(format!("/groups/{}", gid)))
+            return Ok(Redirect::to(format!("/groups/{}", gid)));
         }
 
         // Delete attendances for the user and the meethings for this group
