@@ -4,6 +4,9 @@
 
 {% block head %}
 <style>
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -11,52 +14,57 @@
 
 {% include "../form-error.html" %}
 
-<form method="PUT" action="/calendar/{{ event.id }}">
-    <div class="form-group">
-        <label for="title">Title</label>
-        <input type="text" name="title" class="form-control" value="{{ event.title }}" required autofocus>
+<form method="PUT" action="/calendar/{{ event.id }}" class="container">
+    <div class="row justify-content-center">
+        <div class="col col-4">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" name="title" class="form-control" value="{{ event.title }}" maxlength = "50" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea name="description"
+                    class="form-control" maxlength = "500">{% match event.description %}{% when Some with (d) %}{{ d }}{% when None %}{% endmatch%}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="location">Location</label>
+                <input type="text" name="location" class="form-control"
+                    value="{% match event.location %}{% when Some with (l) %}{{ l }}{% when None %}{% endmatch%}" maxlength = "50">
+            </div>
+            <div class="form-group">
+                <label for="start">Starting At</label>
+                <input type="datetime-local" name="start" class="form-control" value="{{ event.start }}" required>
+            </div>
+            <div class="form-group">
+                <label for="end">Ending At</label>
+                <input type="datetime-local" name="end" class="form-control" value="{{ event.end }}" required>
+            </div>
+            <div class="form-group">
+                <label for="hosted_by">Hosted By</label>
+                <select name="hosted_by" class="custom-select" value="{{ event.hosted_by }}" required>
+                    {% for user in all_users %}
+                    <option value="{{ user.id }}" {% if event.hosted_by == user.id %} selected {% endif %}>{{ user.real_name }}
+                        ({{ user.handle }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <p> Supports Basic Search </p>
+            <div class="form-group">
+                <label for="color">Calendar Color</label>
+                <select name="color" class="custom-select"
+                    value="{% match event.color %}{% when Some with (c) %}{{ c }}{% when None %}{% endmatch%}">
+                    <option value="red">Red</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="orange">Orange</option>
+                    <option value="purple">Purple</option>
+                    <option value="brown">Brown</option>
+                </select>
+            </div>
+            <input type="hidden" name="code" value="">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea name="description"
-            class="form-control">{% match event.description %}{% when Some with (d) %}{{ d }}{% when None %}{% endmatch%}</textarea>
-    </div>
-    <div class="form-group">
-        <label for="location">Location</label>
-        <input type="text" name="location" class="form-control"
-            value="{% match event.location %}{% when Some with (l) %}{{ l }}{% when None %}{% endmatch%}">
-    </div>
-    <div class="form-group">
-        <label for="start">Starting At</label>
-        <input type="datetime-local" name="start" class="form-control" value="{{ event.start }}" required>
-    </div>
-    <div class="form-group">
-        <label for="end">Ending At</label>
-        <input type="datetime-local" name="end" class="form-control" value="{{ event.end }}" required>
-    </div>
-    <div class="form-group">
-        <label for="hosted_by">Hosted By</label>
-        <select name="hosted_by" class="custom-select" value="{{ event.hosted_by }}" required>
-            {% for user in all_users %}
-            <option value="{{ user.id }}" {% if event.hosted_by == user.id %} selected {% endif %}>{{ user.real_name }}
-                ({{ user.handle }})</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="color">Calendar Color</label>
-        <select name="color" class="custom-select"
-            value="{% match event.color %}{% when Some with (c) %}{{ c }}{% when None %}{% endmatch%}">
-            <option value="red">Red</option>
-            <option value="blue">Blue</option>
-            <option value="green">Green</option>
-            <option value="yellow">Yellow</option>
-            <option value="orange">Orange</option>
-            <option value="purple">Purple</option>
-            <option value="brown">Brown</option>
-        </select>
-    </div>
-    <input type="hidden" name="code" value="">
-    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

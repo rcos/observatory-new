@@ -4,6 +4,13 @@
 
 {% block head %}
 <style>
+    section {
+        margin-bottom: 20px;
+    }
+    .card {
+        padding: 16px;
+        background-color: #EEEEEE;
+    }
 </style>
 {% endblock %}
 
@@ -29,51 +36,63 @@
 {% endblock %}
 
 {% block content %}
+<div class="container profile ng-scope">
+    <div class="row">
+        <section class="col-sm-6">
+            <div class="card border-0">
+                {% match project.homepage %}
+                {% when Some with (val) %}
+                <a href="{{ val }}">Homepage</a>
+                <!-- <a class="btn btn-primary" ng-href="https://chat.rcos.io" role="button" href="{{ val }}">Homepage</a> -->
 
-{% match project.homepage %}
-{% when Some with (val) %}
-<a href="{{ val }}">Homepage</a>
-{% when None %}
-{% endmatch %}
+                {% when None %}
+                {% endmatch %}
 
-<br>
+                <br>
 
-{% match project.proposal %}
-{% when Some with (val) %}
-<a href="{{ val }}">Proposal Document</a>
-{% when None %}
-{% endmatch %}
+                {% match project.proposal %}
+                {% when Some with (val) %}
+                <a href="{{ val }}">Proposal Document</a>
+                {% when None %}
+                {% endmatch %}
 
-<p>{{ project.description|e|md|safe }}</p>
+                <p>{{ project.description|e|md|safe }}</p>
 
-<p>External project?: {{ project.extrn }}</p>
+                <p>External project?: {{ project.extrn }}</p>
 
-<div id="repos">
-    <h3>Repos</h3>
-    <ul>
-        {% for url in repos %}
-        <li><a href="{{ url }}">{{ url }}</a></li>
-        {% endfor %}
-    </ul>
-</div>
-
-<div id="users">
-    <h3>Members</h3>
-    <ul>
-        {% for user in users %}
-        <li>
-            <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
-            {% match logged_in %}
-            {% when Some with (u) %}
-            {% if (u.tier > 1 || u.id == project.owner_id) && user.id != project.owner_id %}
-            <button type="delete" action="/projects/{{ project.id }}/members/{{ user.id }}"
-                class="btn btn-danger btn-sm">Remove</button>
-            {% endif %}
-            {% when None %}
-            {% endmatch %}
-        </li>
-        {% endfor %}
-    </ul>
+                <div id="repos">
+                    <h3>Repos</h3>
+                    <ul>
+                        {% for url in repos %}
+                        <li><a href="{{ url }}">{{ url }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+        <section class="col-sm-6">
+            <div class="card border-0">
+                <div id="users">
+                    <h3>Members</h3>
+                    <ul>
+                        {% for user in users %}
+                        <li>
+                            <a href="/users/{{ user.id }}">{{ user.real_name }} ({{ user.handle }})</a>
+                            {% match logged_in %}
+                            {% when Some with (u) %}
+                            {% if (u.tier > 1 || u.id == project.owner_id) && user.id != project.owner_id %}
+                            <button type="delete" action="/projects/{{ project.id }}/members/{{ user.id }}"
+                                class="btn btn-danger btn-sm">Remove</button>
+                            {% endif %}
+                            {% when None %}
+                            {% endmatch %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
 
 <div id="commits">

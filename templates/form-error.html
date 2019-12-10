@@ -38,7 +38,11 @@ This file can be included into another page to display an error in a form.
 </div>
 {% when FormError::InvalidCode %}
 <div class="alert alert-warning">
-    The attendance code is either invalid, or used for a group you are not a part of.
+    The attendance code entered is invalid, or you are not part of its group.
+</div>
+{% when FormError::UsedCode %}
+<div class="alert alert-warning">
+    You have already submitted this attendance code.
 </div>
 {% when FormError::InvalidDate %}
 <div class="alert alert-warning">

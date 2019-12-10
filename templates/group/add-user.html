@@ -4,6 +4,14 @@
 
 {% block head %}
 <style>
+ p {
+     font-size: 12px;
+ }
+ select {
+     white-space: nowrap;
+     overflow: hidden;
+     max-width: 500px;
+ }
 </style>
 {% endblock %}
 
@@ -14,6 +22,7 @@
         <option value="{{ u.id }}">{{ u.real_name }} ({{ u.handle }})</option>
         {% endfor %}
     </select>
+    <p> Supports Basic Search </p>
     <button type="submit" class="btn btn-primary">Add</button>
 </form>
 {% endblock %}
