@@ -127,6 +127,8 @@ pub enum FormError {
     InvalidDate,
     /// You used a name that is reserved and can't be used
     ReservedName,
+    /// Project name already taken
+    TakenName,
     /// Some other unknown error
     Other,
 }
@@ -151,6 +153,7 @@ impl fmt::Display for FormError {
                 FormError::UsedCode => "usedCode",
                 FormError::InvalidDate => "date",
                 FormError::ReservedName => "reserved",
+                FormError::TakenName => "taken",
                 FormError::Other => "other",
             }
         )
@@ -172,6 +175,7 @@ impl<T: AsRef<str>> From<T> for FormError {
             "usedCode" => FormError::UsedCode,
             "date" => FormError::InvalidDate,
             "reserved" => FormError::ReservedName,
+            "taken" => FormError::TakenName,
             "other" => FormError::Other,
             _ => FormError::Other,
         }

@@ -55,7 +55,7 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
         .expect("Failed to get project from database")?;
 
     let rc = project_commits(&conn, &p)
-        .unwrap()
+        .unwrap_or(Vec::new())
         .iter()
         .enumerate()
         .map(|(i, repo)| {
@@ -64,8 +64,8 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
                     .to_owned()
                     .replace("https://github.com/", ""),
                 repo.as_array()
-                    .unwrap()
-                    .iter()
+                    .unwrap_or(&Vec::new())
+                    .into_iter()
                     .take(10)
                     .map(|commit| {
                         let auth_name = serde_json::to_string(&commit["commit"]["author"]["name"])
@@ -162,12 +162,17 @@ pub fn project_new_post(
     )
     .unwrap();
 
-    // inserts the project into the data base
+    // inserts the project into the database
     use crate::schema::projects::dsl::*;
-    insert_into(projects)
-        .values(&newproject)
-        .execute(&*conn)
-        .expect("Failed to insert project into database");
+    use diesel::result::DatabaseErrorKind;
+    use diesel::result::Error;
+    match insert_into(projects).values(&newproject).execute(&*conn) {
+        Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+            return Redirect::to(format!("/projects/new?e={}", FormError::TakenName))
+        }
+        Err(_) => return Redirect::to(format!("/projects/new?e={}", FormError::Other)),
+        Ok(_) => ()
+    }
 
     // retrieves the object from the database after creating it
     let p: Project = projects
