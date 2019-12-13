@@ -351,6 +351,7 @@ pub fn project_member_add(
             all_users: {
                 // gets a list of users not in the project
                 users
+                    .filter(id.ne(0))
                     .load(&*conn)
                     .expect("Failed to get users from database")
                     .iter()

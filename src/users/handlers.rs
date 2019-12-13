@@ -239,25 +239,28 @@ pub fn filter_users(
 ) -> Vec<User> {
     use crate::schema::users::dsl::*;
 
+    let default_filter = id.ne(0);
     let afilter = active.eq(true).and(former.eq(false));
 
     if let Some(term) = term {
         let sterm = format!("%{}%", term);
         let email_term = format!("%{}@", term);
 
-        let filter = real_name
+        let sfilter = real_name
             .like(&sterm)
             .or(email.like(&email_term))
             .or(handle.like(&sterm));
 
         match inact {
-            Some(true) => users.filter(filter).load(conn),
-            Some(false) | None => users.filter(filter.and(afilter)).load(conn),
+            Some(true) => users.filter(default_filter.and(sfilter)).load(conn),
+            Some(false) | None => users
+                .filter(default_filter.and(sfilter).and(afilter))
+                .load(conn),
         }
     } else {
         match inact {
-            Some(true) => users.load(conn),
-            Some(false) | None => users.filter(afilter).load(conn),
+            Some(true) => users.filter(default_filter).load(conn),
+            Some(false) | None => users.filter(default_filter.and(afilter)).load(conn),
         }
     }
     .expect("Failed to get users")

@@ -235,16 +235,22 @@ pub fn group_user_add(
     l: MentorGuard,
     gid: i32,
 ) -> Result<AddUserTemplate, Status> {
-    use crate::schema::groups::dsl::*;
-    use crate::schema::users::dsl::*;
+    let g: Group = {
+        use crate::schema::groups::dsl::*;
+        groups
+            .find(gid)
+            .first(&*conn)
+            .expect("Failed to get group from database")
+    };
 
-    let g: Group = groups
-        .find(gid)
-        .first(&*conn)
-        .expect("Failed to get group from database");
-    let all_users: Vec<User> = users
-        .load(&*conn)
-        .expect("Failed to get users from database");
+    let all_users: Vec<User> = {
+        use crate::schema::users::dsl::*;
+        users
+            .filter(id.ne(0))
+            .load(&*conn)
+            .expect("Failed to get users from database")
+    };
+
     let gu = group_users(&*conn, &g);
 
     if l.0.tier > 1 || g.owner_id == l.0.id {
