@@ -1,6 +1,6 @@
 # Observatory-new
 
-![https://github.com/rcos/observatory-new/workflows/Buildbadge.svg](https://github.com/rcos/observatory-new/actions?query=workflow%3ABuild)
+[![Build Status Badge](https://github.com/rcos/observatory-new/workflows/Build/badge.svg)](https://github.com/rcos/observatory-new/actions?query=workflow%3ABuild)
 
 <img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
