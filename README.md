@@ -1,6 +1,8 @@
 # Observatory-new
 
-<img src="./logo.svg" alt="RCOS Observatory logo" width="300px" style="width:300px;display:block;margin:auto;"/>
+[![Build Status Badge](https://github.com/rcos/observatory-new/workflows/Build/badge.svg)](https://github.com/rcos/observatory-new/actions?query=workflow%3ABuild)
+
+<img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
 Rewrite of the RCOS observatory in a way that hopefully makes a bit more sense.
 Since we have kinda lost track of what number we're on at this point I am

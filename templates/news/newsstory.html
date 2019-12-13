@@ -21,6 +21,6 @@
 {% endblock %}
 
 {% block content %}
-<h3>{{ story.happened_at }}</h3>
+<h3>{{ story.happened_at.format("%B %-d, %Y, at %l:%M %p") }}</h3>
 <p>{{ story.description|e|md|safe }}</p>
 {% endblock %}

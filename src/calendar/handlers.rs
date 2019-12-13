@@ -56,10 +56,10 @@ pub fn event(conn: ObservDbConn, l: MaybeLoggedIn, eid: i32) -> Option<EventTemp
     use crate::schema::events::dsl::*;
 
     let evt = events
-            .find(eid)
-            .first(&*conn)
-            .optional()
-            .expect("Failed to get event")?;
+        .find(eid)
+        .first(&*conn)
+        .optional()
+        .expect("Failed to get event")?;
 
     Some(EventTemplate {
         logged_in: l.user(),

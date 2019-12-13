@@ -4,6 +4,9 @@
 
 {% block head %}
 <style>
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -19,7 +22,9 @@
     <div class="form-group">
         <label for="description"></label>
         <textarea name="description" class="form-control" required></textarea>
+        <p> Supports Markdown Text </p>
     </div>
+    <br>
     <div class="form-group">
         <label for="start">Happened At</label>
         <input type="datetime-local" name="happened_at" class="form-control" required>

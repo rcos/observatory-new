@@ -1,24 +1,51 @@
-    
-    document.addEventListener('DOMContentLoaded', function () {
-        var calendarEl = document.getElementById('calendar');
+const sharedOpts = {
+  plugins: ["dayGrid", "list"],
+  themeSystem: "bootstrap"
+};
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['dayGrid', 'list'],
-            header: {
-                right: 'dayGridMonth,listWeek today prev,next'
-            },
-            defaultView: 'dayGridMonth',
-            themeSystem: 'bootstrap',
-            events: {
-                url: "/calendar.json",
-                editable: false
-            },
-            eventDataTransform: (data) => ({
-                ...data,
-                url: "/calendar/" + data.id
-            })
+document.addEventListener("DOMContentLoaded", function() {
+  var calendarEl = document.getElementById("calendar");
 
-        });
-
-        calendar.render();
+  if (calendarEl) {
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+      ...sharedOpts,
+      header: {
+        right: "dayGridMonth,listWeek today prev,next"
+      },
+      defaultView: "dayGridMonth",
+      events: {
+        url: "/calendar.json",
+        editable: false
+      },
+      eventDataTransform: data => ({
+        ...data,
+        url: "/calendar/" + data.id
+      })
     });
+
+    calendar.render();
+  }
+
+  var newsEl = document.getElementById("news");
+
+  if (newsEl) {
+    var news = new FullCalendar.Calendar(newsEl, {
+      ...sharedOpts,
+      header: {
+        right: "listWeek,dayGridMonth today prev,next"
+      },
+      defaultView: "list",
+      events: {
+        url: "/news.json",
+        editable: false
+      },
+      eventDataTransform: data => ({
+        ...data,
+        start: data.happened_at,
+        end: data.happend_at,
+        url: "/news/" + data.id
+      })
+    });
+    news.render();
+  }
+});

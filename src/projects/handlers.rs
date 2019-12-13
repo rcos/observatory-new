@@ -46,6 +46,7 @@ pub fn projects_json(conn: ObservDbConn, s: Option<String>, a: Option<bool>) -> 
 #[get("/projects/<n>")]
 pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTemplate> {
     use crate::schema::projects::dsl::*;
+    use std::collections::HashMap;
 
     let p: Project = projects
         .find(n)
@@ -53,11 +54,55 @@ pub fn project(conn: ObservDbConn, l: MaybeLoggedIn, n: i32) -> Option<ProjectTe
         .optional()
         .expect("Failed to get project from database")?;
 
+    let rc = project_commits(&conn, &p)
+        .unwrap_or(Vec::new())
+        .iter()
+        .enumerate()
+        .map(|(i, repo)| {
+            (
+                project_repos(&p)[i]
+                    .to_owned()
+                    .replace("https://github.com/", ""),
+                repo.as_array()
+                    .unwrap_or(&Vec::new())
+                    .into_iter()
+                    .take(10)
+                    .map(|commit| {
+                        let auth_name = serde_json::to_string(&commit["commit"]["author"]["name"])
+                            .unwrap()
+                            .replace("\"", "");
+                        let auth_email =
+                            serde_json::to_string(&commit["commit"]["author"]["email"])
+                                .unwrap()
+                                .replace("\"", "");
+                        let full_msg = serde_json::to_string(&commit["commit"]["message"])
+                            .unwrap()
+                            .replace("\"", "");
+                        let auth_url = serde_json::to_string(&commit["html_url"])
+                            .unwrap()
+                            .replace("\"", "");
+
+                        let trunc_msg = String::from(
+                            *full_msg
+                                .split("\\n")
+                                .collect::<Vec<&str>>()
+                                .first()
+                                .unwrap(),
+                        );
+
+                        (auth_name, auth_email, trunc_msg, auth_url)
+                    })
+                    .collect::<Vec<(String, String, String, String)>>(),
+            )
+        })
+        .collect::<HashMap<_, _>>();
+
     Some(ProjectTemplate {
         logged_in: l.user(),
         repos: project_repos(&p),
         users: project_users(&*conn, &p),
         project: p,
+        recent_commits: rc,
     })
 }
 
@@ -97,7 +142,9 @@ pub fn project_new_post(
     newproject: Form<NewProject>,
 ) -> Redirect {
     let mut newproject = newproject.into_inner();
-    newproject.name.truncate(50); //set a character limit to a project
+    newproject.name.truncate(50); // sets a character limit for a new project name
+    newproject.description.truncate(500); // sets a character limit for a new project description
+    newproject.repos.truncate(100); // sets a character limit for a new repository URL
     newproject.owner_id = l.0.id; // set owner to be the person who created the project
     newproject.active = true;
 
@@ -115,12 +162,17 @@ pub fn project_new_post(
     )
     .unwrap();
 
-    // inserts the project into the data base
+    // inserts the project into the database
     use crate::schema::projects::dsl::*;
-    insert_into(projects)
-        .values(&newproject)
-        .execute(&*conn)
-        .expect("Failed to insert project into database");
+    use diesel::result::DatabaseErrorKind;
+    use diesel::result::Error;
+    match insert_into(projects).values(&newproject).execute(&*conn) {
+        Err(Error::DatabaseError(DatabaseErrorKind::UniqueViolation, _)) => {
+            return Redirect::to(format!("/projects/new?e={}", FormError::TakenName))
+        }
+        Err(_) => return Redirect::to(format!("/projects/new?e={}", FormError::Other)),
+        Ok(_) => ()
+    }
 
     // retrieves the object from the database after creating it
     let p: Project = projects
@@ -188,7 +240,9 @@ pub fn project_edit_put(
     use crate::schema::projects::dsl::*;
 
     let mut editproject = editproject.into_inner();
-    editproject.name.truncate(50);
+    editproject.name.truncate(50); // sets a character limit for an edited project name
+    editproject.description.truncate(500); // sets a character limit for a new project name
+    editproject.repos.truncate(100); // sets a character limit for an edited repository URL
 
     editproject.repos = serde_json::to_string(
         &serde_json::from_str::<Vec<String>>(&editproject.repos)
@@ -302,6 +356,7 @@ pub fn project_member_add(
             all_users: {
                 // gets a list of users not in the project
                 users
+                    .filter(id.ne(0))
                     .load(&*conn)
                     .expect("Failed to get users from database")
                     .iter()

@@ -4,6 +4,21 @@
 
 {% block head %}
 <style>
+    input {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 1000px;
+    }
+</style>
+<style>
+    select {
+        white-space: nowrap;
+        overflow: hidden;
+        max-width: 130px;
+    }
+    p {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -11,64 +26,71 @@
 
 {% include "../form-error.html" %}
 
-<form method="PUT" action="/users/{{ user.id }}">
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" name="email" class="form-control" value="{{ user.email }}" required autofocus>
+<form method="PUT" action="/users/{{ user.id }}" class="container">
+    <div class="row justify-content-center">
+        <div class="col col-4">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" name="email" class="form-control" value="{{ user.email }}" maxlength = "50" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password_hash">Password</label>
+                <input type="password" name="password_hash" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="real_name">Real Name</label>
+                <input type="text" name="real_name" class="form-control" value="{{ user.real_name }}" maxlength = "30" required>
+            </div>
+            <div class="form-group">
+                <label for="handle">GitHub Handle</label>
+                <input type="text" name="handle" class="form-control" value="{{ user.handle }}" maxlength = "39" required>
+            </div>
+            <div class="form-group">
+                <label for="mmost">Mattermost Handle</label>
+                <input type="text" name="mmost" class="form-control" value="{{ user.mmost }}" maxlength = "22" required>
+            </div>
+            <div class="form-group">
+                <label for="bio">Your Bio</label>
+                <textarea name="bio" class="form-control" maxlength = "500">{{ user.bio }} </textarea>
+                <p> Supports Markdown Text </p>
+            </div>
+            <br>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="active" name="active" {% if user.active %} checked
+                    {% endif %}>
+                <label class="custom-control-label" for="active">Active User</label>
+            </div>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="former" name="former" {% if user.former %} checked
+                {% endif %}>
+                <label class="custom-control-label" for="former">Former Member</label>
+            </div>
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="extrn" name="extrn" {% if user.extrn %} checked
+                {% endif %}>
+                <label class="custom-control-label" for="extrn">External Member</label>
+            </div>
+            <br>
+            {% match logged_in %}
+            {% when Some with (u) %}
+            {% if u.tier > 1 && user.id != 0 %}
+            <div class="form-group">
+                <label for="tier">Privilege Tier: </label>
+                <select name="tier" class="custom-select" required>
+                    <option value="0" {% if user.tier == 0 %}selected{% endif %}>Member</option>
+                    <option value="1" {% if user.tier == 1 %}selected{% endif %}>Mentor</option>
+                    <option value="2" {% if user.tier == 2 %}selected{% endif %}>Coordinator</option>
+                </select>
+            </div>
+            {% else %}
+            <input type="hidden" name="tier" value="0">
+            {% endif %}
+            {% when None %}
+            {% endmatch %}
+            <input type="hidden" name="salt" value="">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <div class="col-sm-3"></div>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="password_hash">Password</label>
-        <input type="password" name="password_hash" class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="real_name">Real Name</label>
-        <input type="text" name="real_name" class="form-control" value="{{ user.real_name }}" required>
-    </div>
-    <div class="form-group">
-        <label for="handle">GitHub Handle</label>
-        <input type="text" name="handle" class="form-control" value="{{ user.handle }}" maxlength = "39" required>
-    </div>
-    <div class="form-group">
-        <label for="mmost">Mattermost Handle</label>
-        <input type="text" name="mmost" class="form-control" value="{{ user.mmost }}" maxlength = "22" required>
-    </div>
-    <div class="form-group">
-        <label for="bio">Your Bio</label>
-        <textarea name="bio" class="form-control">{{ user.bio }}</textarea>
-    </div>
-    <div class="custom-control custom-switch">
-        <input type="checkbox" class="custom-control-input" id="active" name="active" {% if user.active %} checked
-            {% endif %}>
-        <label class="custom-control-label" for="active">Active User</label>
-    </div>
-    <div class="custom-control custom-switch">
-        <input type="checkbox" class="custom-control-input" id="former" name="former" {% if user.former %} checked
-            {% endif %}>
-        <label class="custom-control-label" for="former">Former Member</label>
-    </div>
-    <div class="custom-control custom-switch">
-        <input type="checkbox" class="custom-control-input" id="extrn" name="extrn" {% if user.extrn %} checked
-            {% endif %}>
-        <label class="custom-control-label" for="extrn">External Member</label>
-    </div>
-    <br>
-    {% match logged_in %}
-    {% when Some with (u) %}
-    {% if u.tier > 1 && user.id != 0 %}
-    <div class="form-group">
-        <label for="tier">Privilege Tier</label>
-        <select name="tier" class="custom-select" required>
-            <option value="0" {% if user.tier == 0 %}selected{% endif %}>Member</option>
-            <option value="1" {% if user.tier == 1 %}selected{% endif %}>Mentor</option>
-            <option value="2" {% if user.tier == 2 %}selected{% endif %}>Coordinator</option>
-        </select>
-    </div>
-    {% else %}
-    <input type="hidden" name="tier" value="0">
-    {% endif %}
-    {% when None %}
-    {% endmatch %}
-    <input type="hidden" name="salt" value="">
-    <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 {% endblock %}

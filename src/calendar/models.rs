@@ -38,7 +38,11 @@ impl Attendable for Event {
         self.id
     }
     fn name(&self) -> String {
-        self.title.clone()
+        format!(
+            "Event ({}) on: {}",
+            self.title.clone(),
+            self.start.format("%b. %-d, at %l:%M %p").to_string()
+        )
     }
     fn time(&self) -> NaiveDateTime {
         self.start
@@ -81,41 +85,37 @@ pub struct NewEvent {
 
 impl NewEvent {
     /// Verifies that the start and end times are valid
-    /// by checking against a list of possible date/time formats
     pub fn fix_times(&mut self) -> Option<()> {
-        // The array of possible valid strftime strings
-        // and examples of what that format looks like.
-        // https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html
-        let fixed_times = vec![
-            // 2018-05-03 10:22
-            "%F %R", // 2018-05-03 10:22:11
-            "%F %T", // 2018-05-03T10:22
-            "%FT%R", // 2018-05-03T10:22:11
-            "%FT%T", // 05/03/18 10:22
-            "%D %R", // 05/03/18 10:22:11
-            "%D %T", // 05/03/18 10:22 AM
-            "%D %r",
-        ]
-        // Iterate thorugh
-        .into_iter()
-        // Turn into a tuple of start and end NaiveDateTimes
-        // Assumes that both start and end have the same format
-        .map(|s| {
-            (
-                NaiveDateTime::parse_from_str(&self.start, s),
-                NaiveDateTime::parse_from_str(&self.end, s),
-            )
-        })
-        // Find the first valid pair and stop
-        .find_map(|e| match e {
-            (Ok(s), Ok(e)) => Some((s, e)),
-            _ => None,
-        })?;
-
         // Set the start and end in self
-        self.start = fixed_times.0.format("%F %R").to_string();
-        self.end = fixed_times.1.format("%F %R").to_string();
-
+        self.start = smart_time_parse(&self.start)?.format("%F %R").to_string();
+        self.end = smart_time_parse(&self.end)?.format("%F %R").to_string();
+        // If it got this far then return a Some
         Some(())
     }
+}
+
+// The array of possible valid strftime strings
+// and examples of what that format looks like.
+// https://docs.rs/chrono/0.4.9/chrono/format/strftime/index.html
+const TIME_FORMAT_STRINGS: &[&str] = &[
+    "%F %R", // 2018-05-03 10:22
+    "%F %T", // 2018-05-03 10:22:11
+    "%FT%R", // 2018-05-03T10:22
+    "%FT%T", // 2018-05-03T10:22:11
+    "%D %R", // 05/03/18 10:22
+    "%D %T", // 05/03/18 10:22:11
+    "%D %r", // 05/03/18 10:22 AM
+];
+
+/// Validates a datetime string by checking against
+/// the accepted date/time formats listed above
+pub fn smart_time_parse(timestr: &str) -> Option<NaiveDateTime> {
+    TIME_FORMAT_STRINGS
+        // Iterate thorugh
+        .iter()
+        // Turn into a tuple of start and end NaiveDateTimes
+        // Assumes that both start and end have the same format
+        .map(|s| NaiveDateTime::parse_from_str(timestr, s))
+        // Find the first valid pair and stop
+        .find_map(|e| e.ok())
 }
