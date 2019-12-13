@@ -1,5 +1,7 @@
 # Observatory-new
 
+![https://github.com/rcos/observatory-new/workflows/Buildbadge.svg](https://github.com/rcos/observatory-new/actions?query=workflow%3ABuild)
+
 <img src="./logo.svg" alt="RCOS Observatory logo" width="200px" style="display:block;margin:auto;"/>
 
 Rewrite of the RCOS observatory in a way that hopefully makes a bit more sense.
