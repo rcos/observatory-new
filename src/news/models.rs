@@ -23,10 +23,10 @@ pub struct NewNewsStory {
     pub announcement: bool,
 }
 
+use crate::calendar::models::smart_time_parse;
 impl NewNewsStory {
-    pub fn check_times(&self) -> Result<(), chrono::ParseError> {
-        NaiveDateTime::parse_from_str(&self.happened_at, "%F %R")
-            .or_else(|_| NaiveDateTime::parse_from_str(&self.happened_at, "%F %T"))
-            .and(Ok(()))
+    pub fn fix_times(&mut self) -> Option<()> {
+        self.happened_at = smart_time_parse(&self.happened_at)?.format("%F %R").to_string();
+        Some(())
     }
 }

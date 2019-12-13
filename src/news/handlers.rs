@@ -108,8 +108,8 @@ pub fn story_new_post(
 ) -> Redirect {
     use crate::schema::news::dsl::*;
 
-    let newnewsstory = newnewsstory.into_inner();
-    if newnewsstory.check_times().is_err() {
+    let mut newnewsstory = newnewsstory.into_inner();
+    if newnewsstory.fix_times().is_none() {
         return Redirect::to(format!("/news/new?e={}", FormError::InvalidDate));
     }
     if let Err(e) = is_reserved(&newnewsstory.title) {
@@ -151,8 +151,8 @@ pub fn story_edit_put(
 ) -> Redirect {
     use crate::schema::news::dsl::*;
 
-    let editnewsstory = editnewsstory.into_inner();
-    if editnewsstory.check_times().is_err() {
+    let mut editnewsstory = editnewsstory.into_inner();
+    if editnewsstory.fix_times().is_none() {
         return Redirect::to(format!("/news/{}/edit?e={}", nid, FormError::InvalidDate));
     }
     if let Err(e) = is_reserved(&editnewsstory.title) {
