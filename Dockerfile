@@ -8,8 +8,8 @@
 
 # --- Docker Build Stage 1 ---
 
-# Uses the official rust nightly builder
-FROM rustlang/rust:nightly as builder
+# Uses the official rust nightly Alpine builder
+FROM rustlang/rust:nightly-alpine as builder
 
 # Copy in all the source files and switch to it
 COPY . /build/
@@ -23,14 +23,14 @@ RUN strip /build/target/release/observatory
 
 # --- Docker Build Stage 2 ---
 
-# Use Debian Slim for it's small footprint.
-FROM debian:stable-slim
+# Use Alpine for it's small footprint.
+FROM alpine
 
 # Set the workdir
 WORKDIR /
 
-# Install OpenSSL
-RUN apt-get -qq update && apt-get -qq install openssl -y 
+# Install LibreSSL (or OpenSSL)
+RUN apk add --no-cache libressl
 
 # Create a new user
 RUN useradd -md /home/observatory -r observatory
