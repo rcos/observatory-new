@@ -171,7 +171,7 @@ pub fn project_new_post(
             return Redirect::to(format!("/projects/new?e={}", FormError::TakenName))
         }
         Err(_) => return Redirect::to(format!("/projects/new?e={}", FormError::Other)),
-        Ok(_) => ()
+        Ok(_) => (),
     }
 
     // retrieves the object from the database after creating it

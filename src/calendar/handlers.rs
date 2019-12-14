@@ -6,6 +6,8 @@ use rocket::http::Status;
 use rocket::request::Form;
 use rocket::response::Redirect;
 
+use rocket::http::ContentType;
+use rocket::response::Content;
 use rocket_contrib::json::Json;
 
 use crate::attend::code::attendance_code;
@@ -46,6 +48,54 @@ pub fn calendar_json(conn: ObservDbConn) -> Json<Vec<Event>> {
             .load(&*conn)
             .expect("Failed to get events"),
     )
+}
+
+/// GET handler for `/calendar.ics`
+///
+/// An ICalendar version of
+#[get("/calendar.ics")]
+pub fn calendar_ics(conn: ObservDbConn) -> Content<String> {
+    use icalendar;
+    use icalendar::Component;
+
+    let mut ical = icalendar::Calendar::new();
+
+    use crate::schema::events::dsl::*;
+    use chrono::offset::{Local, TimeZone, Utc};
+
+    for evt in events
+        .order(start.asc())
+        .load::<Event>(&*conn)
+        .expect("Failed to get events")
+    {
+        ical.push(
+            icalendar::Event::new()
+                .summary(&evt.title)
+                .description(&evt.description.unwrap_or_else(|| String::new()))
+                .class(icalendar::Class::Public)
+                // Ensure that everything converts to UTC and offsets are correct
+                .starts(
+                    Utc.from_utc_datetime(
+                        &Local.from_local_datetime(&evt.start).unwrap().naive_utc(),
+                    ),
+                )
+                .ends(
+                    Utc.from_utc_datetime(
+                        &Local.from_local_datetime(&evt.end).unwrap().naive_utc(),
+                    ),
+                )
+                .append_property(
+                    icalendar::Property::new(
+                        "LOCATION",
+                        &evt.location.unwrap_or_else(|| String::new()),
+                    )
+                    .done(),
+                )
+                .done(),
+        );
+    }
+
+    Content(ContentType::Calendar, ical.to_string())
 }
 
 /// GET handler for `/calendar/<eid>`

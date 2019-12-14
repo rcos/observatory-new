@@ -124,6 +124,7 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
                 // Calendar
                 calendar,
                 calendar_json,
+                calendar_ics,
                 event,
                 event_edit,
                 event_edit_put,
