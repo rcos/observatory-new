@@ -19,7 +19,7 @@ WORKDIR /build/
 RUN cargo build --release
 
 # Strip debug symbols out of binary
-RUN strip /build/target/release/observatory
+RUN strip /build/target/x86_64-unknown-linux-musl/release/observatory
 
 # --- Docker Build Stage 2 ---
 
@@ -45,7 +45,7 @@ RUN chown -R observatory /var/lib/observatory/
 USER observatory
 
 # Copy in the binary from the builder
-COPY --from=builder /build/target/release/observatory .
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory .
 
 # Expose the HTTP port
 EXPOSE 8000
