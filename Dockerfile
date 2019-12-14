@@ -30,7 +30,7 @@ FROM alpine
 WORKDIR /
 
 # Create a new user
-RUN useradd -md /home/observatory -r observatory
+RUN adduser -h /home/observatory -S observatory
 
 # Create the user's home folder and move to it
 WORKDIR /home/observatory
