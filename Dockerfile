@@ -8,15 +8,12 @@
 
 # --- Docker Build Stage 1 ---
 
-# Uses the official rust nightly Alpine builder
-FROM rustlang/rust:nightly-alpine as builder
+# Uses the muslrust image to compile with musl for Alpine
+FROM clux/muslrust:nightly as builder
 
 # Copy in all the source files and switch to it
 COPY . /build/
 WORKDIR /build/
-
-# Install GCC which is required for somethings
-RUN apk add --no-cache gcc
 
 # Build the project in release mode
 RUN cargo build --release
