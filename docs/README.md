@@ -12,7 +12,8 @@ the code.
 for technical decesions.
 
 [deploying.md](./deploying.md) talks about how to deploy this project to a
-server as well as the current server setup.
+server as well as the current server setup. **This is for deploying to a server,
+not a developer machine**
 
 [emergency.md](./emergency.md) contains information on what to do when something
-goes *very* wrong.
+goes _very_ wrong.

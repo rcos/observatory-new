@@ -1,40 +1,53 @@
-version: '3'
+# This file is the RCOS-secific Docker Compose deployment file which creates
+# containers for both the Observatory and RCOS Wiki as well as setting up
+# Traefik and Oroborous to manage things
+
+# Persistent data is written to `/persist`
+
+version: "3"
 
 services:
-    traefik:
-        image: traefik
-        restart: always
-        command: --api.insecure=true --providers.docker
-        ports:
-            - 80:80
-            - 443:443
-            - 8000:8000
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+  # Reverse proxy that adds load balancing and security
+  # as well as automatic TLS certs.
+  traefik:
+    image: traefik
+    restart: always
+    command: --api.insecure=true --providers.docker
+    # All ports are routed through Traefik
+    ports:
+      - 80:80
+      - 443:443
+      - 8000:8000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
-    oroborous:
-        image: pyouroboros/ouroboros
-        restart: always
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+  # Automatically updates other containers to their latest version periodically
+  oroborous:
+    image: pyouroboros/ouroboros
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
-    observatory:
-        image: rcos/observatory-new
-        restart: always
-        volumes:
-            - /persist/observatory:/var/lib/observatory
-        labels:
-            - "traefik.http.routers.observatory.rule=Host(`rcos-observatory.cs.rpi.edu`)"
+  # The Observatory itself, pulled from the latest Docker Hub release
+  observatory:
+    image: rcos/observatory-new
+    restart: always
+    volumes:
+      - /persist/observatory:/var/lib/observatory
+    labels:
+      - "traefik.http.routers.observatory.rule=Host(`rcos-observatory.cs.rpi.edu`)"
 
-    dokuwiki:
-        image: bitnami/dokuwiki
-        restart: always
-        volumes:
-            - /persist/dokuwiki:/bitnami
-        environment:
-            - "DOKUWIKI_USERNAME=admin"
-            - "DOKUWIKI_PASSWORD=adminpassword" # Make sure to change this in the UI
-            - "DOKUWIKI_EMAIL=admin@rcos.io"
-            - "DOKUWIKI_WIKI_NAME=RCOS Wiki"
-        labels:
-            - "traefik.http.routers.dokuwiki.rule=Host(`rcos-wiki.cs.rpi.edu`)"
+  # The wiki pulled and setup
+  dokuwiki:
+    image: bitnami/dokuwiki
+    restart: always
+    volumes:
+      - /persist/dokuwiki:/bitnami
+    # IMPORTANT MAKE SURE TO CHANGE THE DEFAULT PASSWORD
+    environment:
+      - "DOKUWIKI_USERNAME=admin"
+      - "DOKUWIKI_PASSWORD=adminpassword" # Make sure to change this in the UI
+      - "DOKUWIKI_EMAIL=admin@rcos.io"
+      - "DOKUWIKI_WIKI_NAME=RCOS Wiki"
+    labels:
+      - "traefik.http.routers.dokuwiki.rule=Host(`rcos-wiki.cs.rpi.edu`)"

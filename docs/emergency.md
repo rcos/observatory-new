@@ -19,12 +19,12 @@ help in any way I can.
 
 The Observatory logs it's errors to `stdout`. If you were running in Docker
 these can easily be viewed with `docker logs <container name>`.
-The logs are going to be *very* helpful as they should tell you exactly what is
+The logs are going to be _very_ helpful as they should tell you exactly what is
 going wrong, and often will even tell you what line the error was on.
 
 ## 3. Restart the Application
 
-This should be obvious but simply restarting my solve the issue, or at least
+This should be obvious but simply restarting may solve the issue, or at least
 bring you back up for now.
 If running on Docker using the provided `docker-compose.yml` then the container
-will restart on crash.
+will restart itself on crash.

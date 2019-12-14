@@ -7,9 +7,9 @@ container management system to make deployment simpler.
 Generally speaking we recommend using Docker, however that may sometimes not
 be ideal or even possible.
 
-__**Please Note**__ that all versions of Observatory-new do not provide SSL/TLS
+****Please Note**** that all versions of Observatory-new do not provide SSL/TLS
 support out of the box. We highly suggest using a reverse proxy such
-as NGINX or HAProxy in order to increase security.
+as NGINX, Traefik, HAProxy, etc. in order to increase security.
 
 ## Docker
 
@@ -31,14 +31,15 @@ $ docker build -t rcos/observatory .
 ```
 
 ### Running
+
 Observatory can be run with Docker with the following command once it has been
 built or pulled.
 
 ```
-$ docker run --name observatory -i -p 8000:8000 rcos/observatory
+$ docker run --name observatory -i -p 80:8000 rcos/observatory
 ```
 
-Once that is running Observatory-new will be available on port 8000.
+Once that is running Observatory-new will be available on port 80.
 
 ### Mounts
 
@@ -60,6 +61,7 @@ The first few steps are quite similar to the [Building section in the README](./
 
 First you will have to build Observatory-new in release mode. This can be done
 easily with
+
 ```
 $ cargo build --release
 ```

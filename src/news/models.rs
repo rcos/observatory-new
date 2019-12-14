@@ -26,7 +26,9 @@ pub struct NewNewsStory {
 use crate::calendar::models::smart_time_parse;
 impl NewNewsStory {
     pub fn fix_times(&mut self) -> Option<()> {
-        self.happened_at = smart_time_parse(&self.happened_at)?.format("%F %R").to_string();
+        self.happened_at = smart_time_parse(&self.happened_at)?
+            .format("%F %R")
+            .to_string();
         Some(())
     }
 }

@@ -15,6 +15,9 @@ FROM rustlang/rust:nightly-alpine as builder
 COPY . /build/
 WORKDIR /build/
 
+# Install GCC which is required for somethings
+RUN apk add --no-cache gcc
+
 # Build the project in release mode
 RUN cargo build --release
 
@@ -28,9 +31,6 @@ FROM alpine
 
 # Set the workdir
 WORKDIR /
-
-# Install LibreSSL (or OpenSSL)
-RUN apk add --no-cache libressl
 
 # Create a new user
 RUN useradd -md /home/observatory -r observatory
