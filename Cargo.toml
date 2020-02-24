@@ -18,7 +18,7 @@ rand = "^0.7.3"
 rocket = "^0.4.2"
 rss = "^1.9.0"
 rust-embed = "^5.2.0"
-http_req = "^0.5.5"
+http_req = "^0.6.0"
 
 # By using * we match the library versions
 base64 = "*"
