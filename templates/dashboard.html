@@ -15,7 +15,7 @@
 {% endblock %}
 
 {% block tools %}
-{% match logged_in%}
+{% match logged_in %}
 {% when Some with (u) %}
 <div class="btn-group mr-2">
     <a class="btn btn-secondary" href="/users/{{ u.id }}/edit">Edit Profile</a>
@@ -31,28 +31,28 @@
     <div class="row">
         <section class="col-sm-6">
             <div class="card border-0">
-				<h2>Projects</h2>
-				{% for project in projects %}
-				<div>
-				    <a href="/projects/{{ project.id }}">
-				        <h4>{{ project.name }}</h4>
-				    </a>
-				</div>
-				{% endfor %}
+                <h2>Projects</h2>
+                {% for project in projects %}
+                <div>
+                    <a href="/projects/{{ project.id }}">
+                        <h4>{{ project.name }}</h4>
+                    </a>
+                </div>
+                {% endfor %}
 
-				<h2>Groups</h2>
-				<ul>
-				    {% for group in groups %}
-				    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
-				    {% endfor %}
-				</ul>
-			</div>
-		</section>
-		<section class="col-sm-6">
+                <h2>Groups</h2>
+                <ul>
+                    {% for group in groups %}
+                    <li><a href="/groups/{{ group.id }}">{{ group.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        <section class="col-sm-6">
             <div class="card border-0">
-				{% include "grade-summary.html" %}
-			</div>
-		</section>
-	</div>
+                {% include "grade-summary.html" %}
+            </div>
+        </section>
+    </div>
 </div>
 {% endblock %}
