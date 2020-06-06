@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var calendar = new FullCalendar.Calendar(calendarEl, {
       ...sharedOpts,
       header: {
-        right: "dayGridMonth,listWeek today prev,next"
+        right: "dayGridMonth,listYear today prev,next"
       },
       defaultView: "dayGridMonth",
       events: {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
     var news = new FullCalendar.Calendar(newsEl, {
       ...sharedOpts,
       header: {
-        right: "listWeek,dayGridMonth today prev,next"
+        right: "listYear,dayGridMonth today prev,next"
       },
       defaultView: "list",
       events: {
@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function() {
         url: "/news/" + data.id
       })
     });
+
     news.render();
   }
 });

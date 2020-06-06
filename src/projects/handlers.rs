@@ -581,12 +581,13 @@ pub fn project_commits(conn: &SqliteConnection, proj: &Project) -> Option<Vec<se
         repos
             .iter()
             .filter_map(|s| {
-                let res = reqwest::get(s);
-                if res.is_ok() {
-                    if let Ok(json) = res
-                        .expect("Failed to get response from GitHub")
-                        .json::<serde_json::Value>()
-                    {
+                let mut body = Vec::new();
+                let res = http_req::request::get(s, &mut body)
+                    .expect("Failed to get response from GitHub");
+                if res.status_code().is_success() {
+                    if let Ok(json) = serde_json::from_str(
+                        &String::from_utf8(body).expect("Response body was not valid UTF-8"),
+                    ) {
                         Some(json)
                     } else {
                         None

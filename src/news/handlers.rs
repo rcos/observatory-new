@@ -1,11 +1,10 @@
-use std::io::Cursor;
-
 use diesel::prelude::*;
 use diesel::{delete, insert_into, update};
-use rocket::http::{ContentType, Status};
 use rocket::request::Form;
-use rocket::response::{Redirect, Response};
+use rocket::response::Redirect;
 
+use rocket::http::ContentType;
+use rocket::response::Content;
 use rocket_contrib::json::Json;
 
 use crate::guards::*;
@@ -38,7 +37,7 @@ pub fn news_json(conn: ObservDbConn, _l: MaybeLoggedIn) -> Json<Vec<NewsStory>> 
 }
 
 #[get("/news.xml")]
-pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
+pub fn news_rss(conn: ObservDbConn) -> Content<String> {
     use crate::schema::news::dsl::*;
     use rss;
 
@@ -73,11 +72,8 @@ pub fn news_rss(conn: ObservDbConn) -> Response<'static> {
         .expect("Failed to build RSS Channel")
         .to_string();
 
-    Response::build()
-        .status(Status::Ok)
-        .header(ContentType::XML)
-        .sized_body(Cursor::new(xml))
-        .finalize()
+    // RSS feeds have their own special mimetype
+    Content(ContentType::new("application", "rss+xml"), xml)
 }
 
 #[get("/news/<nid>")]
