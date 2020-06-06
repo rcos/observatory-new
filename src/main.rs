@@ -39,8 +39,9 @@ extern crate diesel_derive_newtype;
 
 #[macro_use]
 mod macros {
+    /// A simple macro for logging audit messages
     #[macro_export]
-    macro_rules! audit_logger {
+    macro_rules! audit_log {
         ($($arg:tt)*) => (
             $crate::info!(target: "{Audit}", "{}", format_args!($($arg)*));
         )
@@ -68,6 +69,8 @@ mod users;
 use flexi_logger::{opt_format, writers::FileLogWriter, LogTarget, Logger};
 use log::*;
 
+const LOG_DIR: &str = "logs";
+
 /// The database connection
 ///
 /// This struct is the wrapper for the database connection which
@@ -82,7 +85,7 @@ fn audit_writer() -> Box<FileLogWriter> {
             .suffix("log")
             .format(opt_format)
             .suppress_timestamp()
-            .directory("logs")
+            .directory(LOG_DIR)
             .append()
             .print_message()
             .try_build()
@@ -204,12 +207,13 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
 fn main() {
     Logger::with_env_or_str("info")
         .print_message()
-        .log_target(LogTarget::StdOut)
+        .log_to_file()
+        .directory(LOG_DIR)
         .add_writer("Audit", audit_writer())
         .start()
         .unwrap_or_else(|e| panic!("Logger initialization failed with {}", e));
 
-    audit_logger!("Audit Logger Initialized!");
+    audit_log!("Audit Logger Initialized!");
 
     // Liftoff! Starts the webserver
     rocket(None).launch();

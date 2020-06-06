@@ -272,7 +272,7 @@ pub fn event_new_post(
     }
     newevent.code = attendance_code(&*conn);
 
-    audit_logger!(
+    audit_log!(
         "User {} [{}] has generated an attendance code for Event \'{}\'",
         _admin.0.id,
         _admin.0.email,

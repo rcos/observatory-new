@@ -116,7 +116,7 @@ pub fn group_new_post(conn: ObservDbConn, _l: AdminGuard, newgroup: Form<NewGrou
         .execute(&*conn)
         .expect("Failed to insert relation into database");
 
-    audit_logger!(
+    audit_log!(
         "User {} [{}] has created Group {} \'{}\'",
         _l.0.id,
         _l.0.email,
@@ -197,7 +197,7 @@ pub fn meeting_new_post(
 ) -> Redirect {
     use crate::schema::groups::dsl::*;
 
-    audit_logger!(
+    audit_log!(
         "User {} [{}] has generated an attendance code for Group {}",
         l.0.id,
         l.0.email,
@@ -303,7 +303,7 @@ pub fn group_user_add_post(
                 .execute(&*conn)
                 .expect("Failed to insert new relation into database");
 
-            audit_logger!(
+            audit_log!(
                 "User {} [{}] has added User {} to Group {}",
                 l.0.id,
                 l.0.email,
