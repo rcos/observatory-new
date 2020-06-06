@@ -66,10 +66,10 @@ mod news;
 mod projects;
 mod users;
 
-use flexi_logger::{opt_format, writers::FileLogWriter, LogTarget, Logger};
+use flexi_logger::{opt_format, writers::FileLogWriter, Logger};
 use log::*;
 
-const LOG_DIR: &str = "logs";
+pub(crate) const LOG_DIR: &str = "logs";
 
 /// The database connection
 ///
@@ -118,12 +118,14 @@ pub fn rocket(test_config: Option<rocket::Config>) -> rocket::Rocket {
         .mount(
             "/",
             routes![
+                // Misc
                 index,
                 big,
                 staticfile,
                 favicon,
                 dashboard,
                 sitemap,
+                log_viewer,
                 // Calendar
                 calendar,
                 calendar_json,
@@ -210,6 +212,11 @@ fn main() {
         .log_to_file()
         .directory(LOG_DIR)
         .add_writer("Audit", audit_writer())
+        .duplicate_to_stderr(if cfg!(debug_assertions) {
+            flexi_logger::Duplicate::All
+        } else {
+            flexi_logger::Duplicate::Warn
+        })
         .start()
         .unwrap_or_else(|e| panic!("Logger initialization failed with {}", e));
 

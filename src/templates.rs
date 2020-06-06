@@ -57,10 +57,17 @@ pub struct DashboardTemplate {
     pub summary: GradeSummary,
 }
 
+#[derive(Template)]
+#[template(path = "log-viewer.html")]
+pub struct LogViewerTemplate {
+    pub logged_in: OptUser,
+    pub log_files: Vec<String>,
+    pub file_text: Option<String>,
+}
+
 /// Site Map template
 ///
 /// HTML File: `sitemap.html`
-
 #[derive(Template)]
 #[template(path = "sitemap.html")]
 pub struct SitemapTemplate {}
