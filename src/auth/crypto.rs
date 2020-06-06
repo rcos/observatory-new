@@ -3,13 +3,14 @@
 //! This module handles the encryption and verification of user passwords.
 //! Uses the [`ring`](https://crates.io/crates/ring) library to do encryption.
 
+use std::num::NonZeroU32;
 use ring::rand::{SecureRandom, SystemRandom};
 use ring::{digest, pbkdf2};
 use rocket::http::RawStr;
 use rocket::request::FromFormValue;
 
-const N_ITER: u32 = 100_000;
 const CRE_LEN: usize = digest::SHA512_256_OUTPUT_LEN;
+static ALGORITHM: pbkdf2::Algorithm = pbkdf2::PBKDF2_HMAC_SHA512;
 
 /// A newtype struct wrapping around a `String`
 /// that is used by a number of cryptography functions
@@ -69,8 +70,8 @@ pub fn hash_password<T: AsRef<str>>(pass: T) -> (UnsafeBinaryString, UnsafeBinar
     // Derive the password hash
     let mut out = [0u8; CRE_LEN];
     pbkdf2::derive(
-        &digest::SHA512,
-        N_ITER,
+        ALGORITHM,
+        NonZeroU32::new(100_000).unwrap(),
         &salt as &[u8],
         pass.as_ref().as_bytes(),
         &mut out,
@@ -95,8 +96,8 @@ pub fn verify_password(
     salt: UnsafeBinaryString,
 ) -> bool {
     pbkdf2::verify(
-        &digest::SHA512,
-        N_ITER,
+        ALGORITHM,
+        NonZeroU32::new(100_000).unwrap(),
         salt.as_bytes(),
         pass.as_bytes(),
         compare_to.as_bytes(),
