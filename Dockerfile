@@ -8,8 +8,8 @@
 
 # --- Docker Build Stage 1 ---
 
-# Uses the official rust nightly builder
-FROM rustlang/rust:nightly as builder
+# Uses the muslrust image to compile with musl for Alpine
+FROM clux/muslrust:nightly as builder
 
 # Copy in all the source files and switch to it
 COPY . /build/
@@ -19,21 +19,18 @@ WORKDIR /build/
 RUN cargo build --release
 
 # Strip debug symbols out of binary
-RUN strip /build/target/release/observatory
+RUN strip /build/target/x86_64-unknown-linux-musl/release/observatory
 
 # --- Docker Build Stage 2 ---
 
-# Use Debian Slim for it's small footprint.
-FROM debian:stable-slim
+# Use Alpine for it's small footprint.
+FROM alpine
 
 # Set the workdir
 WORKDIR /
 
-# Install OpenSSL
-RUN apt-get -qq update && apt-get -qq install openssl -y 
-
 # Create a new user
-RUN useradd -md /home/observatory -r observatory
+RUN adduser -h /home/observatory -S observatory
 
 # Create the user's home folder and move to it
 WORKDIR /home/observatory
@@ -48,7 +45,7 @@ RUN chown -R observatory /var/lib/observatory/
 USER observatory
 
 # Copy in the binary from the builder
-COPY --from=builder /build/target/release/observatory .
+COPY --from=builder /build/target/x86_64-unknown-linux-musl/release/observatory .
 
 # Expose the HTTP port
 EXPOSE 8000
