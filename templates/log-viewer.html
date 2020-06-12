@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+  {% for file in log_files %}
+  <li><a href="?file={{ file }}">{{ file }}</a></li>
+  {% endfor %}
+</ul>
+
+{% match file_text %}
+{% when Some with (text) %}
+<pre>
+{{ text }}
+</pre>
+{% when None %}
+{% endmatch %}
+{% endblock %}

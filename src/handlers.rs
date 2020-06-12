@@ -2,6 +2,7 @@
 //!
 //! These routes don't belong in any other category so are put here.
 
+use std::fs::read_to_string;
 use std::io::Cursor;
 use std::path::PathBuf;
 
@@ -70,6 +71,33 @@ pub fn dashboard(conn: ObservDbConn, l: UserGuard) -> DashboardTemplate {
 #[get("/sitemap")]
 pub fn sitemap() -> SitemapTemplate {
     SitemapTemplate {}
+}
+
+/// GET handler for viewing log files
+///
+/// Restricted to admins only
+#[get("/logs?<file>")]
+pub fn log_viewer(
+    _conn: ObservDbConn,
+    l: AdminGuard,
+    file: Option<String>,
+) -> std::io::Result<LogViewerTemplate> {
+    let log_dir = PathBuf::from(crate::LOG_DIR);
+    let file_text = file.and_then(|file| {
+        log_dir
+            .join(file)
+            .canonicalize()
+            .and_then(|path| read_to_string(path))
+            .ok()
+    });
+    Ok(LogViewerTemplate {
+        logged_in: Some(l.0),
+        log_files: log_dir
+            .read_dir()?
+            .map(|f| f.unwrap().file_name().into_string().unwrap())
+            .collect(),
+        file_text,
+    })
 }
 
 // The access point for rust-embed.
