@@ -11,7 +11,7 @@ askama-filters = { version = "^0.1.3", features = ["markdown"] }
 chrono = { version = "^0.4.10", features = ["serde"] }
 diesel = { version = "^1.4.3", features = ["sqlite", "chrono"] }
 diesel_migrations = "^1.4.0"
-flexi_logger = { version = "^0.15.0", features = ["specfile"] }
+flexi_logger = { version = "^0.16.1", features = ["specfile"] }
 icalendar = "^0.9.0"
 log = "^0.4.8"
 diesel-derive-newtype = "^0.1.2"
