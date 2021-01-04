@@ -59,6 +59,7 @@ pub fn attendance_code(conn: &SqliteConnection) -> String {
 pub fn gen_code() -> String {
     thread_rng()
         .sample_iter(&Alphanumeric)
+        .map(char::from)
         .take(6)
         .collect::<String>()
         .to_lowercase()
