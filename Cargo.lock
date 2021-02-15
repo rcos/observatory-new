@@ -690,9 +690,9 @@ dependencies = [
 
 [[package]]
 name = "icalendar"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "246d9eb8ae541ca077ff2b4fda671cb8ec7aaa8dabafdb61b48f745e77f86181"
+checksum = "a9ef924cc883333ecdc23b8c4a677119ec6a2db9ef7748a2ae74e77c91ef14df"
 dependencies = [
  "chrono",
  "uuid",
